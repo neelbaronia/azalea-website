@@ -36,7 +36,7 @@
 
         .ascii-art {
             font-family: 'Courier New', monospace;
-            font-size: 8px;
+            font-size: 6px;
             line-height: 1;
             white-space: pre;
             color: #fff8f0;
@@ -45,10 +45,12 @@
             user-select: none;
             transition: opacity 0.3s ease;
             position: absolute;
-            top: 50%;
+            top: 30%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(2);
+            transform: translate(-50%, -50%) scale(1.5);
             transform-origin: center;
+            max-height: 60vh;
+            overflow: hidden;
         }
 
         .ascii-art.paused {
@@ -63,7 +65,7 @@
             font-size: 16px;
             font-weight: 300;
             font-style: italic;
-            color: #fff8f0;
+            color: #000000;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 248, 240, 0.2);
             opacity: 0.8;
             z-index: 10;
@@ -80,7 +82,7 @@
             font-size: 24px;
             font-weight: 300;
             letter-spacing: 8px;
-            color: #fff8f0;
+            color: #000000;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 248, 240, 0.3);
             opacity: 0.9;
             z-index: 10;
@@ -101,6 +103,7 @@
             bottom: 40px;
             right: 40px;
             display: flex;
+            flex-direction: column;
             gap: 8px;
             z-index: 10;
         }
@@ -145,8 +148,10 @@
 
         @media (max-width: 768px) {
             .ascii-art {
-                font-size: 6px;
-                transform: translate(-50%, -50%) scale(1.5);
+                font-size: 4px;
+                transform: translate(-50%, -50%) scale(1.2);
+                top: 25%;
+                max-height: 50vh;
             }
             
             .brand {
@@ -163,8 +168,10 @@
 
         @media (max-width: 480px) {
             .ascii-art {
-                font-size: 4px;
-                transform: translate(-50%, -50%) scale(1.2);
+                font-size: 3px;
+                transform: translate(-50%, -50%) scale(1);
+                top: 20%;
+                max-height: 40vh;
             }
         }
     </style>
