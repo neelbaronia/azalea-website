@@ -36,7 +36,7 @@
 
         .ascii-art {
             font-family: 'Courier New', monospace;
-            font-size: 8px;
+            font-size: 9px;
             line-height: 1;
             white-space: pre;
             color: #fff8f0;
@@ -47,7 +47,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(1.2);
+            transform: translate(-50%, -50%) scale(1.3);
             transform-origin: center;
             max-height: 50vh;
             overflow: hidden;
@@ -150,7 +150,6 @@
             z-index: 10;
         }
 
-
         .palette-switcher {
             position: absolute;
             bottom: 40px;
@@ -183,94 +182,53 @@
             transform: scale(1.2);
         }
 
-        .palette-sunset {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 50%, #ff6b9d 100%);
+        .palette-tooltip {
+            position: absolute;
+            right: 80px;
+            bottom: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            text-transform: capitalize;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 20;
         }
 
-        .palette-lavender {
-            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #ec4899 100%);
+        .palette-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .palette-forest {
-            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #84cc16 100%);
-        }
-
-        .palette-ocean {
-            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #06b6d4 100%);
-        }
-
-        .palette-cosmic {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-        }
-
-        .palette-cyberpunk {
-            background: linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
-        }
-
-        .palette-neon {
-            background: linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%);
-        }
-
-        .palette-gothic {
-            background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%);
-        }
-
-        .palette-matrix {
-            background: linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%);
-        }
+        /* Palette backgrounds - consolidated */
+        .palette-sunset { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 50%, #ff6b9d 100%); }
+        .palette-lavender { background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #ec4899 100%); }
+        .palette-forest { background: linear-gradient(135deg, #059669 0%, #10b981 50%, #84cc16 100%); }
+        .palette-ocean { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #06b6d4 100%); }
+        .palette-cosmic { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); }
+        .palette-cyberpunk { background: linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%); }
+        .palette-neon { background: linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%); }
+        .palette-gothic { background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%); }
+        .palette-matrix { background: linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%); }
 
         @media (max-width: 768px) {
-            .ascii-art {
-                font-size: 6px;
-                transform: translate(-50%, -50%) scale(1);
-                top: 50%;
-                max-height: 40vh;
-            }
-            
-            .quote {
-                font-size: 14px;
-                top: 15px;
-            }
-            
-            .brand {
-                font-size: 16px;
-                letter-spacing: 4px;
-                top: 60px;
-            }
-            
-            .coming-soon {
-                font-size: 10px;
-            }
-            
-            .status {
-                top: 20px;
-                right: 20px;
-                font-size: 10px;
-            }
+            .ascii-art { font-size: 7px; transform: translate(-50%, -50%) scale(1.1); top: 50%; max-height: 40vh; }
+            .quote { font-size: 14px; top: 15px; }
+            .brand { font-size: 16px; letter-spacing: 4px; top: 60px; }
+            .coming-soon { font-size: 10px; }
+            .status { top: 20px; right: 20px; font-size: 10px; }
         }
 
         @media (max-width: 480px) {
-            .ascii-art {
-                font-size: 4px;
-                transform: translate(-50%, -50%) scale(0.8);
-                top: 50%;
-                max-height: 30vh;
-            }
-            
-            .quote {
-                font-size: 12px;
-                top: 10px;
-            }
-            
-            .brand {
-                font-size: 14px;
-                letter-spacing: 3px;
-                top: 50px;
-            }
-            
-            .coming-soon {
-                font-size: 9px;
-            }
+            .ascii-art { font-size: 5px; transform: translate(-50%, -50%) scale(0.9); top: 50%; max-height: 30vh; }
+            .quote { font-size: 12px; top: 10px; }
+            .brand { font-size: 14px; letter-spacing: 3px; top: 50px; }
+            .coming-soon { font-size: 9px; }
         }
     </style>
 </head>
@@ -294,6 +252,7 @@
             <div class="palette-btn palette-gothic" data-palette="gothic"></div>
             <div class="palette-btn palette-matrix" data-palette="matrix"></div>
         </div>
+        <div class="palette-tooltip" id="paletteTooltip"></div>
     </div>
 
     <script>
@@ -305,24 +264,30 @@
                 this.cycleInterval = null;
                 this.currentFrame = 0;
                 this.width = 120;
-                this.contrast = 1.2;
                 
-                this.initializeElements();
+                // Cache DOM elements
+                this.elements = {
+                    asciiArt: document.getElementById('asciiArt'),
+                    status: document.getElementById('status'),
+                    paletteButtons: document.querySelectorAll('.palette-btn'),
+                    quote: document.querySelector('.quote'),
+                    brand: document.querySelector('.brand'),
+                    comingSoon: document.querySelector('.coming-soon'),
+                    tooltip: document.getElementById('paletteTooltip')
+                };
+                
+                // Pre-calculate character mappings
+                this.charMapping = {};
+                for (let i = 0; i < this.asciiChars.length; i++) {
+                    this.charMapping[this.asciiChars[i]] = i;
+                }
+                
                 this.setupEventListeners();
                 this.loadDefaultImage();
             }
 
-            initializeElements() {
-                this.asciiArt = document.getElementById('asciiArt');
-                this.status = document.getElementById('status');
-                this.paletteButtons = document.querySelectorAll('.palette-btn');
-                this.currentPalette = 'sunset';
-            }
-
             setupEventListeners() {
-                // Click anywhere to pause/resume
                 document.addEventListener('click', (e) => {
-                    // Don't pause if clicking on palette buttons, text container, or any text elements
                     if (!e.target.classList.contains('palette-btn') && 
                         !e.target.classList.contains('text-container') &&
                         !e.target.classList.contains('coming-soon') &&
@@ -332,8 +297,7 @@
                     }
                 });
 
-                // Palette switcher
-                this.paletteButtons.forEach(btn => {
+                this.elements.paletteButtons.forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.switchPalette(btn.dataset.palette);
@@ -342,106 +306,76 @@
             }
 
             loadDefaultImage() {
-                // Load the default Azalea logo
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
                 img.onload = () => {
-                    this.currentImage = img;
-                    this.generateASCII();
+                    this.generateASCII(img);
                     this.startCycling();
                 };
                 img.src = './Stylized Azalea Logo Design.png';
             }
 
-            generateASCII() {
-                if (!this.currentImage) return;
-
+            generateASCII(img) {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Calculate height maintaining aspect ratio
-                const aspectRatio = this.currentImage.height / this.currentImage.width;
-                const height = Math.floor(this.width * aspectRatio * 0.5); // 0.5 for character aspect ratio
+                const aspectRatio = img.height / img.width;
+                const height = Math.floor(this.width * aspectRatio * 0.5);
                 
                 canvas.width = this.width;
                 canvas.height = height;
                 
-                // Draw and process image
-                ctx.drawImage(this.currentImage, 0, 0, this.width, height);
+                ctx.drawImage(img, 0, 0, this.width, height);
                 const imageData = ctx.getImageData(0, 0, this.width, height);
                 
-                // Pre-calculate character mapping for performance
+                // Pre-calculate character mapping
                 const charMap = [];
                 for (let i = 0; i < 256; i++) {
-                    const adjustedGray = Math.min(255, Math.max(0, (i - 128) * this.contrast + 128));
-                    const charIndex = Math.floor((adjustedGray / 255) * (this.asciiChars.length - 1));
+                    const charIndex = Math.floor((i / 255) * (this.asciiChars.length - 1));
                     charMap[i] = this.asciiChars[charIndex];
                 }
                 
                 let ascii = '';
                 const data = imageData.data;
                 
-                // Optimized loop with pre-calculated mapping
                 for (let y = 0; y < height; y++) {
                     for (let x = 0; x < this.width; x++) {
                         const pixelIndex = (y * this.width + x) * 4;
-                        const r = data[pixelIndex];
-                        const g = data[pixelIndex + 1];
-                        const b = data[pixelIndex + 2];
-                        
-                        // Convert to grayscale and use pre-calculated mapping
-                        const gray = Math.floor((r + g + b) / 3);
+                        const gray = Math.floor((data[pixelIndex] + data[pixelIndex + 1] + data[pixelIndex + 2]) / 3);
                         ascii += charMap[gray];
                     }
                     ascii += '\n';
                 }
                 
-                this.asciiArt.textContent = ascii;
+                this.elements.asciiArt.textContent = ascii;
                 this.originalASCII = ascii;
             }
 
             toggleCycling() {
-                if (this.isCycling) {
-                    this.stopCycling();
-                } else {
-                    this.startCycling();
-                }
+                this.isCycling ? this.stopCycling() : this.startCycling();
             }
 
             startCycling() {
                 this.isCycling = true;
-                this.status.textContent = 'RUNNING';
-                this.asciiArt.classList.remove('paused');
+                this.elements.status.textContent = 'RUNNING';
+                this.elements.asciiArt.classList.remove('paused');
                 
-                this.cycleInterval = setInterval(() => {
-                    this.cycleCharacters();
-                }, 100);
+                this.cycleInterval = setInterval(() => this.cycleCharacters(), 100);
             }
 
             stopCycling() {
                 this.isCycling = false;
-                this.status.textContent = 'PAUSED';
-                this.asciiArt.classList.add('paused');
+                this.elements.status.textContent = 'PAUSED';
+                this.elements.asciiArt.classList.add('paused');
                 
                 if (this.cycleInterval) {
                     clearInterval(this.cycleInterval);
                     this.cycleInterval = null;
                 }
-                
-                // Keep current cycling characters - don't restore original ASCII
-                // The current text content remains as is
             }
 
             cycleCharacters() {
                 if (!this.originalASCII) return;
-                
-                // Pre-calculate character mappings for performance
-                if (!this.charMapping) {
-                    this.charMapping = {};
-                    for (let i = 0; i < this.asciiChars.length; i++) {
-                        this.charMapping[this.asciiChars[i]] = i;
-                    }
-                }
                 
                 let cycledASCII = '';
                 const original = this.originalASCII;
@@ -461,109 +395,58 @@
                     }
                 }
                 
-                this.asciiArt.textContent = cycledASCII;
+                this.elements.asciiArt.textContent = cycledASCII;
                 this.currentFrame = (this.currentFrame + 1) % this.cyclingChars.length;
             }
 
             switchPalette(paletteName) {
-                this.currentPalette = paletteName;
-                
                 // Update active button
-                this.paletteButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                });
+                this.elements.paletteButtons.forEach(btn => btn.classList.remove('active'));
                 document.querySelector(`[data-palette="${paletteName}"]`).classList.add('active');
                 
-                // Define palettes
+                // Show tooltip with palette name
+                this.showTooltip(paletteName);
+                
+                // Palette definitions
                 const palettes = {
-                    sunset: {
-                        background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8e53 50%, #ff6b9d 100%)',
-                        textColor: '#fff8f0',
-                        textShadow: '0 0 20px rgba(255, 248, 240, 0.6), 0 0 40px rgba(255, 215, 0, 0.3)',
-                        brandShadow: '0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 248, 240, 0.3)',
-                        statusColor: 'rgba(255, 248, 240, 0.7)'
-                    },
-                    lavender: {
-                        background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #ec4899 100%)',
-                        textColor: '#f3e8ff',
-                        textShadow: '0 0 20px rgba(243, 232, 255, 0.6), 0 0 40px rgba(196, 181, 253, 0.3)',
-                        brandShadow: '0 0 20px rgba(196, 181, 253, 0.5), 0 0 40px rgba(243, 232, 255, 0.3)',
-                        statusColor: 'rgba(243, 232, 255, 0.7)'
-                    },
-                    forest: {
-                        background: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #84cc16 100%)',
-                        textColor: '#f0fdf4',
-                        textShadow: '0 0 20px rgba(240, 253, 244, 0.6), 0 0 40px rgba(134, 204, 22, 0.3)',
-                        brandShadow: '0 0 20px rgba(134, 204, 22, 0.5), 0 0 40px rgba(240, 253, 244, 0.3)',
-                        statusColor: 'rgba(240, 253, 244, 0.7)'
-                    },
-                    ocean: {
-                        background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #06b6d4 100%)',
-                        textColor: '#f0fdfa',
-                        textShadow: '0 0 20px rgba(240, 253, 250, 0.6), 0 0 40px rgba(6, 182, 212, 0.3)',
-                        brandShadow: '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(240, 253, 250, 0.3)',
-                        statusColor: 'rgba(240, 253, 250, 0.7)'
-                    },
-                    cosmic: {
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
-                        textColor: '#f8fafc',
-                        textShadow: '0 0 20px rgba(248, 250, 252, 0.6), 0 0 40px rgba(99, 102, 241, 0.3)',
-                        brandShadow: '0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(248, 250, 252, 0.3)',
-                        statusColor: 'rgba(248, 250, 252, 0.7)'
-                    },
-                    cyberpunk: {
-                        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)',
-                        textColor: '#00ff41',
-                        textShadow: '0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 255, 65, 0.4), 0 0 60px rgba(0, 255, 65, 0.2)',
-                        brandShadow: '0 0 20px rgba(0, 255, 65, 0.9), 0 0 40px rgba(0, 255, 65, 0.5), 0 0 60px rgba(0, 255, 65, 0.3)',
-                        statusColor: 'rgba(0, 255, 65, 0.8)'
-                    },
-                    neon: {
-                        background: 'linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%)',
-                        textColor: '#ffffff',
-                        textShadow: '0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 0, 128, 0.6), 0 0 60px rgba(255, 0, 128, 0.4)',
-                        brandShadow: '0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 0, 128, 0.7), 0 0 60px rgba(255, 0, 128, 0.5)',
-                        statusColor: 'rgba(255, 255, 255, 0.9)'
-                    },
-                    gothic: {
-                        background: 'linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%)',
-                        textColor: '#d4af37',
-                        textShadow: '0 0 20px rgba(212, 175, 55, 0.7), 0 0 40px rgba(212, 175, 55, 0.4), 0 0 60px rgba(139, 69, 19, 0.3)',
-                        brandShadow: '0 0 20px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.5), 0 0 60px rgba(139, 69, 19, 0.4)',
-                        statusColor: 'rgba(212, 175, 55, 0.8)'
-                    },
-                    matrix: {
-                        background: 'linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%)',
-                        textColor: '#00ff00',
-                        textShadow: '0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.3)',
-                        brandShadow: '0 0 20px rgba(0, 255, 0, 0.9), 0 0 40px rgba(0, 255, 0, 0.6), 0 0 60px rgba(0, 255, 0, 0.4)',
-                        statusColor: 'rgba(0, 255, 0, 0.8)'
-                    }
+                    sunset: { bg: 'linear-gradient(135deg, #ff6b6b 0%, #ff8e53 50%, #ff6b9d 100%)', color: '#fff8f0', shadow: '0 0 20px rgba(255, 248, 240, 0.6), 0 0 40px rgba(255, 215, 0, 0.3)', status: 'rgba(255, 248, 240, 0.7)' },
+                    lavender: { bg: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #ec4899 100%)', color: '#f3e8ff', shadow: '0 0 20px rgba(243, 232, 255, 0.6), 0 0 40px rgba(196, 181, 253, 0.3)', status: 'rgba(243, 232, 255, 0.7)' },
+                    forest: { bg: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #84cc16 100%)', color: '#f0fdf4', shadow: '0 0 20px rgba(240, 253, 244, 0.6), 0 0 40px rgba(134, 204, 22, 0.3)', status: 'rgba(240, 253, 244, 0.7)' },
+                    ocean: { bg: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #06b6d4 100%)', color: '#f0fdfa', shadow: '0 0 20px rgba(240, 253, 250, 0.6), 0 0 40px rgba(6, 182, 212, 0.3)', status: 'rgba(240, 253, 250, 0.7)' },
+                    cosmic: { bg: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)', color: '#f8fafc', shadow: '0 0 20px rgba(248, 250, 252, 0.6), 0 0 40px rgba(99, 102, 241, 0.3)', status: 'rgba(248, 250, 252, 0.7)' },
+                    cyberpunk: { bg: 'linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)', color: '#00ff41', shadow: '0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 255, 65, 0.4), 0 0 60px rgba(0, 255, 65, 0.2)', status: 'rgba(0, 255, 65, 0.8)' },
+                    neon: { bg: 'linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%)', color: '#ffffff', shadow: '0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 0, 128, 0.6), 0 0 60px rgba(255, 0, 128, 0.4)', status: 'rgba(255, 255, 255, 0.9)' },
+                    gothic: { bg: 'linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%)', color: '#d4af37', shadow: '0 0 20px rgba(212, 175, 55, 0.7), 0 0 40px rgba(212, 175, 55, 0.4), 0 0 60px rgba(139, 69, 19, 0.3)', status: 'rgba(212, 175, 55, 0.8)' },
+                    matrix: { bg: 'linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%)', color: '#00ff00', shadow: '0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.3)', status: 'rgba(0, 255, 0, 0.8)' }
                 };
                 
                 const palette = palettes[paletteName];
                 
                 // Apply palette
-                document.body.style.background = palette.background;
-                this.asciiArt.style.color = palette.textColor;
-                this.asciiArt.style.textShadow = palette.textShadow;
+                document.body.style.background = palette.bg;
+                this.elements.asciiArt.style.color = palette.color;
+                this.elements.asciiArt.style.textShadow = palette.shadow;
+                this.elements.quote.style.color = palette.color;
+                this.elements.quote.style.textShadow = palette.shadow;
+                this.elements.brand.style.color = palette.color;
+                this.elements.brand.style.textShadow = palette.shadow;
+                this.elements.comingSoon.style.color = palette.color;
+                this.elements.comingSoon.style.textShadow = palette.shadow;
+                this.elements.status.style.color = palette.status;
+            }
+
+            showTooltip(paletteName) {
+                this.elements.tooltip.textContent = paletteName;
+                this.elements.tooltip.classList.add('show');
                 
-                // Apply to all text elements
-                document.querySelector('.quote').style.color = palette.textColor;
-                document.querySelector('.quote').style.textShadow = palette.brandShadow;
-                document.querySelector('.brand').style.color = palette.textColor;
-                document.querySelector('.brand').style.textShadow = palette.brandShadow;
-                document.querySelector('.coming-soon').style.color = palette.textColor;
-                document.querySelector('.coming-soon').style.textShadow = palette.brandShadow;
-                
-                this.status.style.color = palette.statusColor;
+                // Hide tooltip after 2 seconds
+                setTimeout(() => {
+                    this.elements.tooltip.classList.remove('show');
+                }, 2000);
             }
         }
 
-        // Initialize the ASCII Art Generator when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new ASCIIArtGenerator();
-        });
+        document.addEventListener('DOMContentLoaded', () => new ASCIIArtGenerator());
     </script>
 </body>
 </html>
