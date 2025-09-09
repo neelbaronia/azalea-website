@@ -194,7 +194,7 @@
         class ASCIIArtGenerator {
             constructor() {
                 this.asciiChars = '@%#*+=-:. ';
-                this.cyclingChars = '@%#*+=-:. ░▒▓█';
+                this.cyclingChars = '@%#*+=-:. ░▒▓█◊○●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿';
                 this.isCycling = true;
                 this.cycleInterval = null;
                 this.currentFrame = 0;
@@ -305,7 +305,7 @@
                 
                 this.cycleInterval = setInterval(() => {
                     this.cycleCharacters();
-                }, 50);
+                }, 100);
             }
 
             stopCycling() {
