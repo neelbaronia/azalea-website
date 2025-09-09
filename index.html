@@ -36,7 +36,7 @@
 
         .ascii-art {
             font-family: 'Courier New', monospace;
-            font-size: 6px;
+            font-size: 8px;
             line-height: 1;
             white-space: pre;
             color: #fff8f0;
@@ -45,11 +45,11 @@
             user-select: none;
             transition: opacity 0.3s ease;
             position: absolute;
-            top: 30%;
+            top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(1.5);
+            transform: translate(-50%, -50%) scale(1.2);
             transform-origin: center;
-            max-height: 60vh;
+            max-height: 50vh;
             overflow: hidden;
         }
 
@@ -57,35 +57,87 @@
             opacity: 0.3;
         }
 
-        .quote {
+        .text-container {
             position: absolute;
-            bottom: 50px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .quote {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Courier New', monospace;
             font-size: 16px;
             font-weight: 300;
             font-style: italic;
             color: #fff8f0;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 248, 240, 0.2);
             opacity: 0.8;
-            z-index: 10;
             text-align: center;
-            max-width: 600px;
             line-height: 1.4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            max-width: 600px;
+            z-index: 10;
+            text-decoration: none;
+        }
+
+        .quote:hover {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.05);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 248, 240, 0.4);
         }
 
         .brand {
             position: absolute;
-            bottom: 25px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
             font-weight: 300;
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             color: #fff8f0;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 248, 240, 0.3);
             opacity: 0.9;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
             z-index: 10;
+            text-decoration: none;
+        }
+
+        .brand:hover {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.05);
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.7), 0 0 50px rgba(255, 248, 240, 0.5);
+        }
+
+        .coming-soon {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #fff8f0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 248, 240, 0.2);
+            opacity: 0.7;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .coming-soon:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 248, 240, 0.4);
         }
 
         .status {
@@ -97,6 +149,7 @@
             opacity: 0.8;
             z-index: 10;
         }
+
 
         .palette-switcher {
             position: absolute;
@@ -111,7 +164,7 @@
         .palette-btn {
             width: 24px;
             height: 24px;
-            border-radius: 50%;
+            border-radius: 4px;
             border: 2px solid rgba(255, 248, 240, 0.3);
             cursor: pointer;
             transition: all 0.3s ease;
@@ -146,17 +199,47 @@
             background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #06b6d4 100%);
         }
 
+        .palette-cosmic {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+
+        .palette-cyberpunk {
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
+        }
+
+        .palette-neon {
+            background: linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%);
+        }
+
+        .palette-gothic {
+            background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%);
+        }
+
+        .palette-matrix {
+            background: linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%);
+        }
+
         @media (max-width: 768px) {
             .ascii-art {
-                font-size: 4px;
-                transform: translate(-50%, -50%) scale(1.2);
-                top: 25%;
-                max-height: 50vh;
+                font-size: 6px;
+                transform: translate(-50%, -50%) scale(1);
+                top: 50%;
+                max-height: 40vh;
+            }
+            
+            .quote {
+                font-size: 14px;
+                top: 15px;
             }
             
             .brand {
-                font-size: 18px;
+                font-size: 16px;
                 letter-spacing: 4px;
+                top: 60px;
+            }
+            
+            .coming-soon {
+                font-size: 10px;
             }
             
             .status {
@@ -168,10 +251,25 @@
 
         @media (max-width: 480px) {
             .ascii-art {
-                font-size: 3px;
-                transform: translate(-50%, -50%) scale(1);
-                top: 20%;
-                max-height: 40vh;
+                font-size: 4px;
+                transform: translate(-50%, -50%) scale(0.8);
+                top: 50%;
+                max-height: 30vh;
+            }
+            
+            .quote {
+                font-size: 12px;
+                top: 10px;
+            }
+            
+            .brand {
+                font-size: 14px;
+                letter-spacing: 3px;
+                top: 50px;
+            }
+            
+            .coming-soon {
+                font-size: 9px;
             }
         }
     </style>
@@ -180,13 +278,21 @@
     <div class="container">
         <div class="status" id="status">RUNNING</div>
         <div id="asciiArt" class="ascii-art"></div>
-        <div class="quote">"What is reading but silent conversation?" -Walter Savage Landor</div>
-        <div class="brand">AZALEA LABS</div>
+        <a href="mailto:neel@azalea-labs.com?subject=Quote Inquiry&body=Hi, I'm interested in learning more about Azalea Labs after seeing your quote: 'What is reading but silent conversation?' -Walter Savage Landor" class="quote">"What is reading but silent conversation?" -Walter Savage Landor</a>
+        <a href="mailto:neel@azalea-labs.com?subject=Brand Inquiry&body=Hi, I'm interested in learning more about Azalea Labs." class="brand">AZALEA LABS</a>
+        <div class="text-container">
+            <a href="mailto:neel@azalea-labs.com?subject=Early Access Interest&body=Hi, I'm interested in early access to Azalea Labs. Please keep me updated!" class="coming-soon">coming early 2026</a>
+        </div>
         <div class="palette-switcher">
             <div class="palette-btn palette-sunset active" data-palette="sunset"></div>
             <div class="palette-btn palette-lavender" data-palette="lavender"></div>
             <div class="palette-btn palette-forest" data-palette="forest"></div>
             <div class="palette-btn palette-ocean" data-palette="ocean"></div>
+            <div class="palette-btn palette-cosmic" data-palette="cosmic"></div>
+            <div class="palette-btn palette-cyberpunk" data-palette="cyberpunk"></div>
+            <div class="palette-btn palette-neon" data-palette="neon"></div>
+            <div class="palette-btn palette-gothic" data-palette="gothic"></div>
+            <div class="palette-btn palette-matrix" data-palette="matrix"></div>
         </div>
     </div>
 
@@ -194,7 +300,7 @@
         class ASCIIArtGenerator {
             constructor() {
                 this.asciiChars = '@%#*+=-:. ';
-                this.cyclingChars = '@%#*+=-:. ░▒▓█◊○●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+                this.cyclingChars = '¡œ∑¥ˆåß◻◼◽◾◿αμνξοφχψωΧ√∫И@%#*+=-:. ░▒▓█◜◝◞◟◠◡';
                 this.isCycling = true;
                 this.cycleInterval = null;
                 this.currentFrame = 0;
@@ -216,8 +322,12 @@
             setupEventListeners() {
                 // Click anywhere to pause/resume
                 document.addEventListener('click', (e) => {
-                    // Don't pause if clicking on palette buttons
-                    if (!e.target.classList.contains('palette-btn')) {
+                    // Don't pause if clicking on palette buttons, text container, or any text elements
+                    if (!e.target.classList.contains('palette-btn') && 
+                        !e.target.classList.contains('text-container') &&
+                        !e.target.classList.contains('coming-soon') &&
+                        !e.target.classList.contains('brand') &&
+                        !e.target.classList.contains('quote')) {
                         this.toggleCycling();
                     }
                 });
@@ -318,10 +428,8 @@
                     this.cycleInterval = null;
                 }
                 
-                // Restore original ASCII
-                if (this.originalASCII) {
-                    this.asciiArt.textContent = this.originalASCII;
-                }
+                // Keep current cycling characters - don't restore original ASCII
+                // The current text content remains as is
             }
 
             cycleCharacters() {
@@ -395,6 +503,41 @@
                         textShadow: '0 0 20px rgba(240, 253, 250, 0.6), 0 0 40px rgba(6, 182, 212, 0.3)',
                         brandShadow: '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(240, 253, 250, 0.3)',
                         statusColor: 'rgba(240, 253, 250, 0.7)'
+                    },
+                    cosmic: {
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                        textColor: '#f8fafc',
+                        textShadow: '0 0 20px rgba(248, 250, 252, 0.6), 0 0 40px rgba(99, 102, 241, 0.3)',
+                        brandShadow: '0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(248, 250, 252, 0.3)',
+                        statusColor: 'rgba(248, 250, 252, 0.7)'
+                    },
+                    cyberpunk: {
+                        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)',
+                        textColor: '#00ff41',
+                        textShadow: '0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 255, 65, 0.4), 0 0 60px rgba(0, 255, 65, 0.2)',
+                        brandShadow: '0 0 20px rgba(0, 255, 65, 0.9), 0 0 40px rgba(0, 255, 65, 0.5), 0 0 60px rgba(0, 255, 65, 0.3)',
+                        statusColor: 'rgba(0, 255, 65, 0.8)'
+                    },
+                    neon: {
+                        background: 'linear-gradient(135deg, #ff0080 0%, #ff4081 25%, #e91e63 50%, #c2185b 75%, #ad1457 100%)',
+                        textColor: '#ffffff',
+                        textShadow: '0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 0, 128, 0.6), 0 0 60px rgba(255, 0, 128, 0.4)',
+                        brandShadow: '0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 0, 128, 0.7), 0 0 60px rgba(255, 0, 128, 0.5)',
+                        statusColor: 'rgba(255, 255, 255, 0.9)'
+                    },
+                    gothic: {
+                        background: 'linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c2a 50%, #5d4037 75%, #6d4c41 100%)',
+                        textColor: '#d4af37',
+                        textShadow: '0 0 20px rgba(212, 175, 55, 0.7), 0 0 40px rgba(212, 175, 55, 0.4), 0 0 60px rgba(139, 69, 19, 0.3)',
+                        brandShadow: '0 0 20px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.5), 0 0 60px rgba(139, 69, 19, 0.4)',
+                        statusColor: 'rgba(212, 175, 55, 0.8)'
+                    },
+                    matrix: {
+                        background: 'linear-gradient(135deg, #000000 0%, #001100 25%, #003300 50%, #004400 75%, #005500 100%)',
+                        textColor: '#00ff00',
+                        textShadow: '0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.3)',
+                        brandShadow: '0 0 20px rgba(0, 255, 0, 0.9), 0 0 40px rgba(0, 255, 0, 0.6), 0 0 60px rgba(0, 255, 0, 0.4)',
+                        statusColor: 'rgba(0, 255, 0, 0.8)'
                     }
                 };
                 
@@ -404,10 +547,15 @@
                 document.body.style.background = palette.background;
                 this.asciiArt.style.color = palette.textColor;
                 this.asciiArt.style.textShadow = palette.textShadow;
-                document.querySelector('.brand').style.color = palette.textColor;
-                document.querySelector('.brand').style.textShadow = palette.brandShadow;
+                
+                // Apply to all text elements
                 document.querySelector('.quote').style.color = palette.textColor;
                 document.querySelector('.quote').style.textShadow = palette.brandShadow;
+                document.querySelector('.brand').style.color = palette.textColor;
+                document.querySelector('.brand').style.textShadow = palette.brandShadow;
+                document.querySelector('.coming-soon').style.color = palette.textColor;
+                document.querySelector('.coming-soon').style.textShadow = palette.brandShadow;
+                
                 this.status.style.color = palette.statusColor;
             }
         }
