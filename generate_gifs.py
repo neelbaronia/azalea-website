@@ -3,6 +3,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import re
+import random
 
 # Color palettes with character sets
 palettes = {
@@ -131,6 +132,48 @@ for palette_name, palette in palettes.items():
     num_frames = len(cycling_chars)
     frames = []
     
+    # Randomly select position for this palette (ensures it doesn't overflow or cover center)
+    brand_text = "AZALEA STUDIOS"
+    text_length = len(brand_text)
+    
+    # Calculate safe zones - avoid middle 2 quarters (center half) of image
+    quarter_col = ascii_width // 4
+    quarter_row = ascii_height // 4
+    
+    # Middle 2 quarters span from 1/4 to 3/4 of the image
+    center_start_col = quarter_col
+    center_end_col = quarter_col * 3
+    center_start_row = quarter_row
+    center_end_row = quarter_row * 3
+    
+    # Choose random position that:
+    # 1. Doesn't overflow the bottom (accounting for spacing)
+    # 2. Avoids the middle 2 quarters (center half) of the image
+    max_row = ascii_height - (text_length * 2) - 2  # Leave room for text
+    max_col = ascii_width - 5  # Leave some margin
+    
+    # Choose row: either in top quarter or bottom quarter
+    if max_row > center_end_row:
+        start_row = random.choice([
+            random.randint(2, center_start_row - 2),  # Top quarter
+            random.randint(center_end_row + 2, max_row)  # Bottom quarter
+        ])
+    else:
+        # If not enough space, prefer top quarter
+        start_row = random.randint(2, min(center_start_row - 2, max_row))
+    
+    # Choose column: either in left quarter or right quarter
+    if max_col > center_end_col:
+        start_col = random.choice([
+            random.randint(2, center_start_col - 2),  # Left quarter
+            random.randint(center_end_col + 2, max_col)  # Right quarter
+        ])
+    else:
+        # If not enough space, prefer left quarter
+        start_col = random.randint(2, min(center_start_col - 2, max_col))
+    
+    print(f"   Text position: Column {start_col}, Row {start_row}")
+    
     for frame in range(num_frames):
         # Create image with background
         img_frame = Image.new('RGB', (img_width, img_height), bg_color)
@@ -152,6 +195,23 @@ for palette_name, palette in palettes.items():
         for line in ascii_art:
             draw.text((0, y_offset), line, fill=text_color, font=font)
             y_offset += char_height
+        
+        # Add "AZALEA STUDIOS" text vertically (non-cycling)
+        text_x = start_col * char_width
+        text_y = start_row * char_height
+        
+        # Draw background boxes to hide cycling characters behind each letter
+        for i, char in enumerate(brand_text):
+            char_x = text_x
+            char_y = text_y + (i * char_height * 2)  # Add 100% spacing between characters
+            # Extended box around each character to cover gaps
+            box_x = char_x - 2
+            box_y = char_y - 2
+            box_width = char_width + 4
+            box_height = char_height * 2  # Cover the character and the gap below
+            draw.rectangle([box_x, box_y, box_x + box_width, box_y + box_height], fill=bg_color)
+            # Draw the character
+            draw.text((char_x, char_y), char, fill=text_color, font=font)
         
         frames.append(img_frame)
     
