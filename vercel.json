@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/payout", "destination": "/index.html" },
+    { "source": "/payout/(.*)", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "cleanUrls": true
+}
+

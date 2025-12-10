@@ -1,0 +1,22 @@
+{
+  "title": "The Evolution of the Oil Industry",
+  "author": "Henry D. Lloyd",
+  "description": "From the first oil well drilled by Colonel Drake in 1859 to the battlefields of World War I, The Evolution of the Oil Industry chronicles the explosive rise of petroleum from an obscure natural curiosity to the lifeblood of civilization. In just six decades, a handful of visionary pioneers revolutionized transportation, manufacturing, and warfare—creating fortunes, building empires, and fundamentally reshaping how humanity lives, works, and fights. Written in 1920 at the dawn of the automotive age, this gripping account reveals how American ingenuity and enterprise turned chaos into order, waste into wealth, and transformed a nation into the world's industrial powerhouse.",
+  "coverImageName": "CoverOilIndustry.png",
+  "audioFileName": "Evolution of Oil Sample.mp3",
+  "duration": 16567,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Evolution of Oil Sample.mp3" },
+    { "title": "Chapter 8", "audioFileName": "Evolution of Oil Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "HistoryBuff", "rating": 4, "comment": "Fascinating look at industrial history." },
+    { "reviewer": "EconStudent", "rating": 5, "comment": "Essential reading for understanding energy economics." }
+  ]
+}

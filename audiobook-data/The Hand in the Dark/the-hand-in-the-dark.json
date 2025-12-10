@@ -1,0 +1,26 @@
+{
+  "title": "The Hand in the Dark",
+  "author": "Arthur J. Rees",
+  "description": "A gripping murder mystery set in an English country house. When a young bride is found murdered in her room, Detective Doolittle must unravel a web of secrets, jealousy, and hidden motives to find the killer.",
+  "coverImageName": "CoverHandInTheDark.png",
+  "audioFileName": "Hand in the Dark Sample.mp3",
+  "duration": 21600,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 8", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 9", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 10", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 11", "audioFileName": "Hand in the Dark Sample.mp3" },
+    { "title": "Chapter 12", "audioFileName": "Hand in the Dark Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "MysteryFan", "rating": 5, "comment": "One of the best classic mysteries I've encountered." },
+    { "reviewer": "CozyReader", "rating": 4, "comment": "Atmospheric and suspenseful throughout." }
+  ]
+}
