@@ -3,676 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azalea Publisher Dashboard</title>
+    <title>Azalea Labs</title>
     <style>
-        :root {
-            --bg: #f7f5f1;
-            --card: #ffffff;
-            --card-quiet: #f2f0eb;
-            --border: rgba(0,0,0,0.06);
-            --text: #1f1b2d;
-            --muted: #6c677a;
-            --accent: #a996e6;
-            --accent-2: #c9c0f2;
-            --success: #4ca883;
-            --warn: #c68b3c;
-            --shadow: 0 12px 32px rgba(17, 13, 33, 0.12);
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #050505;
+            color: #f0f0f0;
+            font-family: 'Courier New', Courier, monospace;
         }
-
-        * {
+        .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            z-index: 1;
+            image-rendering: pixelated;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 40%, #000 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .content {
+            position: relative;
+            z-index: 3;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 20px 40px;
             box-sizing: border-box;
         }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: radial-gradient(circle at 20% 20%, rgba(169,150,230,0.12), transparent 35%),
-                        radial-gradient(circle at 78% 18%, rgba(201,192,242,0.18), transparent 38%),
-                        radial-gradient(circle at 72% 72%, rgba(169,150,230,0.10), transparent 45%),
-                        var(--bg);
-            color: var(--text);
-            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-            padding: 28px 32px 56px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .shell {
-            width: 1200px;
-            max-width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .brand {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .brand-mark {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #b1a1e9, #c9c0f2);
-            box-shadow: 0 10px 30px rgba(169, 150, 230, 0.3);
-            background-image: url('./Stylized Azalea Logo Design.png');
-            background-size: 170%;
-            background-position: center;
-            background-repeat: no-repeat;
-            overflow: hidden;
-        }
-
         h1 {
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: 6px;
+            text-transform: uppercase;
             margin: 0;
-            font-size: 22px;
-            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
         }
-
-        .subtle {
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        select, input[type="number"], input[type="range"] {
-            background: var(--card-quiet);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 9px 10px;
-            font-size: 13px;
-            outline: none;
-        }
-
-        button {
-            background: linear-gradient(135deg, #b1a1e9, #c9c0f2);
-            border: none;
-            border-radius: 12px;
-            color: #1f1b2d;
-            padding: 10px 14px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 15px 35px rgba(169, 150, 230, 0.28);
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 15px 40px rgba(169, 150, 230, 0.32);
-        }
-
-        .panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 18px 18px 14px;
-            box-shadow: var(--shadow);
-        }
-
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 12px;
-        }
-
-        .kpi {
-            background: var(--card-quiet);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px;
-        }
-
-        .kpi .label {
-            font-size: 12px;
-            color: var(--muted);
-            letter-spacing: 0.4px;
-        }
-
-        .kpi .value {
-            font-size: 22px;
-            margin-top: 6px;
-            font-weight: 700;
-        }
-
-        .kpi .delta {
-            font-size: 12px;
-            color: var(--success);
-            margin-top: 4px;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 14px;
-            align-items: center;
-        }
-
-        .control {
-            background: var(--card-quiet);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 12px 12px;
-        }
-
-        .control label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-
-        .chart {
-            margin-top: 6px;
-            display: grid;
-            align-items: end;
-            gap: 8px;
-            height: 220px;
-        }
-
-        .bar {
-            background: linear-gradient(180deg, rgba(169,150,230,0.9), rgba(201,192,242,0.85));
-            border-radius: 10px 10px 8px 8px;
-            position: relative;
-            min-height: 4px;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-        }
-
-        .bar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-        }
-
-        .bar-label {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translate(-50%, -6px);
-            font-size: 11px;
-            color: var(--muted);
-            white-space: nowrap;
-        }
-
-        .bar-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translate(-50%, -12px);
-            background: #1f1b2d;
-            color: #f7f5f1;
-            padding: 6px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.12s ease, transform 0.12s ease;
-            white-space: nowrap;
-        }
-
-        .bar:hover .bar-tooltip {
-            opacity: 1;
-            transform: translate(-50%, -16px);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-
-        th {
-            color: var(--muted);
-            font-weight: 600;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: rgba(169, 150, 230, 0.08);
-            border: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .payout-card {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .payout-detail {
-            background: var(--card-quiet);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 12px;
+        .footer {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-        }
-
-        .book-row {
-            display: flex;
+            gap: 24px;
             align-items: center;
-            gap: 10px;
+            text-align: center;
         }
-
-        .cover {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background-size: cover;
-            background-position: center;
+        .tagline {
+            font-size: 14px;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            text-transform: uppercase;
         }
-
-        .legend {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 8px;
+        .sub-link {
+            color: rgba(255,255,255,0.3);
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
         }
-
-        .legend .pill {
-            padding: 6px 8px;
+        .sub-link:hover {
+            color: rgba(255,255,255,0.9);
+            border-bottom-color: rgba(255,255,255,0.5);
         }
-
-        @media (max-width: 720px) {
-            body { padding: 16px; }
-            header { flex-direction: column; align-items: flex-start; }
-            .chart { grid-template-columns: repeat(7, 1fr); }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 20px; letter-spacing: 4px; }
+            .content { padding-top: 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <header>
-            <div class="brand">
-                <div class="brand-mark"></div>
-                <div>
-                    <h1>Azalea Publisher Dashboard</h1>
-                    <div class="subtle">Listening time, revenue share, and payouts at-a-glance</div>
-                </div>
-            </div>
-            <div class="actions">
-                <select id="periodSelect">
-                    <option value="last_14">Last 14 days</option>
-                    <option value="last_30">Last 30 days</option>
-                    <option value="qtd">Quarter to date</option>
-                </select>
-                <button id="exportBtn">Export CSV</button>
-            </div>
-        </header>
-
-        <!-- Top period summary -->
-        <section class="panel">
-            <div class="kpi-grid" id="periodSummary"></div>
-        </section>
-
-        <section class="panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-                <div>
-                    <div class="subtle">Listening hours by day</div>
-                    <h2 style="margin:4px 0 0;font-size:18px;">Usage trend</h2>
-                </div>
-                <div class="legend">
-                    <div class="pill">Hours</div>
-                    <div class="pill">Hover to see value</div>
-                </div>
-            </div>
-            <div class="chart" id="hoursChart"></div>
-        </section>
-
-        <section class="panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <div class="subtle">Library</div>
-                    <h2 style="margin:4px 0 0;font-size:18px;">Books leaderboard</h2>
-                </div>
-                <div class="pill" id="bookCount"></div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Book</th>
-                        <th>Hours</th>
-                        <th>Unique subscribers</th>
-                        <th>Payout</th>
-                    </tr>
-                </thead>
-                <tbody id="booksTable"></tbody>
-            </table>
-        </section>
-
+    <img id="bg" class="bg" alt="">
+    <div class="overlay"></div>
+    <div class="content">
+        <h1>Azalea Labs</h1>
+        <div class="footer">
+            <div class="tagline">Mobile experience coming 2026</div>
+            <a href="./payout" class="sub-link">Publisher Dashboard</a>
+        </div>
     </div>
 
     <script>
-        const sources = [
-            { id: 'tarrano', jsonPath: './audiobook-data/Tarrano the Conqueror/tarrano-the-conqueror.json', coverPath: './audiobook-data/Tarrano the Conqueror/CoverTarranoTheConqueror.png' },
-            { id: 'oil', jsonPath: './audiobook-data/The Evolution of the Oil Industry/the-evolution-of-the-oil-industry.json', coverPath: './audiobook-data/The Evolution of the Oil Industry/CoverOilIndustry.png' },
-            { id: 'hand', jsonPath: './audiobook-data/The Hand in the Dark/the-hand-in-the-dark.json', coverPath: './audiobook-data/The Hand in the Dark/CoverHandInTheDark.png' },
-            { id: 'china', jsonPath: './audiobook-data/The International Development of China/the-international-development-of-china.json', coverPath: './audiobook-data/The International Development of China/CoverInternationalDevelopmentOfChina.png' },
-            { id: 'phantom', jsonPath: './audiobook-data/The Phantom Public/the-phantom-public.json', coverPath: './audiobook-data/The Phantom Public/CoverPhantomPublic.png' },
-            { id: 'red-seal', jsonPath: './audiobook-data/The Red Seal/the-red-seal.json', coverPath: './audiobook-data/The Red Seal/CoverRedSeal.png' },
-            { id: 'seven-sins', jsonPath: './audiobook-data/The Sign of the Seven Sins/the-sign-of-the-seven-sins.json', coverPath: './audiobook-data/The Sign of the Seven Sins/CoverSignOfTheSevenSins.png' }
-        ].map(item => ({
-            ...item,
-            jsonPath: encodeURI(item.jsonPath),
-            coverPath: encodeURI(item.coverPath)
-        }));
-
-        const assumptions = {
-            subscriptionPrice: 8.99,
-            avgHoursPerSubscriber: 17.5 // midpoint of 15-20 hours per period
-        };
-
-        const state = {
-            audiobooks: [],
-            metrics: [],
-            share: 0.5,
-            hourlyRate: assumptions.subscriptionPrice / assumptions.avgHoursPerSubscriber,
-            timeSeries: []
-        };
-
-        const $ = (id) => document.getElementById(id);
-
-        function createRng(seedStr) {
-            let seed = 0;
-            for (const ch of seedStr) {
-                seed = (seed << 5) - seed + ch.charCodeAt(0);
-            }
-            return () => {
-                seed ^= seed << 13;
-                seed ^= seed >>> 17;
-                seed ^= seed << 5;
-                return ((seed >>> 0) % 1000) / 1000;
-            };
-        }
-
-        async function loadAudiobooks() {
-            const books = [];
-            for (const src of sources) {
-                try {
-                    const res = await fetch(src.jsonPath);
-                    const json = await res.json();
-                    books.push({ ...json, id: src.id, coverPath: src.coverPath });
-                } catch (err) {
-                    console.error('Failed to load', src.jsonPath, err);
-                }
-            }
-            return books;
-        }
-
-        function buildMetrics(books) {
-            return books.map((book, idx) => {
-                const rng = createRng(book.title + idx);
-                const streams = Math.round(650 + rng() * 2200);
-                const completion = 0.35 + rng() * 0.35;
-                const listeners = Math.round(streams * (0.62 + rng() * 0.28));
-                const hours = (book.duration / 3600) * streams * completion * 0.3;
-                return {
-                    ...book,
-                    streams,
-                    completion,
-                    listeners,
-                    hours
-                };
-            });
-        }
-
-        function formatHours(hours) {
-            return `${hours.toFixed(1)}h`;
-        }
-
-        function formatMoney(value, currency = 'USD') {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-        }
-
-        function formatPercent(value) {
-            return `${Math.round(value * 100)}%`;
-        }
-
-        function aggregate(metrics, hourlyRate, share) {
-            let totalHours = 0;
-            let totalStreams = 0;
-            let totalListeners = 0;
-            let completionWeighted = 0;
-            let gross = 0;
-            let payout = 0;
-
-            metrics.forEach(m => {
-                totalHours += m.hours;
-                totalStreams += m.streams;
-                totalListeners += m.listeners;
-                completionWeighted += m.completion * m.streams;
-                gross += m.hours * hourlyRate;
-                payout += m.hours * hourlyRate * share;
-            });
-
-            const completion = totalStreams ? completionWeighted / totalStreams : 0;
-
-            return {
-                totalHours,
-                totalStreams,
-                totalListeners,
-                completion,
-                gross,
-                payout
-            };
-        }
-
-        function buildTimeSeries(totalHours, days) {
-            const rng = createRng('trend' + days);
-            const weights = Array.from({ length: days }, () => 0.5 + rng() * 1.2);
-            const weightSum = weights.reduce((a, b) => a + b, 0);
-            return weights.map((w, idx) => ({
-                label: `D${idx + 1}`,
-                hours: (w / weightSum) * totalHours
-            }));
-        }
-
-        function renderTable(metrics, pot, totalHours, currency) {
-            const rows = metrics
-                .sort((a, b) => b.hours - a.hours)
-                .map(m => {
-                    const payoutShare = totalHours ? m.hours / totalHours : 0;
-                    const payout = pot * payoutShare;
-                    return `
-                        <tr>
-                            <td>
-                                <div class="book-row">
-                                    <div class="cover" style="background-image:url('${m.coverPath}')"></div>
-                                    <div>
-                                        <div>${m.title}</div>
-                                        <div class="subtle">${m.author}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>${formatHours(m.hours)}</td>
-                            <td>${m.listeners.toLocaleString()}</td>
-                            <td>${formatMoney(payout, currency)}</td>
-                        </tr>
-                    `;
-                })
-                .join('');
-
-            const totalListeners = metrics.reduce((sum, m) => sum + m.listeners, 0);
-            const totalRow = `
-                <tr style="font-weight:700;">
-                    <td>Total</td>
-                    <td>${totalHours.toLocaleString(undefined, { maximumFractionDigits: 1 })}h</td>
-                    <td>${totalListeners.toLocaleString()}</td>
-                    <td>${formatMoney(pot, currency)}</td>
-                </tr>
-            `;
-
-            $('booksTable').innerHTML = rows + totalRow;
-            $('bookCount').textContent = `${metrics.length} titles`;
-        }
-
-        function renderChart(series) {
-            const max = Math.max(...series.map(p => p.hours), 1);
-            const count = series.length || 1;
-            $('hoursChart').style.gridTemplateColumns = `repeat(${count}, minmax(0, 1fr))`;
-            $('hoursChart').innerHTML = series.map(point => {
-                const height = Math.max((point.hours / max) * 100, 4);
-                const hoursText = point.hours.toLocaleString(undefined, { maximumFractionDigits: 1 });
-                return `
-                    <div class="bar" style="height:${height}%;">
-                        <div class="bar-tooltip">${point.label}: ${hoursText}h</div>
-                        <div class="bar-label">${point.label}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function getPeriodDays() {
-            const value = $('periodSelect').value;
-            if (value === 'last_14') return 14;
-            if (value === 'last_30') return 30;
-            return 90; // quarter to date default
-        }
-
-        function applyPeriodScale(metrics, scale) {
-            return metrics.map(m => ({
-                ...m,
-                hours: m.hours * scale,
-                streams: m.streams * scale,
-                listeners: m.listeners * scale
-            }));
-        }
-
-        function scaleMetricsToHours(metrics, targetHours) {
-            const current = metrics.reduce((sum, m) => sum + m.hours, 0);
-            if (!current || !isFinite(current)) return metrics;
-            const factor = targetHours / current;
-            return metrics.map(m => ({
-                ...m,
-                hours: m.hours * factor,
-                streams: m.streams * factor,
-                listeners: m.listeners * factor
-            }));
-        }
-
-        function normalizeListeners(metrics, activeSubs) {
-            const totalListeners = metrics.reduce((sum, m) => sum + m.listeners, 0);
-            if (!totalListeners || !isFinite(totalListeners)) {
-                return metrics.map(m => ({ ...m, listeners: Math.min(activeSubs, Math.max(1, Math.round(m.listeners))) }));
-            }
-            const capRatio = Math.min(1, activeSubs / totalListeners);
-            return metrics.map(m => {
-                const normalized = Math.max(1, Math.round(m.listeners * capRatio));
-                return { ...m, listeners: normalized };
-            });
-        }
-
-        function renderPeriodSummary(agg, pot, activeSubs) {
-            const items = [
-                { label: 'Active subscriptions', value: activeSubs.toLocaleString() },
-                { label: 'Hours streamed this period', value: agg.totalHours.toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'h' },
-                { label: 'Revenue share pot', value: formatMoney(pot, 'USD') }
-            ];
-            $('periodSummary').innerHTML = items.map(item => `
-                <div class="kpi">
-                    <div class="label">${item.label}</div>
-                    <div class="value">${item.value}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderAll() {
-            const days = getPeriodDays();
-            const scale = days / 30;
-            const baseAgg = aggregate(state.metrics, state.hourlyRate, state.share);
-            const baseSubs = Math.max(1, Math.round(baseAgg.totalHours / assumptions.avgHoursPerSubscriber));
-            const activeSubs = baseSubs * 1000; // stable across periods, scaled for demo
-            const scaledMetrics = applyPeriodScale(state.metrics, scale);
-            const desiredHours = activeSubs * assumptions.avgHoursPerSubscriber * (days / 30);
-            const adjustedMetrics = scaleMetricsToHours(scaledMetrics, desiredHours);
-            const normalizedMetrics = normalizeListeners(adjustedMetrics, activeSubs);
-            const agg = aggregate(normalizedMetrics, state.hourlyRate, state.share);
-            const pot = activeSubs * assumptions.subscriptionPrice * state.share * (days / 30);
-            state.timeSeries = buildTimeSeries(agg.totalHours, days);
-            renderPeriodSummary(agg, pot, activeSubs);
-            renderTable(normalizedMetrics, pot, agg.totalHours, 'USD');
-            renderChart(state.timeSeries);
-        }
-
-        async function bootstrap() {
-            const books = await loadAudiobooks();
-            state.audiobooks = books;
-            state.metrics = buildMetrics(books);
-            renderAll();
-        }
-
-        $('periodSelect').addEventListener('change', () => {
-            renderAll();
-        });
-
-        $('exportBtn').addEventListener('click', () => {
-            const days = getPeriodDays();
-            const scale = days / 30;
-            const baseAgg = aggregate(state.metrics, state.hourlyRate, state.share);
-            const baseSubs = Math.max(1, Math.round(baseAgg.totalHours / assumptions.avgHoursPerSubscriber));
-            const activeSubs = baseSubs * 1000;
-            const scaledMetrics = applyPeriodScale(state.metrics, scale);
-            const desiredHours = activeSubs * assumptions.avgHoursPerSubscriber * (days / 30);
-            const adjusted = scaleMetricsToHours(scaledMetrics, desiredHours);
-            const normalized = normalizeListeners(adjusted, activeSubs);
-            const totalHours = normalized.reduce((sum, m) => sum + m.hours, 0);
-            const pot = activeSubs * assumptions.subscriptionPrice * state.share * (days / 30);
-            const rows = normalized.map(m => {
-                const payoutShare = totalHours ? m.hours / totalHours : 0;
-                const payout = pot * payoutShare;
-                return [
-                    `"${m.title}"`,
-                    `"${m.author}"`,
-                    m.hours.toFixed(2),
-                    Math.round(m.listeners),
-                    payout.toFixed(2)
-                ].join(',');
-            });
-            const header = 'title,author,hours,unique_subscribers,payout';
-            const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'azalea-publisher-dashboard.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        bootstrap();
+        const gifs = [
+            'azalea_ascii_animation.gif',
+            'azalea_ascii_cosmic.gif',
+            'azalea_ascii_cyberpunk.gif',
+            'azalea_ascii_forest.gif',
+            'azalea_ascii_gothic.gif',
+            'azalea_ascii_lavender.gif',
+            'azalea_ascii_matrix.gif',
+            'azalea_ascii_neon.gif',
+            'azalea_ascii_ocean.gif',
+            'azalea_ascii_sunset.gif'
+        ];
+        
+        // Select random GIF
+        const randomGif = gifs[Math.floor(Math.random() * gifs.length)];
+        
+        // Set background
+        const bgImg = document.getElementById('bg');
+        bgImg.src = './' + randomGif;
     </script>
 </body>
 </html>
-

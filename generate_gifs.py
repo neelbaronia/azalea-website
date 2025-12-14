@@ -133,7 +133,7 @@ for palette_name, palette in palettes.items():
     frames = []
     
     # Randomly select position for this palette (ensures it doesn't overflow or cover center)
-    brand_text = "AZALEA STUDIOS"
+    brand_text = "AZALEA LABS"
     text_length = len(brand_text)
     
     # Calculate safe zones - avoid middle 2 quarters (center half) of image
@@ -196,7 +196,7 @@ for palette_name, palette in palettes.items():
             draw.text((0, y_offset), line, fill=text_color, font=font)
             y_offset += char_height
         
-        # Add "AZALEA STUDIOS" text vertically (non-cycling)
+        # Add "AZALEA LABS" text vertically (non-cycling)
         text_x = start_col * char_width
         text_y = start_row * char_height
         
