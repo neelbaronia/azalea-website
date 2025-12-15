@@ -183,6 +183,8 @@
             align-items: end;
             gap: 8px;
             height: 220px;
+            overflow-x: auto;
+            scrollbar-width: thin;
         }
 
         .bar {
@@ -191,6 +193,7 @@
             position: relative;
             min-height: 4px;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
+            min-width: 20px;
         }
 
         .bar:hover {
@@ -309,7 +312,11 @@
         @media (max-width: 720px) {
             body { padding: 16px; }
             header { flex-direction: column; align-items: flex-start; }
-            .chart { grid-template-columns: repeat(7, 1fr); }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .controls { grid-template-columns: 1fr; }
+            .actions { width: 100%; justify-content: space-between; }
+            select { flex: 1; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
         }
     </style>
 </head>
