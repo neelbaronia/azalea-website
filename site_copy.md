@@ -20,7 +20,7 @@ This file contains the scrollytelling copy for the two main tabs of the Azalea w
 - **CTA:** Join the Waitlist
 
 ### Section 1: The Modern Library of Alexandria
-- **Headline:** An endless library, reborn for now.
+- **Headline:** An endless library.
 - **Body:** Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips. Explore an infinite shelf, where every title invites discovery and every listen expands your world.
 - **Visual Note:** iPhone mockup displaying a sleek library interface, shelves stretching into the digital horizon, evoking a modern Library of Alexandria.
 

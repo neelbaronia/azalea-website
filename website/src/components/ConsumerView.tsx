@@ -317,7 +317,7 @@ export default function ConsumerView() {
             >
               The Modern Library of Alexandria
             </motion.p>
-            <HandwrittenHeading lines={["An endless library,", "reborn for now."]} className="text-white" />
+            <HandwrittenHeading lines={["An endless library."]} className="text-white" />
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -367,14 +367,20 @@ export default function ConsumerView() {
 
       {/* Footer CTA */}
       <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
+        {/* Background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/bhutan-dzong.png')" }}
+        />
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-black/40" />
         <div className="text-center space-y-8 max-w-2xl px-6 relative z-10">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1]"
+            className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-white"
           >
             Coming to your pocket in 2026.
           </motion.h2>
@@ -383,7 +389,7 @@ export default function ConsumerView() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-black/50 font-light"
+            className="text-lg text-white/70 font-light"
           >
             Be the first to hear the difference.
           </motion.p>
