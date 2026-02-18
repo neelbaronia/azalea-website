@@ -15,19 +15,19 @@ This file contains the scrollytelling copy for the two main tabs of the Azalea w
 *Aesthetic: Immersive, Dark Mode, Minimalist, "Quiet Luxury"*
 
 ### Hero Section
-- **Headline:** Reading, but in silence.
-- **Sub-headline:** Experience the world's most curated audio library. Designed for deep focus and effortless discovery.
+- **Headline:** Read.
+- **Sub-headline:** Books, Audiobooks, Blogs, and Podcasts, all in the world's largest audio library.
 - **CTA:** Join the Waitlist
 
-### Section 1: The Art of Listening
-- **Headline:** More than a stream. A state of mind.
-- **Body:** We’ve stripped away the noise. No cluttered feeds, no aggressive algorithms. Just the books you love, rendered in high-fidelity audio.
-- **Visual Note:** iPhone mockup showing a minimalist player interface with an ASCII GIF background.
+### Section 1: The Modern Library of Alexandria
+- **Headline:** An endless library, reborn for now.
+- **Body:** Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips. Explore an infinite shelf, where every title invites discovery and every listen expands your world.
+- **Visual Note:** iPhone mockup displaying a sleek library interface, shelves stretching into the digital horizon, evoking a modern Library of Alexandria.
 
-### Section 2: Your Digital Sanctuary
-- **Headline:** A library that breathes.
-- **Body:** Organize your collection with a tactile, physical feel. Our library interface is designed to help you find your next great conversation, not just another file.
-- **Visual Note:** Grid of book covers with soft shadows and elegant typography.
+### Section 2: Stories Within Stories
+- **Headline:** Dive deeper into every story.
+- **Body:** Immerse yourself as you scroll—each turn reveals a spotlight on a different book, letting you explore not just the library, but the journeys within. Discover unexpected connections and go beyond the surface with every selection.
+- **Visual Note:** Animated sequence that highlights individual book covers one by one, each expanding with a brief description or quote as the user scrolls.
 
 ### Footer / CTA
 - **Headline:** Coming to your pocket in 2026.
@@ -40,24 +40,24 @@ This file contains the scrollytelling copy for the two main tabs of the Azalea w
 *Aesthetic: Professional, Technical, "Studio Soul", Clean Light/Clay Mode*
 
 ### Hero Section
-- **Headline:** Your story, amplified.
-- **Sub-headline:** Professional production and global distribution for the next generation of publishers.
+- **Headline:** Your work, amplified.
+- **Sub-headline:** Professional production and global distribution across your backlist and new work.
 - **CTA:** Start a Project
 
-### Section 1: The Production Lab
-- **Headline:** Cinema-grade sound for the written word.
-- **Body:** From voice casting to post-production, we treat every audiobook like a masterpiece. Our engineers ensure every chapter carries the weight and warmth it deserves.
-- **Visual Note:** Close-up of high-end studio equipment or a waveform animation.
+### Section 1: Revive Your Backlist
+- **Headline:** Breathe new life into your catalog.
+- **Body:** Give your backlist the renaissance it deserves with studio-quality audio productions and expert translations. We transform your past titles into immersive audio experiences, reaching fresh audiences and reinvigorating your stories for a global stage.
+- **Visual Note:** Backlist book covers coming to life as audio waves, or a before-and-after animation highlighting translated and audio-enhanced titles.
 
-### Section 2: Radical Transparency
-- **Headline:** Distribution without the guesswork.
-- **Body:** Get your content on every major platform, while maintaining 100% visibility. Our real-time publisher dashboard gives you deep insights into listening hours, completion rates, and payouts.
-- **Visual Note:** A blurred preview of the Payout Analytics Dashboard.
+### Section 2: Global Reach, Instantly
+- **Headline:** Share your stories worldwide.
+- **Body:** Distribute your work to a global audience, effortlessly. Azalea’s app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place.
+- **Visual Note:** Animated map or globe with pulsing connection lines, showing listeners accessing content in different languages through the Azalea app.
 
 ### Section 3: The Payout Model
-- **Headline:** Fair share by design.
-- **Body:** We believe in a sustainable ecosystem. Our 50/50 revenue share model ensures that creators are rewarded for every hour their audience spends in their world.
-- **Visual Note:** Small infographic showing the fixed payout calculation.
+- **Headline:** Earn more from every minute.
+- **Body:** Unlike models that pay only per title or purchase, we reward creators for every minute their work is actually heard—just like streaming music. With our 50/50 revenue share, your payouts reflect true listener engagement and consistently outpace major competitors.
+- **Visual Note:** Infographic comparing listening-based payouts versus traditional models, highlighting the fairness and advantages of the Azalea approach.
 
 ### Footer / CTA
 - **Headline:** Let’s build the future of publishing.
