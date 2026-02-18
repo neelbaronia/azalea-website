@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, EB_Garamond } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +17,12 @@ const caveat = Caveat({
   subsets: ["latin"],
 });
 
+const garamond = EB_Garamond({
+  variable: "--font-garamond",
+  subsets: ["latin"],
+});
+
+
 export const metadata: Metadata = {
   title: "Azalea Labs",
   description: "The world's largest audio library.",
@@ -30,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${garamond.variable} antialiased`}
       >
         {children}
       </body>
