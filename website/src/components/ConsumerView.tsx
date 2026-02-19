@@ -317,14 +317,7 @@ export default function ConsumerView() {
       >
         {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
       </div>
-      {/* Sticky top banner with logo */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center px-6 py-4">
-        <img src="/azalea-icon.png" alt="Azalea" className="w-10 h-10" />
-        <div className="ml-3 flex flex-col leading-tight">
-          <span className="text-white text-sm font-extrabold uppercase tracking-[0.2em]">Azalea</span>
-          <span className="text-white text-sm font-extrabold uppercase tracking-[0.2em]">Labs</span>
-        </div>
-      </div>
+
 
       {/* Hero */}
       <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>

@@ -185,7 +185,15 @@ export default function PublisherView() {
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f5f0] text-black">
 
       {/* Hero */}
-      <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
+      <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden bg-[#f5f5f0]">
+        {/* Subtle grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
         <div className="text-center space-y-8 max-w-3xl px-6 relative z-10">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -193,7 +201,7 @@ export default function PublisherView() {
             transition={{ duration: 0.6 }}
             className="text-xs uppercase tracking-[0.5em] text-black/30 font-medium"
           >
-            For Publishers
+            For Publishers &amp; Creators
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -207,7 +215,7 @@ export default function PublisherView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg md:text-xl text-black/50 font-light leading-relaxed max-w-xl mx-auto"
+            className="text-xl md:text-2xl text-black/60 font-semibold leading-relaxed max-w-xl mx-auto"
           >
             Professional production and global distribution across your backlist and new work.
           </motion.p>
@@ -216,9 +224,12 @@ export default function PublisherView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <button className="px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+            <a
+              href="mailto:studio@azalealabs.com"
+              className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+            >
               Start a Project
-            </button>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -275,9 +286,12 @@ export default function PublisherView() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <button className="px-12 py-4 border border-black/20 text-black text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black hover:text-white transition-all hover:scale-105">
+            <a
+              href="mailto:studio@azalealabs.com"
+              className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+            >
               Contact our Studio Team
-            </button>
+            </a>
           </motion.div>
         </div>
       </section>
