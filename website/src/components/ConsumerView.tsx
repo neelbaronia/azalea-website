@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import PhoneMockup from "./PhoneMockup";
 
 interface Book {
   id: string;
@@ -234,9 +235,26 @@ function FloatingIcons({ containerRef, books }: { containerRef: React.RefObject<
   );
 }
 
+type FormState = "idle" | "loading" | "success" | "duplicate" | "error";
+
+async function submitWaitlist(email: string): Promise<FormState> {
+  const res = await fetch("/api/waitlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (res.ok) return "success";
+  if (res.status === 409) return "duplicate";
+  return "error";
+}
+
 export default function ConsumerView() {
   const heroRef = useRef<HTMLElement>(null);
   const [books, setBooks] = useState<Book[]>([]);
+
+  const [heroEmail, setHeroEmail] = useState("");
+  const [footerEmail, setFooterEmail] = useState("");
+  const [formState, setFormState] = useState<FormState>("idle");
 
   useEffect(() => {
     fetch("/api/books")
@@ -244,6 +262,20 @@ export default function ConsumerView() {
       .then(setBooks)
       .catch(() => {});
   }, []);
+
+  async function handleHeroSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (formState === "loading") return;
+    setFormState("loading");
+    setFormState(await submitWaitlist(heroEmail));
+  }
+
+  async function handleFooterSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (formState === "loading") return;
+    setFormState("loading");
+    setFormState(await submitWaitlist(footerEmail));
+  }
 
   return (
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
@@ -314,25 +346,38 @@ export default function ConsumerView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg md:text-xl text-white/90 font-semibold leading-relaxed max-w-xl mx-auto"
+            className="text-xl md:text-2xl text-white/90 font-semibold leading-relaxed max-w-xl mx-auto"
           >
-            Books, Audiobooks, Blogs, and Podcasts, all in the world&apos;s largest audio library.
+            Audiobooks, Podcasts, and more in the world&apos;s largest audio library. Unlimited access for $9/mo.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <div className="flex items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
-              <input
-                type="email"
-                placeholder="you@email.com"
-                className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-l-xl border border-r-0 border-white/20"
-              />
-              <button className="shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-r-xl">
-                Join the Waitlist
-              </button>
-            </div>
+            {formState === "success" ? (
+              <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
+            ) : (
+              <form onSubmit={handleHeroSubmit} className="flex items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={heroEmail}
+                  onChange={(e) => setHeroEmail(e.target.value)}
+                  required
+                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-l-xl border border-r-0 border-white/20"
+                />
+                <button
+                  type="submit"
+                  disabled={formState === "loading"}
+                  className="shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-r-xl disabled:opacity-60"
+                >
+                  {formState === "loading" ? "..." : "Join the Waitlist"}
+                </button>
+              </form>
+            )}
+            {formState === "duplicate" && <p className="text-white/60 text-xs mt-2">You&apos;re already on the list!</p>}
+            {formState === "error" && <p className="text-red-300 text-xs mt-2">Something went wrong. Please try again.</p>}
           </motion.div>
         </div>
       </section>
@@ -342,12 +387,10 @@ export default function ConsumerView() {
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
         style={{ backgroundImage: "url('/section-art-1.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
-
-        {/* Text overlay */}
-        <div className="relative z-10 w-full md:w-1/2 p-8 md:p-16">
-          <div className="max-w-lg space-y-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+        <div className="relative z-10 w-full h-full flex items-center px-8 md:px-16">
+          {/* Left: Text */}
+          <div className="w-1/3 space-y-6">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -365,9 +408,15 @@ export default function ConsumerView() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-lg text-white/60 font-light leading-relaxed"
             >
-              Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips. Explore an infinite shelf, where every title invites discovery and every listen expands your world.
+              Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips.
             </motion.p>
           </div>
+          {/* Center: Phone */}
+          <div className="w-1/3 flex justify-center">
+            {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
+          </div>
+          {/* Right: empty */}
+          <div className="w-1/3" />
         </div>
       </section>
 
@@ -376,12 +425,10 @@ export default function ConsumerView() {
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
         style={{ backgroundImage: "url('/section-art-2.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
-
-        {/* Text overlay */}
-        <div className="relative z-10 w-full md:w-1/2 p-8 md:p-16">
-          <div className="max-w-lg space-y-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+        <div className="relative z-10 w-full h-full flex items-center px-8 md:px-16">
+          {/* Left: Text */}
+          <div className="w-1/3 space-y-6">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -399,9 +446,15 @@ export default function ConsumerView() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-lg text-white/60 font-light leading-relaxed"
             >
-              Immerse yourself as you scroll—each turn reveals a spotlight on a different book, letting you explore not just the library, but the journeys within. Discover unexpected connections and go beyond the surface with every selection.
+              Tap any book to dive in. Every title invites discovery and every listen expands your world.
             </motion.p>
           </div>
+          {/* Center: Phone */}
+          <div className="w-1/3 flex justify-center">
+            {books.length > 0 && <PhoneMockup books={books} initialScreen="player" />}
+          </div>
+          {/* Right: empty */}
+          <div className="w-1/3" />
         </div>
       </section>
 
@@ -439,16 +492,29 @@ export default function ConsumerView() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <div className="flex items-stretch w-full max-w-lg mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
-              <input
-                type="email"
-                placeholder="you@email.com"
-                className="min-w-0 w-full px-8 py-5 bg-white text-black text-sm font-light outline-none placeholder:text-black/30 rounded-l-xl border border-r-0 border-black/10"
-              />
-              <button className="shrink-0 px-10 py-5 bg-black text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-black/90 transition-all whitespace-nowrap rounded-r-xl">
-                Get Early Access
-              </button>
-            </div>
+            {formState === "success" ? (
+              <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
+            ) : (
+              <form onSubmit={handleFooterSubmit} className="flex items-stretch w-full max-w-lg mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={footerEmail}
+                  onChange={(e) => setFooterEmail(e.target.value)}
+                  required
+                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-l-xl border border-r-0 border-white/20"
+                />
+                <button
+                  type="submit"
+                  disabled={formState === "loading"}
+                  className="shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-r-xl disabled:opacity-60"
+                >
+                  {formState === "loading" ? "..." : "Get Early Access"}
+                </button>
+              </form>
+            )}
+            {formState === "duplicate" && <p className="text-white/70 text-xs mt-2">You&apos;re already on the list!</p>}
+            {formState === "error" && <p className="text-red-300 text-xs mt-2">Something went wrong. Please try again.</p>}
           </motion.div>
         </div>
       </section>
