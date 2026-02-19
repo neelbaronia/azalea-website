@@ -15,44 +15,30 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-6 bg-transparent">
       <div className="flex items-center gap-3">
-        <div className="relative w-8 h-8 overflow-hidden rounded-lg border border-white/10 shadow-sm">
-          <Image
-            src="/Stylized Azalea Logo Design.png"
-            alt="Azalea Logo"
-            fill
-            className="object-cover scale-[1.7]"
-          />
+        <Image src="/azalea-icon.png" alt="Azalea" width={40} height={40} className="w-10 h-10" />
+        <div className="flex flex-col leading-tight">
+          <span className={`text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Azalea</span>
+          <span className={`text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Labs</span>
         </div>
-        <span
-          className={`font-black tracking-[0.3em] text-[10px] uppercase transition-colors duration-500 ${
-            isDark ? "text-white/70" : "text-black"
-          }`}
-        >
-          Azalea Labs
-        </span>
       </div>
 
       <div
-        className={`absolute left-1/2 -translate-x-1/2 flex gap-2 rounded-2xl p-1.5 border backdrop-blur-md transition-colors duration-500 ${
+        className={`absolute left-1/2 -translate-x-1/2 flex gap-1 rounded-xl p-1 border backdrop-blur-md transition-colors duration-500 ${
           isDark ? "bg-white/10 border-white/10" : "bg-black/5 border-black/5"
         }`}
       >
         <button
           onClick={() => setActiveTab("listen")}
-          className={`relative px-8 py-4 text-xs font-bold uppercase tracking-[0.25em] transition-colors rounded-xl ${
+          className={`relative px-5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors rounded-lg ${
             activeTab === "listen"
-              ? isDark
-                ? "text-black"
-                : "text-white"
-              : isDark
-              ? "text-white/50 hover:text-white"
-              : "text-black/40 hover:text-black"
+              ? isDark ? "text-black" : "text-white"
+              : isDark ? "text-white/50 hover:text-white" : "text-black/40 hover:text-black"
           }`}
         >
           {activeTab === "listen" && (
             <motion.div
               layoutId="tab-active"
-              className={`absolute inset-0 rounded-xl ${isDark ? "bg-white" : "bg-black"}`}
+              className={`absolute inset-0 rounded-lg ${isDark ? "bg-white" : "bg-black"}`}
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
             />
           )}
@@ -61,20 +47,16 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
 
         <button
           onClick={() => setActiveTab("create")}
-          className={`relative px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors rounded-xl ${
+          className={`relative px-5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors rounded-lg ${
             activeTab === "create"
-              ? isDark
-                ? "text-black"
-                : "text-white"
-              : isDark
-              ? "text-white/50 hover:text-white"
-              : "text-black/40 hover:text-black"
+              ? isDark ? "text-black" : "text-white"
+              : isDark ? "text-white/50 hover:text-white" : "text-black/40 hover:text-black"
           }`}
         >
           {activeTab === "create" && (
             <motion.div
               layoutId="tab-active"
-              className={`absolute inset-0 rounded-xl ${isDark ? "bg-white" : "bg-black"}`}
+              className={`absolute inset-0 rounded-lg ${isDark ? "bg-white" : "bg-black"}`}
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
             />
           )}
@@ -82,17 +64,7 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
         </button>
       </div>
 
-      <div className="hidden md:block">
-        <button
-          className={`px-10 py-4 text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-colors shadow-lg ${
-            isDark
-              ? "bg-white text-black hover:bg-white/90"
-              : "bg-black text-white hover:bg-black/90"
-          }`}
-        >
-          Waitlist
-        </button>
-      </div>
+      <div className="hidden md:block w-[120px]" />
     </nav>
   );
 }
