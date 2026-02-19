@@ -2,19 +2,16 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
-const ICON_DEFS = [
-  { size: 64, bg: "rgba(255,255,255,0.12)" },
-  { size: 52, bg: "rgba(255,255,255,0.08)" },
-  { size: 56, bg: "rgba(255,255,255,0.12)" },
-  { size: 44, bg: "rgba(255,255,255,0.08)" },
-  { size: 72, bg: "rgba(255,255,255,0.10)" },
-  { size: 68, bg: "rgba(255,255,255,0.12)" },
-  { size: 56, bg: "rgba(255,255,255,0.08)" },
-  { size: 48, bg: "rgba(255,255,255,0.10)" },
-  { size: 60, bg: "rgba(255,255,255,0.12)" },
-  { size: 52, bg: "rgba(255,255,255,0.08)" },
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  coverImageName: string;
+  remoteBaseURL: string;
+  duration: number;
+}
 
 interface Ball {
   x: number;
@@ -22,7 +19,15 @@ interface Ball {
   vx: number;
   vy: number;
   size: number;
-  bg: string;
+}
+
+const COVER_SIZES = [132, 115, 142, 120, 144, 126, 113, 134, 122, 138];
+
+function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
 }
 
 function HandwrittenHeading({ lines, className = "" }: { lines: string[]; className?: string }) {
@@ -70,38 +75,42 @@ function HandwrittenHeading({ lines, className = "" }: { lines: string[]; classN
   );
 }
 
-function FloatingIcons({ containerRef }: { containerRef: React.RefObject<HTMLElement | null> }) {
+function FloatingIcons({ containerRef, books }: { containerRef: React.RefObject<HTMLElement | null>; books: Book[] }) {
   const ballsRef = useRef<Ball[]>([]);
   const [positions, setPositions] = useState<{ x: number; y: number }[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const hoveredRef = useRef<number | null>(null);
   const animRef = useRef<number>(0);
   const initialized = useRef(false);
 
+  useEffect(() => { hoveredRef.current = hoveredIndex; }, [hoveredIndex]);
+
   const init = useCallback(() => {
     const el = containerRef.current;
-    if (!el || initialized.current) return;
+    if (!el || initialized.current || books.length === 0) return;
     const w = el.clientWidth;
     const h = el.clientHeight;
     if (w === 0 || h === 0) return;
     initialized.current = true;
 
-    ballsRef.current = ICON_DEFS.map((def) => {
+    ballsRef.current = books.map((_, i) => {
+      const size = COVER_SIZES[i % COVER_SIZES.length];
       const speed = 0.4 + Math.random() * 0.6;
       const angle = Math.random() * Math.PI * 2;
       return {
-        x: def.size + Math.random() * (w - def.size * 2),
-        y: def.size + Math.random() * (h - def.size * 2),
+        x: size + Math.random() * (w - size * 2),
+        y: size + Math.random() * (h - size * 2),
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: def.size,
-        bg: def.bg,
+        size,
       };
     });
     setPositions(ballsRef.current.map((b) => ({ x: b.x, y: b.y })));
-  }, [containerRef]);
+  }, [containerRef, books]);
 
   useEffect(() => {
+    initialized.current = false;
     init();
-    // Also try on a short delay in case container isn't sized yet
     const timer = setTimeout(init, 100);
     return () => clearTimeout(timer);
   }, [init]);
@@ -110,7 +119,7 @@ function FloatingIcons({ containerRef }: { containerRef: React.RefObject<HTMLEle
     let lastTime = performance.now();
 
     const step = (now: number) => {
-      const dt = Math.min((now - lastTime) / 16, 3); // normalize to ~60fps, cap at 3x
+      const dt = Math.min((now - lastTime) / 16, 3);
       lastTime = now;
 
       const el = containerRef.current;
@@ -118,55 +127,38 @@ function FloatingIcons({ containerRef }: { containerRef: React.RefObject<HTMLEle
       const w = el.clientWidth;
       const h = el.clientHeight;
       const balls = ballsRef.current;
+      const pinned = hoveredRef.current;
 
-      // Move balls
-      for (const b of balls) {
+      for (let i = 0; i < balls.length; i++) {
+        if (i === pinned) continue;
+        const b = balls[i];
         b.x += b.vx * dt;
         b.y += b.vy * dt;
-
-        // Bounce off walls
         if (b.x < 0) { b.x = 0; b.vx = Math.abs(b.vx); }
         if (b.x + b.size > w) { b.x = w - b.size; b.vx = -Math.abs(b.vx); }
         if (b.y < 0) { b.y = 0; b.vy = Math.abs(b.vy); }
         if (b.y + b.size > h) { b.y = h - b.size; b.vy = -Math.abs(b.vy); }
       }
 
-      // Ball-to-ball collisions (elastic, using center + radius)
       for (let i = 0; i < balls.length; i++) {
         for (let j = i + 1; j < balls.length; j++) {
           const a = balls[i];
           const b = balls[j];
-          const ax = a.x + a.size / 2;
-          const ay = a.y + a.size / 2;
-          const bx = b.x + b.size / 2;
-          const by = b.y + b.size / 2;
-          const dx = bx - ax;
-          const dy = by - ay;
+          const ax = a.x + a.size / 2, ay = a.y + a.size / 2;
+          const bx = b.x + b.size / 2, by = b.y + b.size / 2;
+          const dx = bx - ax, dy = by - ay;
           const dist = Math.sqrt(dx * dx + dy * dy);
           const minDist = (a.size + b.size) / 2;
-
           if (dist < minDist && dist > 0) {
-            const nx = dx / dist;
-            const ny = dy / dist;
-            // Relative velocity along collision normal
-            const dvx = a.vx - b.vx;
-            const dvy = a.vy - b.vy;
-            const dvn = dvx * nx + dvy * ny;
-
+            const nx = dx / dist, ny = dy / dist;
+            const dvn = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
             if (dvn > 0) {
-              // Equal mass elastic collision
-              a.vx -= dvn * nx;
-              a.vy -= dvn * ny;
-              b.vx += dvn * nx;
-              b.vy += dvn * ny;
+              if (i !== pinned) { a.vx -= dvn * nx; a.vy -= dvn * ny; }
+              if (j !== pinned) { b.vx += dvn * nx; b.vy += dvn * ny; }
             }
-
-            // Separate overlapping balls
             const overlap = (minDist - dist) / 2;
-            a.x -= overlap * nx;
-            a.y -= overlap * ny;
-            b.x += overlap * nx;
-            b.y += overlap * ny;
+            if (i !== pinned) { a.x -= overlap * nx; a.y -= overlap * ny; }
+            if (j !== pinned) { b.x += overlap * nx; b.y += overlap * ny; }
           }
         }
       }
@@ -179,31 +171,79 @@ function FloatingIcons({ containerRef }: { containerRef: React.RefObject<HTMLEle
     return () => cancelAnimationFrame(animRef.current);
   }, [containerRef]);
 
-  if (positions.length === 0) return null;
+  if (positions.length === 0 || books.length === 0) return null;
 
   return (
     <>
-      {ICON_DEFS.map((def, i) => (
-        <div
-          key={i}
-          className="absolute rounded-2xl shadow-sm backdrop-blur-sm"
-          style={{
-            width: def.size,
-            height: def.size,
-            backgroundColor: def.bg,
-            transform: `translate(${positions[i]?.x ?? 0}px, ${positions[i]?.y ?? 0}px)`,
-            top: 0,
-            left: 0,
-            willChange: "transform",
-          }}
-        />
-      ))}
+      {books.map((book, i) => {
+        const size = COVER_SIZES[i % COVER_SIZES.length];
+        const pos = positions[i] ?? { x: 0, y: 0 };
+        const isHovered = hoveredIndex === i;
+        const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
+
+        return (
+          <div
+            key={book.id}
+            className="absolute"
+            style={{
+              width: size,
+              top: 0,
+              left: 0,
+              transform: `translate(${pos.x}px, ${pos.y}px)`,
+              willChange: "transform",
+              zIndex: isHovered ? 20 : 1,
+            }}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            {/* Cover image */}
+            <Image
+              src={coverUrl}
+              alt={book.title}
+              width={size * 2}
+              height={size * 2}
+              className="rounded-xl shadow-lg object-cover w-full"
+              style={{ height: size, width: size }}
+              draggable={false}
+            />
+
+            {/* Hover tooltip */}
+            {isHovered && (() => {
+              const containerWidth = containerRef.current?.clientWidth ?? 0;
+              const onRightHalf = pos.x + size / 2 > containerWidth / 2;
+              return (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-44 backdrop-blur-md bg-white/15 border border-white/25 rounded-xl p-3 shadow-xl pointer-events-none"
+                  style={{
+                    zIndex: 30,
+                    ...(onRightHalf
+                      ? { right: `calc(100% + 10px)` }
+                      : { left: `calc(100% + 10px)` }),
+                  }}
+                >
+                  <p className="text-white text-sm font-bold leading-tight line-clamp-2">{book.title}</p>
+                  <p className="text-white/90 text-sm font-semibold mt-1">{book.author}</p>
+                  <p className="text-white/75 text-xs font-semibold mt-1">{formatDuration(book.duration)}</p>
+                </div>
+              );
+            })()}
+          </div>
+        );
+      })}
     </>
   );
 }
 
 export default function ConsumerView() {
   const heroRef = useRef<HTMLElement>(null);
+  const [books, setBooks] = useState<Book[]>([]);
+
+  useEffect(() => {
+    fetch("/api/books")
+      .then((r) => r.json())
+      .then(setBooks)
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
@@ -219,7 +259,7 @@ export default function ConsumerView() {
       {/* Hero */}
       <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
         {/* Floating icons with physics */}
-        <FloatingIcons containerRef={heroRef} />
+        <FloatingIcons containerRef={heroRef} books={books} />
 
         <div className="text-center space-y-8 max-w-3xl px-10 relative z-10 w-full">
           <div className="relative inline-block">
@@ -274,7 +314,7 @@ export default function ConsumerView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg md:text-xl text-white/70 font-light leading-relaxed max-w-xl mx-auto"
+            className="text-lg md:text-xl text-white/90 font-semibold leading-relaxed max-w-xl mx-auto"
           >
             Books, Audiobooks, Blogs, and Podcasts, all in the world&apos;s largest audio library.
           </motion.p>
