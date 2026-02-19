@@ -250,7 +250,10 @@ async function submitWaitlist(email: string): Promise<FormState> {
 
 export default function ConsumerView() {
   const heroRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [books, setBooks] = useState<Book[]>([]);
+  const [phoneOffsetY, setPhoneOffsetY] = useState(10000);
 
   const [heroEmail, setHeroEmail] = useState("");
   const [footerEmail, setFooterEmail] = useState("");
@@ -261,6 +264,31 @@ export default function ConsumerView() {
       .then((r) => r.json())
       .then(setBooks)
       .catch(() => {});
+  }, []);
+
+  // Drive phone position 1:1 with scroll — same speed as page content
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const onScroll = () => {
+      const scrollTop = container.scrollTop;
+      const vh = window.innerHeight;
+      // Section layout: hero=0, section1=vh, section2=2vh, footer=3vh
+      let offsetY: number;
+      if (scrollTop < vh) {
+        offsetY = vh - scrollTop;        // below: enters from bottom
+      } else if (scrollTop <= 2 * vh) {
+        offsetY = 0;                     // centered across both content sections
+      } else {
+        offsetY = 2 * vh - scrollTop;   // above: exits toward top
+      }
+      setPhoneOffsetY(offsetY);
+    };
+
+    onScroll(); // set initial position
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
   }, []);
 
   async function handleHeroSubmit(e: React.FormEvent) {
@@ -278,7 +306,17 @@ export default function ConsumerView() {
   }
 
   return (
-    <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
+    <div ref={scrollContainerRef} className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
+      {/* Fixed phone — position driven 1:1 by scroll */}
+      <div
+        className="fixed top-1/2 left-1/2 z-40"
+        style={{
+          transform: `translate(-50%, calc(-50% + ${phoneOffsetY}px))`,
+          pointerEvents: phoneOffsetY === 0 ? "auto" : "none",
+        }}
+      >
+        {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
+      </div>
       {/* Sticky top banner with logo */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center px-6 py-4">
         <img src="/azalea-icon.png" alt="Azalea" className="w-10 h-10" />
@@ -387,10 +425,9 @@ export default function ConsumerView() {
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
         style={{ backgroundImage: "url('/section-art-1.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
-        <div className="relative z-10 w-full h-full flex items-center px-8 md:px-16">
-          {/* Left: Text */}
-          <div className="w-1/3 space-y-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
+        <div className="relative z-10 w-full md:w-2/5 p-8 md:p-16">
+          <div className="max-w-sm space-y-6">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -411,12 +448,6 @@ export default function ConsumerView() {
               Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips.
             </motion.p>
           </div>
-          {/* Center: Phone */}
-          <div className="w-1/3 flex justify-center">
-            {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
-          </div>
-          {/* Right: empty */}
-          <div className="w-1/3" />
         </div>
       </section>
 
@@ -425,10 +456,9 @@ export default function ConsumerView() {
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
         style={{ backgroundImage: "url('/section-art-2.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
-        <div className="relative z-10 w-full h-full flex items-center px-8 md:px-16">
-          {/* Left: Text */}
-          <div className="w-1/3 space-y-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
+        <div className="relative z-10 w-full md:w-2/5 p-8 md:p-16">
+          <div className="max-w-sm space-y-6">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -449,17 +479,11 @@ export default function ConsumerView() {
               Tap any book to dive in. Every title invites discovery and every listen expands your world.
             </motion.p>
           </div>
-          {/* Center: Phone */}
-          <div className="w-1/3 flex justify-center">
-            {books.length > 0 && <PhoneMockup books={books} initialScreen="player" />}
-          </div>
-          {/* Right: empty */}
-          <div className="w-1/3" />
         </div>
       </section>
 
       {/* Footer CTA */}
-      <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
+      <section ref={footerRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
         {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"

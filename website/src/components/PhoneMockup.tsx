@@ -103,11 +103,6 @@ function HomeScreen({ books, onOpenDetail, onOpenPlayer }: { books: Book[]; onOp
         className="flex-1 overflow-y-auto overflow-x-hidden pb-14"
         style={{ scrollbarWidth: "none" } as React.CSSProperties}
       >
-        {/* Title */}
-        <div className="px-4 pt-3 pb-2">
-          <p className="text-black text-[17px] font-bold leading-tight">Azalea Audiobooks</p>
-        </div>
-
         {/* Search bar */}
         <div className="px-4 pb-3">
           <div className="bg-white rounded-xl px-3 py-2 flex items-center gap-2 shadow-sm">
