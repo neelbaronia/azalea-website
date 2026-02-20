@@ -1,7 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  coverImageName: string;
+  remoteBaseURL: string;
+  duration: number;
+}
 
 // Pre-calculated waveform values (no Math.random to avoid hydration issues)
 const waveformHeights = [35, 60, 45, 80, 55, 70, 40, 90, 65, 50, 85, 45, 75, 55, 95, 40, 70, 60, 45, 80, 55, 65, 40, 85];
@@ -83,38 +93,338 @@ function BlurredDashboard() {
   );
 }
 
-function PayoutInfographic() {
+// Continent outlines as [lon, lat] arrays
+const CONTINENTS: [number, number][][] = [
+  // North America
+  [[-80,25],[-82,28],[-81,30],[-80,32],[-77,35],[-75,37],[-70,42],[-67,44],[-60,46],[-55,47],[-56,50],[-60,60],[-65,67],[-80,73],[-100,73],[-130,70],[-148,70],[-168,72],[-168,57],[-155,58],[-148,60],[-145,62],[-138,60],[-132,54],[-128,50],[-124,46],[-122,38],[-118,34],[-117,32],[-110,23],[-105,20],[-95,16],[-90,16],[-88,15],[-85,16],[-83,10],[-77,8],[-75,11],[-80,25]],
+  // South America
+  [[-75,11],[-68,12],[-62,12],[-56,6],[-50,4],[-40,0],[-36,-3],[-35,-10],[-38,-16],[-40,-22],[-44,-23],[-48,-28],[-50,-30],[-52,-33],[-56,-38],[-62,-40],[-65,-42],[-66,-46],[-68,-50],[-68,-52],[-75,-54],[-68,-54],[-65,-44],[-65,-38],[-68,-30],[-70,-18],[-75,-10],[-78,-2],[-78,5],[-75,11]],
+  // Europe
+  [[-9,36],[-5,36],[0,37],[3,43],[5,43],[8,44],[12,44],[14,42],[16,41],[15,38],[20,40],[24,38],[28,37],[36,37],[42,41],[32,46],[28,52],[24,57],[20,60],[16,62],[20,65],[24,68],[28,70],[18,70],[10,72],[5,62],[8,58],[8,55],[5,54],[8,48],[2,49],[0,47],[-2,44],[-5,44],[-9,44],[-9,40],[-9,36]],
+  // Africa
+  [[-18,15],[-16,20],[-17,28],[-12,33],[-5,36],[5,37],[12,38],[25,37],[36,32],[44,12],[51,12],[44,2],[42,-11],[40,-22],[35,-28],[28,-34],[18,-34],[12,-22],[8,-4],[8,4],[2,5],[-5,4],[-8,4],[-16,8],[-18,15]],
+  // Asia (main + India peninsula)
+  [[28,37],[42,37],[52,37],[60,22],[68,23],[72,22],[77,8],[80,8],[82,14],[88,22],[92,22],[95,27],[92,22],[100,2],[108,2],[120,4],[122,4],[128,10],[122,24],[122,32],[126,33],[130,37],[130,43],[122,50],[115,55],[105,60],[85,68],[70,72],[55,72],[40,70],[30,65],[28,57],[30,46],[36,42],[42,41],[36,37],[28,37]],
+  // Australia
+  [[114,-22],[122,-18],[128,-14],[130,-12],[136,-12],[140,-10],[142,-10],[148,-20],[152,-26],[154,-28],[152,-38],[148,-40],[142,-38],[138,-36],[132,-32],[124,-34],[120,-34],[114,-28],[114,-22]],
+  // Greenland
+  [[-18,76],[-20,78],[-30,83],[-50,83],[-60,80],[-65,78],[-60,76],[-50,72],[-46,70],[-40,68],[-22,70],[-18,76]],
+  // Japan
+  [[130,31],[132,34],[134,35],[136,36],[140,40],[141,42],[140,40],[138,36],[136,34],[132,33],[130,31]],
+  // Indonesia / Borneo (simplified)
+  [[95,5],[100,2],[106,-6],[108,-8],[112,-8],[116,-8],[118,-4],[120,-2],[118,4],[112,4],[106,2],[102,2],[98,4],[95,5]],
+  // New Zealand (South Island approx)
+  [[166,-46],[168,-44],[171,-42],[174,-41],[172,-44],[170,-46],[166,-46]],
+];
+
+const GLOBE_NODES = [
+  { id: "na", label: "EN", lon: -100, lat: 45 },
+  { id: "sa", label: "ES", lon:  -58, lat: -15 },
+  { id: "eu", label: "FR", lon:   10, lat:  50 },
+  { id: "af", label: "SW", lon:   20, lat:   5 },
+  { id: "in", label: "HI", lon:   80, lat:  20 },
+  { id: "cn", label: "ZH", lon:  105, lat:  35 },
+  { id: "jp", label: "JA", lon:  138, lat:  36 },
+  { id: "au", label: "EN", lon:  135, lat: -25 },
+];
+
+const GLOBE_EDGES = [
+  ["na","eu"],["eu","af"],["eu","in"],["in","cn"],
+  ["cn","jp"],["cn","au"],["na","sa"],["sa","af"],
+];
+
+const GLOBE_SIZE = 280;
+const GLOBE_CX = GLOBE_SIZE / 2, GLOBE_CY = GLOBE_SIZE / 2, GLOBE_R = 124;
+
+function globeProject(lon: number, lat: number, centerLon: number): [number, number, boolean] {
+  const φ = lat * Math.PI / 180;
+  const λ = (lon - centerLon) * Math.PI / 180;
+  const cosC = Math.cos(φ) * Math.cos(λ);
+  return [
+    GLOBE_CX + GLOBE_R * Math.cos(φ) * Math.sin(λ),
+    GLOBE_CY - GLOBE_R * Math.sin(φ),
+    cosC > 0,
+  ];
+}
+
+function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number) {
+  ctx.clearRect(0, 0, GLOBE_SIZE, GLOBE_SIZE);
+
+  // Ocean
+  ctx.beginPath(); ctx.arc(GLOBE_CX, GLOBE_CY, GLOBE_R, 0, Math.PI * 2);
+  ctx.fillStyle = "#dedad2"; ctx.fill();
+
+  ctx.save();
+  ctx.beginPath(); ctx.arc(GLOBE_CX, GLOBE_CY, GLOBE_R, 0, Math.PI * 2); ctx.clip();
+
+  // Grid
+  ctx.strokeStyle = "rgba(0,0,0,0.07)"; ctx.lineWidth = 0.5;
+  for (let lat = -60; lat <= 60; lat += 30) {
+    ctx.beginPath();
+    for (let lon = -180; lon <= 180; lon += 3) {
+      const [x, y, vis] = globeProject(lon, lat, centerLon);
+      if (vis) lon === -180 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  for (let lon = 0; lon < 360; lon += 30) {
+    ctx.beginPath();
+    for (let lat = -90; lat <= 90; lat += 3) {
+      const [x, y, vis] = globeProject(lon, lat, centerLon);
+      if (vis) lat === -90 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Continents
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  for (const coords of CONTINENTS) {
+    ctx.beginPath();
+    let penDown = false;
+    for (const [lon, lat] of coords) {
+      const [x, y, vis] = globeProject(lon, lat, centerLon);
+      if (vis) { if (!penDown) { ctx.moveTo(x, y); penDown = true; } else ctx.lineTo(x, y); }
+      else { penDown = false; }
+    }
+    ctx.closePath(); ctx.fill();
+  }
+
+  // Connection lines
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1; ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  for (const [a, b] of GLOBE_EDGES) {
+    const na = GLOBE_NODES.find(n => n.id === a)!;
+    const nb = GLOBE_NODES.find(n => n.id === b)!;
+    const [x1, y1, v1] = globeProject(na.lon, na.lat, centerLon);
+    const [x2, y2, v2] = globeProject(nb.lon, nb.lat, centerLon);
+    if (v1 && v2) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Border
+  ctx.beginPath(); ctx.arc(GLOBE_CX, GLOBE_CY, GLOBE_R, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(0,0,0,0.12)"; ctx.lineWidth = 1; ctx.stroke();
+}
+
+function renderGlobeNodes(ctx: CanvasRenderingContext2D, centerLon: number) {
+  for (const node of GLOBE_NODES) {
+    const [x, y, vis] = globeProject(node.lon, node.lat, centerLon);
+    if (!vis) continue;
+    ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI * 2);
+    ctx.fillStyle = "black"; ctx.fill();
+    ctx.fillStyle = "white"; ctx.font = "bold 8px sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(node.label, x, y);
+  }
+}
+
+function GlobeVisual() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lonRef = useRef(0);
+  const animRef = useRef<number>(0);
+  const dragRef = useRef<{ dragging: boolean; lastX: number; velocity: number }>({ dragging: false, lastX: 0, velocity: 0 });
+  const framesRef = useRef<ImageBitmap[]>([]);
+  const [ready, setReady] = useState(false);
+
+  // Pre-render all 360 frames once on mount
+  useEffect(() => {
+    const offscreen = document.createElement("canvas");
+    offscreen.width = GLOBE_SIZE; offscreen.height = GLOBE_SIZE;
+    const octx = offscreen.getContext("2d")!;
+
+    (async () => {
+      const bitmaps: ImageBitmap[] = [];
+      for (let lon = 0; lon < 360; lon++) {
+        renderGlobeBackground(octx, lon);
+        bitmaps.push(await createImageBitmap(offscreen));
+      }
+      framesRef.current = bitmaps;
+      setReady(true);
+    })();
+  }, []);
+
+  // Animation + interaction (starts once frames are ready)
+  useEffect(() => {
+    if (!ready) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+
+    const onMouseDown = (e: MouseEvent) => { dragRef.current = { dragging: true, lastX: e.clientX, velocity: 0 }; };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragRef.current.dragging) return;
+      const dx = e.clientX - dragRef.current.lastX;
+      dragRef.current.velocity = -dx * 0.5;
+      lonRef.current -= dx * 0.5;
+      dragRef.current.lastX = e.clientX;
+    };
+    const onMouseUp = () => { dragRef.current.dragging = false; };
+
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    const animate = () => {
+      if (!dragRef.current.dragging) {
+        if (Math.abs(dragRef.current.velocity) > 0.05) {
+          lonRef.current += dragRef.current.velocity;
+          dragRef.current.velocity *= 0.92;
+        } else {
+          lonRef.current += 0.25;
+        }
+      }
+      const frameIdx = ((Math.round(lonRef.current) % 360) + 360) % 360;
+      ctx.clearRect(0, 0, GLOBE_SIZE, GLOBE_SIZE);
+      ctx.drawImage(framesRef.current[frameIdx], 0, 0);
+      renderGlobeNodes(ctx, lonRef.current);
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      canvas.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [ready]);
+
   return (
-    <div className="w-[240px] space-y-4">
-      {/* 50/50 Split Bar */}
-      <div className="flex rounded-2xl overflow-hidden h-20 shadow-md border border-black/5">
-        <div className="flex-1 bg-black flex flex-col items-center justify-center gap-0.5">
-          <div className="text-white font-black text-2xl leading-none">50%</div>
-          <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mt-0.5">You</div>
+    <div style={{ width: GLOBE_SIZE, height: GLOBE_SIZE, borderRadius: "50%", overflow: "hidden", background: "#dedad2" }}>
+      {!ready && (
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 10, color: "rgba(0,0,0,0.3)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Loading…</span>
         </div>
-        <div className="w-px bg-black/10" />
-        <div className="flex-1 bg-[#ece9e3] flex flex-col items-center justify-center gap-0.5">
-          <div className="text-black font-black text-2xl leading-none">50%</div>
-          <div className="text-black/30 text-[9px] uppercase tracking-[0.2em] mt-0.5">Azalea</div>
-        </div>
+      )}
+      <canvas
+        ref={canvasRef}
+        width={GLOBE_SIZE}
+        height={GLOBE_SIZE}
+        style={{ display: ready ? "block" : "none", cursor: "grab" }}
+        onMouseDown={() => { if (canvasRef.current) canvasRef.current.style.cursor = "grabbing"; }}
+        onMouseUp={() => { if (canvasRef.current) canvasRef.current.style.cursor = "grab"; }}
+      />
+    </div>
+  );
+}
+
+const PAYOUT_BARS = [
+  { label: "Audible", value: 50,  color: "bg-black/15", textColor: "text-black/40", amount: "25%" },
+  { label: "Spotify", value: 36,  color: "bg-black/15", textColor: "text-black/40", amount: "18%" },
+  { label: "Azalea",  value: 100, color: "bg-black",    textColor: "text-black",     amount: "50%" },
+];
+
+function PayoutBarChart() {
+  const [inView, setInView] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true); },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="w-[280px] space-y-3">
+      {/* Y-axis label */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-sm font-black uppercase tracking-widest text-black">% Payout to Publishers</span>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { value: "$0.018", label: "per min" },
-          { value: "Live", label: "payouts" },
-          { value: "100%", label: "visible" },
-        ].map((stat, i) => (
-          <div key={i} className="bg-[#ece9e3] rounded-xl p-3 text-center">
-            <div className="text-sm font-bold text-black leading-tight">{stat.value}</div>
-            <div className="text-[8px] text-black/30 uppercase tracking-widest mt-1">{stat.label}</div>
+      {/* Chart */}
+      <div className="flex items-end gap-3 h-52 border-b border-l border-black/10 px-2 pb-0 relative">
+        {/* Y-axis ticks */}
+        <div className="absolute left-0 inset-y-0 flex flex-col justify-between pb-0 pointer-events-none">
+          {["High", "", "", "Low"].map((t, i) => (
+            <div key={i} className="flex items-center gap-1">
+              <div className="w-1.5 h-px bg-black/10" />
+            </div>
+          ))}
+        </div>
+
+        {PAYOUT_BARS.map((bar, i) => (
+          <div key={bar.label} className="flex-1 flex flex-col items-center justify-end gap-1.5 h-full">
+            {/* Amount label above bar */}
+            <motion.span
+              className={`text-[10px] font-bold ${bar.textColor}`}
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 + 0.6 }}
+            >
+              {bar.amount}
+            </motion.span>
+
+            {/* Bar */}
+            <div className="w-full flex items-end" style={{ height: "100%" }}>
+              <motion.div
+                className={`w-full rounded-t-lg ${bar.color}`}
+                initial={{ height: 0 }}
+                animate={inView ? { height: `${bar.value}%` } : { height: 0 }}
+                transition={{ duration: 0.8, delay: i * 0.1, ease: [0.34, 1.2, 0.64, 1] }}
+              />
+            </div>
           </div>
         ))}
+      </div>
+
+      {/* X-axis labels */}
+      <div className="flex gap-3 px-2">
+        {PAYOUT_BARS.map((bar) => (
+          <div key={bar.label} className="flex-1 text-center">
+            <span className={`text-[9px] font-semibold ${bar.label === "Azalea" ? "text-black" : "text-black/30"} leading-tight`}>
+              {bar.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Caption */}
+      <p className="text-[9px] text-black/25 text-center pt-1">Publisher revenue share vs. major platforms</p>
+    </div>
+  );
+}
+
+
+// Option 3: Book cover with waveform growing out of its pages
+function WaveformFromBook({ books }: { books: Book[] }) {
+  const book = books[0];
+  if (!book) return null;
+  return (
+    <div className="flex flex-col items-center gap-0">
+      {/* Waveform above */}
+      <div className="flex items-end gap-[3px] h-24 w-[180px] px-2">
+        {waveformHeights.map((h, i) => (
+          <motion.div
+            key={i}
+            className="flex-1 bg-black/40 rounded-full"
+            animate={{ scaleY: [1, 0.15, 1] }}
+            transition={{ duration: waveformDurations[i], repeat: Infinity, ease: "easeInOut", delay: i * 0.04 }}
+            style={{ height: `${h}%`, originY: 1 }}
+          />
+        ))}
+      </div>
+      {/* Book cover below */}
+      <div className="relative">
+        <Image
+          src={`${book.remoteBaseURL}/${book.coverImageName}`}
+          alt={book.title}
+          width={360}
+          height={360}
+          className="rounded-2xl shadow-2xl object-cover"
+          style={{ width: 180, height: 180 }}
+        />
+        {/* Glow connecting waveform to book */}
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/10 blur-md rounded-full" />
       </div>
     </div>
   );
 }
+
 
 // Shared section wrapper for the 2/3 + 1/3 split layout
 function SplitSection({
@@ -133,8 +443,8 @@ function SplitSection({
       <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
 
       {/* Left: Text */}
-      <div className="w-full md:w-2/3 h-full flex items-center justify-center px-6 md:px-24 relative z-10">
-        <div className="max-w-xl w-full space-y-8">
+      <div className="w-full md:w-1/2 h-full flex items-center justify-center px-6 md:px-16 relative z-10">
+        <div className="max-w-lg w-full space-y-8">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -166,7 +476,7 @@ function SplitSection({
       </div>
 
       {/* Right: Visual */}
-      <div className="hidden md:flex w-1/3 h-full items-center justify-center border-l border-black/[0.06] bg-[#ece9e3]">
+      <div className="hidden md:flex w-1/2 h-full items-center justify-center border-l border-black/[0.06] bg-[#ece9e3]">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -181,6 +491,12 @@ function SplitSection({
 }
 
 export default function PublisherView() {
+  const [books, setBooks] = useState<Book[]>([]);
+
+  useEffect(() => {
+    fetch("/api/books").then((r) => r.json()).then(setBooks).catch(() => {});
+  }, []);
+
   return (
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f5f0] text-black">
 
@@ -225,7 +541,7 @@ export default function PublisherView() {
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             <a
-              href="mailto:studio@azalealabs.com"
+              href="mailto:neel@azalea-labs.com"
               className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
             >
               Start a Project
@@ -238,8 +554,8 @@ export default function PublisherView() {
       <SplitSection
         eyebrow="Revive Your Backlist"
         headline={<>Breathe new life into your catalog.</>}
-        body="Give your backlist the renaissance it deserves with studio-quality audio productions and expert translations. We transform your past titles into immersive audio experiences, reaching fresh audiences and reinvigorating your stories for a global stage."
-        visual={<WaveformVisual />}
+        body="Whether you're an independent author with a single title or a trade publisher with hundreds of titles, we bring every work to life with studio-quality audio productions and expert translations—reaching fresh audiences and reinvigorating your stories for a global stage."
+        visual={books.length > 0 ? <WaveformFromBook books={books} /> : <WaveformVisual />}
       />
 
       {/* Section 2: Radical Transparency */}
@@ -247,7 +563,7 @@ export default function PublisherView() {
         eyebrow="Global Reach, Instantly"
         headline={<>Share your stories<br />worldwide.</>}
         body="Distribute your work to a global audience, effortlessly. Azalea's app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place."
-        visual={<BlurredDashboard />}
+        visual={<GlobeVisual />}
       />
 
       {/* Section 3: Payout Model */}
@@ -255,7 +571,7 @@ export default function PublisherView() {
         eyebrow="The Payout Model"
         headline={<>Earn more from<br />every minute.</>}
         body="Unlike models that pay only per title or purchase, we reward creators for every minute their work is actually heard—just like streaming music. With our 50/50 revenue share, your payouts reflect true listener engagement and consistently outpace major competitors."
-        visual={<PayoutInfographic />}
+        visual={<PayoutBarChart />}
       />
 
       {/* Footer CTA */}
@@ -287,7 +603,7 @@ export default function PublisherView() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <a
-              href="mailto:studio@azalealabs.com"
+              href="mailto:neel@azalea-labs.com"
               className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
             >
               Contact our Studio Team
