@@ -581,21 +581,17 @@ export default function PublisherView() {
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f5f0] text-black">
 
       {/* Hero */}
-      <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden bg-[#f5f5f0]">
-        {/* Subtle grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
+      <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-hero-bg.png')" }} />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50" />
         <div className="text-center space-y-8 max-w-3xl px-6 relative z-10">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-xs uppercase tracking-[0.5em] text-black/30 font-medium"
+            className="text-sm uppercase tracking-[0.5em] text-white font-bold"
           >
             For Publishers &amp; Creators
           </motion.p>
@@ -603,7 +599,7 @@ export default function PublisherView() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="text-5xl md:text-8xl font-bold tracking-tight leading-[1.05] text-black"
+            className="text-5xl md:text-8xl font-bold tracking-tight leading-[1.05] text-white"
           >
             Your work,<br />amplified.
           </motion.h1>
@@ -611,7 +607,7 @@ export default function PublisherView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-xl md:text-2xl text-black/60 font-semibold leading-relaxed max-w-xl mx-auto"
+            className="text-xl md:text-2xl text-white/70 font-semibold leading-relaxed max-w-xl mx-auto"
           >
             Professional audio production and global distribution across your backlist and new work.
           </motion.p>
