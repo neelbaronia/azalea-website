@@ -184,6 +184,44 @@ function drawGreatCircle(ctx: CanvasRenderingContext2D, lon1: number, lat1: numb
   ctx.stroke();
 }
 
+// Clip a polygon to the front hemisphere using Sutherland-Hodgman.
+// Inserts exact horizon-crossing points so closePath() seals cleanly along the globe edge.
+function clipToHorizon(coords: [number, number][], centerLon: number): [number, number][] {
+  const result: [number, number][] = [];
+  const λ0 = centerLon * Math.PI / 180;
+  const vx = Math.cos(λ0), vy = Math.sin(λ0);
+
+  for (let i = 0; i < coords.length; i++) {
+    const [lon1, lat1] = coords[i];
+    const [lon2, lat2] = coords[(i + 1) % coords.length];
+    const p1 = toXYZ(lon1, lat1), p2 = toXYZ(lon2, lat2);
+    const d1 = p1[0]*vx + p1[1]*vy;
+    const d2 = p2[0]*vx + p2[1]*vy;
+    const v1 = d1 > 0, v2 = d2 > 0;
+
+    if (v1) result.push([lon1, lat1]);
+
+    if (v1 !== v2) {
+      // Binary-search for exact horizon crossing
+      const dot = Math.min(1, Math.max(-1, p1[0]*p2[0] + p1[1]*p2[1] + p1[2]*p2[2]));
+      const ang = Math.acos(dot), sinA = Math.sin(ang);
+      if (sinA > 0.0001) {
+        let lo = 0, hi = 1;
+        for (let k = 0; k < 20; k++) {
+          const m = (lo + hi) / 2;
+          const w1 = Math.sin((1-m)*ang)/sinA, w2 = Math.sin(m*ang)/sinA;
+          const dm = (w1*p1[0]+w2*p2[0])*vx + (w1*p1[1]+w2*p2[1])*vy;
+          (d1 > 0 ? dm > 0 : dm < 0) ? (lo = m) : (hi = m);
+        }
+        const m = (lo+hi)/2, w1 = Math.sin((1-m)*ang)/sinA, w2 = Math.sin(m*ang)/sinA;
+        const mx=w1*p1[0]+w2*p2[0], my=w1*p1[1]+w2*p2[1], mz=w1*p1[2]+w2*p2[2];
+        result.push([Math.atan2(my,mx)*180/Math.PI, Math.asin(Math.min(1,Math.max(-1,mz)))*180/Math.PI]);
+      }
+    }
+  }
+  return result;
+}
+
 function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number) {
   ctx.clearRect(0, 0, GLOBE_SIZE, GLOBE_SIZE);
 
@@ -213,25 +251,17 @@ function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number)
     ctx.stroke();
   }
 
-  // Continents — fill each visible sub-segment separately to avoid horizon artifacts
+  // Continents — clipped to front hemisphere with proper horizon intersection points
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   for (const coords of CONTINENTS) {
-    let segment: [number, number][] = [];
-    const flush = () => {
-      if (segment.length >= 3) {
-        ctx.beginPath();
-        ctx.moveTo(segment[0][0], segment[0][1]);
-        for (let i = 1; i < segment.length; i++) ctx.lineTo(segment[i][0], segment[i][1]);
-        ctx.closePath(); ctx.fill();
-      }
-      segment = [];
-    };
-    for (const [lon, lat] of coords) {
-      const [x, y, vis] = globeProject(lon, lat, centerLon);
-      if (vis) segment.push([x, y]);
-      else flush();
+    const clipped = clipToHorizon(coords, centerLon);
+    if (clipped.length < 3) continue;
+    ctx.beginPath();
+    for (let i = 0; i < clipped.length; i++) {
+      const [x, y] = globeProject(clipped[i][0], clipped[i][1], centerLon);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
-    flush();
+    ctx.closePath(); ctx.fill();
   }
 
   ctx.restore();
