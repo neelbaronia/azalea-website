@@ -133,8 +133,11 @@ const GLOBE_EDGES = [
   ["cn","jp"],["cn","au"],["na","sa"],["sa","af"],
 ];
 
-const GLOBE_SIZE = 280;
-const GLOBE_CX = GLOBE_SIZE / 2, GLOBE_CY = GLOBE_SIZE / 2, GLOBE_R = 124;
+const GLOBE_R = 168;
+const GLOBE_PAD = 55; // room for arcs to extend beyond globe edge
+const GLOBE_SIZE = GLOBE_R * 2 + GLOBE_PAD * 2; // canvas size (436)
+const GLOBE_CX = GLOBE_SIZE / 2;
+const GLOBE_CY = GLOBE_SIZE / 2;
 
 function globeProject(lon: number, lat: number, centerLon: number): [number, number, boolean] {
   const φ = lat * Math.PI / 180;
@@ -145,6 +148,40 @@ function globeProject(lon: number, lat: number, centerLon: number): [number, num
     GLOBE_CY - GLOBE_R * Math.sin(φ),
     cosC > 0,
   ];
+}
+
+function toXYZ(lon: number, lat: number): [number, number, number] {
+  const φ = lat * Math.PI / 180, λ = lon * Math.PI / 180;
+  return [Math.cos(φ) * Math.cos(λ), Math.cos(φ) * Math.sin(λ), Math.sin(φ)];
+}
+
+function drawGreatCircle(ctx: CanvasRenderingContext2D, lon1: number, lat1: number, lon2: number, lat2: number, centerLon: number) {
+  const p1 = toXYZ(lon1, lat1), p2 = toXYZ(lon2, lat2);
+  const dot = Math.min(1, Math.max(-1, p1[0]*p2[0] + p1[1]*p2[1] + p1[2]*p2[2]));
+  const angle = Math.acos(dot);
+  if (angle < 0.001) return;
+  const sinA = Math.sin(angle);
+  const LIFT = 0.28; // how far arcs rise above globe surface
+
+  ctx.beginPath();
+  let penDown = false;
+  for (let i = 0; i <= 60; i++) {
+    const t = i / 60;
+    const w1 = Math.sin((1 - t) * angle) / sinA;
+    const w2 = Math.sin(t * angle) / sinA;
+    const px = w1*p1[0] + w2*p2[0], py = w1*p1[1] + w2*p2[1], pz = w1*p1[2] + w2*p2[2];
+    const lon = Math.atan2(py, px) * 180 / Math.PI;
+    const lat = Math.asin(Math.min(1, Math.max(-1, pz))) * 180 / Math.PI;
+    const [sx, sy, vis] = globeProject(lon, lat, centerLon);
+    if (vis) {
+      // Scale point outward from globe center — peaks at arc midpoint
+      const s = 1 + LIFT * Math.sin(Math.PI * t);
+      const lx = GLOBE_CX + (sx - GLOBE_CX) * s;
+      const ly = GLOBE_CY + (sy - GLOBE_CY) * s;
+      if (!penDown) { ctx.moveTo(lx, ly); penDown = true; } else ctx.lineTo(lx, ly);
+    } else { penDown = false; }
+  }
+  ctx.stroke();
 }
 
 function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number) {
@@ -176,29 +213,27 @@ function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number)
     ctx.stroke();
   }
 
-  // Continents
+  // Continents — fill each visible sub-segment separately to avoid horizon artifacts
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   for (const coords of CONTINENTS) {
-    ctx.beginPath();
-    let penDown = false;
+    let segment: [number, number][] = [];
+    const flush = () => {
+      if (segment.length >= 3) {
+        ctx.beginPath();
+        ctx.moveTo(segment[0][0], segment[0][1]);
+        for (let i = 1; i < segment.length; i++) ctx.lineTo(segment[i][0], segment[i][1]);
+        ctx.closePath(); ctx.fill();
+      }
+      segment = [];
+    };
     for (const [lon, lat] of coords) {
       const [x, y, vis] = globeProject(lon, lat, centerLon);
-      if (vis) { if (!penDown) { ctx.moveTo(x, y); penDown = true; } else ctx.lineTo(x, y); }
-      else { penDown = false; }
+      if (vis) segment.push([x, y]);
+      else flush();
     }
-    ctx.closePath(); ctx.fill();
+    flush();
   }
 
-  // Connection lines
-  ctx.setLineDash([3, 3]); ctx.lineWidth = 1; ctx.strokeStyle = "rgba(0,0,0,0.3)";
-  for (const [a, b] of GLOBE_EDGES) {
-    const na = GLOBE_NODES.find(n => n.id === a)!;
-    const nb = GLOBE_NODES.find(n => n.id === b)!;
-    const [x1, y1, v1] = globeProject(na.lon, na.lat, centerLon);
-    const [x2, y2, v2] = globeProject(nb.lon, nb.lat, centerLon);
-    if (v1 && v2) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
-  }
-  ctx.setLineDash([]);
   ctx.restore();
 
   // Border
@@ -207,6 +242,21 @@ function renderGlobeBackground(ctx: CanvasRenderingContext2D, centerLon: number)
 }
 
 function renderGlobeNodes(ctx: CanvasRenderingContext2D, centerLon: number) {
+  // Animated flowing arcs
+  const dashLen = 7, gapLen = 5, period = dashLen + gapLen;
+  const offset = -(performance.now() * 0.05) % period;
+  ctx.setLineDash([dashLen, gapLen]);
+  ctx.lineDashOffset = offset;
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(0,0,0,0.45)";
+  for (const [a, b] of GLOBE_EDGES) {
+    const na = GLOBE_NODES.find(n => n.id === a)!;
+    const nb = GLOBE_NODES.find(n => n.id === b)!;
+    drawGreatCircle(ctx, na.lon, na.lat, nb.lon, nb.lat, centerLon);
+  }
+  ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
+
   for (const node of GLOBE_NODES) {
     const [x, y, vis] = globeProject(node.lon, node.lat, centerLon);
     if (!vis) continue;
@@ -290,9 +340,9 @@ function GlobeVisual() {
   }, [ready]);
 
   return (
-    <div style={{ width: GLOBE_SIZE, height: GLOBE_SIZE, borderRadius: "50%", overflow: "hidden", background: "#dedad2" }}>
+    <div style={{ width: GLOBE_SIZE, height: GLOBE_SIZE, position: "relative" }}>
       {!ready && (
-        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ fontSize: 10, color: "rgba(0,0,0,0.3)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Loading…</span>
         </div>
       )}
@@ -300,7 +350,7 @@ function GlobeVisual() {
         ref={canvasRef}
         width={GLOBE_SIZE}
         height={GLOBE_SIZE}
-        style={{ display: ready ? "block" : "none", cursor: "grab" }}
+        style={{ display: ready ? "block" : "none", cursor: "grab", width: GLOBE_SIZE, height: GLOBE_SIZE }}
         onMouseDown={() => { if (canvasRef.current) canvasRef.current.style.cursor = "grabbing"; }}
         onMouseUp={() => { if (canvasRef.current) canvasRef.current.style.cursor = "grab"; }}
       />
@@ -330,14 +380,14 @@ function PayoutBarChart() {
   }, []);
 
   return (
-    <div ref={ref} className="w-[280px] space-y-3">
+    <div ref={ref} className="w-[380px] space-y-3">
       {/* Y-axis label */}
       <div className="flex items-center gap-1.5">
         <span className="text-sm font-black uppercase tracking-widest text-black">% Payout to Publishers</span>
       </div>
 
       {/* Chart */}
-      <div className="flex items-end gap-3 h-52 border-b border-l border-black/10 px-2 pb-0 relative">
+      <div className="flex items-end gap-3 h-72 border-b border-l border-black/10 px-2 pb-0 relative">
         {/* Y-axis ticks */}
         <div className="absolute left-0 inset-y-0 flex flex-col justify-between pb-0 pointer-events-none">
           {["High", "", "", "Low"].map((t, i) => (
@@ -397,7 +447,7 @@ function WaveformFromBook({ books }: { books: Book[] }) {
   return (
     <div className="flex flex-col items-center gap-0">
       {/* Waveform above */}
-      <div className="flex items-end gap-[3px] h-24 w-[180px] px-2">
+      <div className="flex items-end gap-[3px] h-36 w-[260px] px-2">
         {waveformHeights.map((h, i) => (
           <motion.div
             key={i}
@@ -413,10 +463,10 @@ function WaveformFromBook({ books }: { books: Book[] }) {
         <Image
           src={`${book.remoteBaseURL}/${book.coverImageName}`}
           alt={book.title}
-          width={360}
-          height={360}
+          width={520}
+          height={520}
           className="rounded-2xl shadow-2xl object-cover"
-          style={{ width: 180, height: 180 }}
+          style={{ width: 260, height: 260 }}
         />
         {/* Glow connecting waveform to book */}
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/10 blur-md rounded-full" />
@@ -533,7 +583,7 @@ export default function PublisherView() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-xl md:text-2xl text-black/60 font-semibold leading-relaxed max-w-xl mx-auto"
           >
-            Professional production and global distribution across your backlist and new work.
+            Professional audio production and global distribution across your backlist and new work.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
