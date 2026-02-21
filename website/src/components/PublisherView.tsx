@@ -389,9 +389,9 @@ function GlobeVisual() {
 }
 
 const PAYOUT_BARS = [
-  { label: "Audible", value: 50,  color: "bg-black/15", textColor: "text-black/40", amount: "25%" },
-  { label: "Spotify", value: 36,  color: "bg-black/15", textColor: "text-black/40", amount: "18%" },
-  { label: "Azalea",  value: 100, color: "bg-black",    textColor: "text-black",     amount: "50%" },
+  { label: "Audible", value: 50,  color: "bg-blue-800/60", textColor: "text-white/70", amount: "25%" },
+  { label: "Spotify", value: 36,  color: "bg-blue-800/60", textColor: "text-white/70", amount: "18%" },
+  { label: "Azalea",  value: 100, color: "bg-blue-900",    textColor: "text-white",    amount: "50%" },
 ];
 
 function PayoutBarChart() {
@@ -410,35 +410,22 @@ function PayoutBarChart() {
   }, []);
 
   return (
-    <div ref={ref} className="w-[380px] space-y-3">
+    <div ref={ref} className="w-[360px] space-y-4 pl-10">
       {/* Y-axis label */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-sm font-black uppercase tracking-widest text-black">% Payout to Publishers</span>
-      </div>
+      <p className="text-xs font-bold uppercase tracking-widest text-white">% Revenue Payout to Publishers</p>
 
       {/* Chart */}
-      <div className="flex items-end gap-3 h-72 border-b border-l border-black/10 px-2 pb-0 relative">
-        {/* Y-axis ticks */}
-        <div className="absolute left-0 inset-y-0 flex flex-col justify-between pb-0 pointer-events-none">
-          {["High", "", "", "Low"].map((t, i) => (
-            <div key={i} className="flex items-center gap-1">
-              <div className="w-1.5 h-px bg-black/10" />
-            </div>
-          ))}
+      <div className="flex items-end gap-4 h-64 border-b-2 border-l-2 border-white/40 pb-0 relative">
+        {/* Y-axis $ label */}
+        <div className="absolute -left-6 top-0 pointer-events-none">
+          <span className="text-xs font-bold text-white/70">$</span>
         </div>
-
         {PAYOUT_BARS.map((bar, i) => (
-          <div key={bar.label} className="flex-1 flex flex-col items-center justify-end gap-1.5 h-full">
+          <div key={bar.label} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
             {/* Amount label above bar */}
-            <motion.span
-              className={`text-[10px] font-bold ${bar.textColor}`}
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 + 0.6 }}
-            >
+            <span className={`text-sm font-bold ${bar.textColor}`}>
               {bar.amount}
-            </motion.span>
-
+            </span>
             {/* Bar */}
             <div className="w-full flex items-end" style={{ height: "100%" }}>
               <motion.div
@@ -453,10 +440,10 @@ function PayoutBarChart() {
       </div>
 
       {/* X-axis labels */}
-      <div className="flex gap-3 px-2">
+      <div className="flex gap-4 px-3">
         {PAYOUT_BARS.map((bar) => (
           <div key={bar.label} className="flex-1 text-center">
-            <span className={`text-[9px] font-semibold ${bar.label === "Azalea" ? "text-black" : "text-black/30"} leading-tight`}>
+            <span className={`text-xs font-semibold ${bar.label === "Azalea" ? "text-white" : "text-white/60"}`}>
               {bar.label}
             </span>
           </div>
@@ -464,7 +451,7 @@ function PayoutBarChart() {
       </div>
 
       {/* Caption */}
-      <p className="text-[9px] text-black/25 text-center pt-1">Publisher revenue share vs. major platforms</p>
+      <p className="text-xs text-white/50 text-center">Publisher revenue share vs. major platforms</p>
     </div>
   );
 }
@@ -512,34 +499,46 @@ function SplitSection({
   headline,
   body,
   visual,
+  bgImage,
+  invertText,
 }: {
   eyebrow: string;
   headline: React.ReactNode;
   body: string;
   visual: React.ReactNode;
+  bgImage?: string;
+  invertText?: boolean;
 }) {
   return (
     <section className="relative h-screen w-full flex overflow-hidden snap-start snap-always">
+      {bgImage && (
+        <>
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${bgImage}')` }} />
+          <div className={`absolute inset-0 ${invertText ? "bg-black/55" : "bg-white/25"}`} />
+        </>
+      )}
       <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
 
       {/* Left: Text */}
       <div className="w-full md:w-1/2 h-full flex items-center justify-center px-6 md:px-16 relative z-10">
         <div className="max-w-lg w-full space-y-8">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-xs uppercase tracking-[0.5em] text-black/25"
-          >
-            {eyebrow}
-          </motion.p>
+          {eyebrow && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className={`text-xs uppercase tracking-[0.5em] ${invertText ? "text-white/50" : "text-black/25"}`}
+            >
+              {eyebrow}
+            </motion.p>
+          )}
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-black"
+            className={`text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] ${invertText ? "text-white" : "text-black"}`}
           >
             {headline}
           </motion.h2>
@@ -548,7 +547,7 @@ function SplitSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-black/50 font-light leading-relaxed"
+            className={`text-lg font-bold leading-relaxed ${invertText ? "text-white/90" : "text-black/80"}`}
           >
             {body}
           </motion.p>
@@ -556,15 +555,8 @@ function SplitSection({
       </div>
 
       {/* Right: Visual */}
-      <div className="hidden md:flex w-1/2 h-full items-center justify-center border-l border-black/[0.06] bg-[#ece9e3]">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          {visual}
-        </motion.div>
+      <div className={`hidden md:flex w-1/2 h-full items-center justify-center relative z-10 ${invertText ? "" : "bg-[#ece9e3]"}`}>
+        {visual}
       </div>
     </section>
   );
@@ -628,7 +620,7 @@ export default function PublisherView() {
 
       {/* Section 1: Production Lab */}
       <SplitSection
-        eyebrow="Revive Your Backlist"
+        eyebrow=""
         headline={<>Breathe new life into your catalog.</>}
         body="Whether you're an independent author with a single title or a trade publisher with hundreds of titles, we bring every work to life with studio-quality audio productions and expert translations—reaching fresh audiences and reinvigorating your stories for a global stage."
         visual={books.length > 0 ? <WaveformFromBook books={books} /> : <WaveformVisual />}
@@ -636,7 +628,7 @@ export default function PublisherView() {
 
       {/* Section 2: Radical Transparency */}
       <SplitSection
-        eyebrow="Global Reach, Instantly"
+        eyebrow=""
         headline={<>Share your stories<br />worldwide.</>}
         body="Distribute your work to a global audience, effortlessly. Azalea's app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place."
         visual={<GlobeVisual />}
@@ -644,22 +636,26 @@ export default function PublisherView() {
 
       {/* Section 3: Payout Model */}
       <SplitSection
-        eyebrow="The Payout Model"
+        eyebrow=""
         headline={<>Earn more from<br />every minute.</>}
         body="Unlike models that pay only per title or purchase, we reward creators for every minute their work is actually heard—just like streaming music. With our 50/50 revenue share, your payouts reflect true listener engagement and consistently outpace major competitors."
         visual={<PayoutBarChart />}
+        bgImage="/publisher-payout-bg.png"
+        invertText
       />
 
       {/* Footer CTA */}
       <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-desk-bg.png')" }} />
+        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-white/10" />
         <div className="text-center space-y-8 max-w-2xl px-6 relative z-10">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-black"
+            className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-white drop-shadow-md"
           >
             Let&apos;s build the future of publishing.
           </motion.h2>
@@ -668,7 +664,7 @@ export default function PublisherView() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-black/50 font-light"
+            className="text-lg text-white/80 font-medium"
           >
             Ready to bring your catalog to life?
           </motion.p>
@@ -680,7 +676,7 @@ export default function PublisherView() {
           >
             <a
               href="mailto:neel@azalea-labs.com"
-              className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+              className="inline-block px-12 py-4 bg-white text-black text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
             >
               Contact our Studio Team
             </a>
