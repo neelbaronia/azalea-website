@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface Book {
@@ -28,6 +28,18 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
   const [screen, setScreen] = useState<"home" | "detail" | "player">(initialScreen);
   const [selectedBook, setSelectedBook] = useState<Book | null>(books[0] ?? null);
   const [playing, setPlaying] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const update = () => {
+      // 638px phone height + padding; scale down to fit 85% of viewport height
+      const s = Math.min(1, (window.innerHeight * 0.85) / 638);
+      setScale(s);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   function openDetail(book: Book) {
     setSelectedBook(book);
@@ -42,6 +54,7 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
   return (
     <div
       className="relative w-[300px] h-[638px]"
+      style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     >

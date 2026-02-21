@@ -22,7 +22,7 @@ interface Ball {
   size: number;
 }
 
-const COVER_SIZES = [132, 115, 142, 120, 144, 126, 113, 134, 122, 138];
+const COVER_SIZES_BASE = [132, 115, 142, 120, 144, 126, 113, 134, 122, 138];
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -80,11 +80,25 @@ function FloatingIcons({ containerRef, books }: { containerRef: React.RefObject<
   const ballsRef = useRef<Ball[]>([]);
   const [positions, setPositions] = useState<{ x: number; y: number }[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [scale, setScale] = useState(1);
   const hoveredRef = useRef<number | null>(null);
   const animRef = useRef<number>(0);
   const initialized = useRef(false);
 
   useEffect(() => { hoveredRef.current = hoveredIndex; }, [hoveredIndex]);
+
+  // Recompute scale on resize
+  useEffect(() => {
+    const updateScale = () => {
+      const w = containerRef.current?.clientWidth ?? window.innerWidth;
+      setScale(Math.min(1, w / 900));
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [containerRef]);
+
+  const COVER_SIZES = COVER_SIZES_BASE.map((s) => Math.round(s * scale));
 
   const init = useCallback(() => {
     const el = containerRef.current;
