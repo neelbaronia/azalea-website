@@ -32,8 +32,8 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
 
   useEffect(() => {
     const update = () => {
-      // 638px phone height + padding; scale down to fit 85% of viewport height
-      const s = Math.min(1, (window.innerHeight * 0.85) / 638);
+      // Reserve ~280px for heading + body text + padding; phone gets the rest
+      const s = Math.min(1, (window.innerHeight - 280) / 638);
       setScale(s);
     };
     update();
