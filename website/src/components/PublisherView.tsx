@@ -513,8 +513,8 @@ function SplitSection({
     <section className="relative h-screen w-full flex overflow-hidden snap-start snap-always">
       {bgImage && (
         <>
-          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${bgImage}')` }} />
-          <div className={`absolute inset-0 ${invertText ? "bg-black/55" : "bg-white/25"}`} />
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${bgImage}')`, transform: invertText ? undefined : "scaleX(-1)" }} />
+          <div className={`absolute inset-0 ${invertText ? "bg-black/55" : "bg-white/30"}`} />
         </>
       )}
       <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
@@ -538,7 +538,8 @@ function SplitSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className={`text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] ${invertText ? "text-white" : "text-black"}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight leading-[1.1] ${invertText ? "text-white" : "text-black"}`}
+            style={!invertText && bgImage ? { textShadow: "0 1px 8px rgba(255,255,255,0.6)" } : undefined}
           >
             {headline}
           </motion.h2>
@@ -547,7 +548,8 @@ function SplitSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className={`text-lg font-bold leading-relaxed ${invertText ? "text-white/90" : "text-black/80"}`}
+            className={`text-lg font-extrabold leading-relaxed ${invertText ? "text-white/90" : "text-black"}`}
+            style={!invertText && bgImage ? { textShadow: "0 1px 6px rgba(255,255,255,0.5)" } : undefined}
           >
             {body}
           </motion.p>
@@ -555,7 +557,7 @@ function SplitSection({
       </div>
 
       {/* Right: Visual */}
-      <div className={`hidden md:flex w-1/2 h-full items-center justify-center relative z-10 ${invertText ? "" : "bg-[#ece9e3]"}`}>
+      <div className={`hidden md:flex w-1/2 h-full items-center justify-center relative z-10 ${invertText ? "" : bgImage ? "" : "bg-[#ece9e3]"}`}>
         {visual}
       </div>
     </section>
@@ -630,15 +632,16 @@ export default function PublisherView() {
       <SplitSection
         eyebrow=""
         headline={<>Share your stories<br />worldwide.</>}
-        body="Distribute your work to a global audience, effortlessly. Azalea's app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place."
-        visual={<GlobeVisual />}
+        body="With automated translations, distribute your work to a global audience, effortlessly. Azalea's app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place."
+        visual={<></>}
+        bgImage="/publisher-global-bg.png"
       />
 
       {/* Section 3: Payout Model */}
       <SplitSection
         eyebrow=""
         headline={<>Earn more from<br />every minute.</>}
-        body="Unlike models that pay only per title or purchase, we reward creators for every minute their work is actually heard—just like streaming music. With our 50/50 revenue share, your payouts reflect true listener engagement and consistently outpace major competitors."
+        body="Azalea listeners pay one all-you-can-eat subscription—and every minute they spend with your work earns you revenue. Unlike models that pay only per title or purchase, our 50/50 revenue share rewards true listener engagement and consistently outpaces major competitors."
         visual={<PayoutBarChart />}
         bgImage="/publisher-payout-bg.png"
         invertText
