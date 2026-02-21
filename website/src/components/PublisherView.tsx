@@ -613,10 +613,10 @@ export default function PublisherView() {
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             <a
-              href="mailto:neel@azalea-labs.com"
+              href="mailto:neel@azalea-labs.com?subject=Inquiry%20about%20Production%20%26%20Distribution&body=Hi%2C%20I%27m%20reaching%20out%20about%20Azalea%27s%20audio%20production%20and%20distribution%20services."
               className="inline-block px-12 py-4 bg-black text-white text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-black/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
             >
-              Start a Project
+              Contact our Studio Team
             </a>
           </motion.div>
         </div>
@@ -626,8 +626,8 @@ export default function PublisherView() {
       <SplitSection
         eyebrow=""
         headline={<>Breathe new life into your catalog.</>}
-        body="Whether you're an independent author with a single title or a trade publisher with hundreds of titles, we bring every work to life with studio-quality audio productions and expert translations—reaching fresh audiences and reinvigorating your stories for a global stage."
-        visual={books.length > 0 ? <WaveformFromBook books={books} /> : <WaveformVisual />}
+        body="Whether you're an independent author, a trade publisher with hundreds of titles, or even a blogger with an archive, we offer full-service audio production and publication. Bring your every work to life and reach fresh audiences eager to hear your stories for the first time."
+        visual={<></>}
         bgImage="/publisher-backlist-bg.png"
         noOverlay
       />
@@ -636,7 +636,7 @@ export default function PublisherView() {
       <SplitSection
         eyebrow=""
         headline={<>Share your stories<br />worldwide.</>}
-        body="With automated translations, distribute your work to a global audience, effortlessly. Azalea's app connects your content to listeners everywhere, in multiple languages—expanding your reach far beyond borders, all in one place."
+        body="Beyond production, we seamlessly distribute your content to customers worldwide through the Azalea subscription app, connecting your work to listeners everywhere, in multiple languages, all in one place."
         visual={<></>}
         bgImage="/publisher-global-bg.png"
       />
@@ -645,7 +645,7 @@ export default function PublisherView() {
       <SplitSection
         eyebrow=""
         headline={<>Earn more from<br />every minute.</>}
-        body="Azalea listeners pay one all-you-can-eat subscription—and every minute they spend with your work earns you revenue. Unlike models that pay only per title or purchase, our 50/50 revenue share rewards true listener engagement and consistently outpaces major competitors."
+        body="Azalea listeners pay one all-you-can-eat subscription. Every minute they spend with your work earns you revenue. Unlike models that pay only per title or purchase, our 50/50 revenue share rewards true listener engagement and consistently outpaces major competitors."
         visual={<PayoutBarChart />}
         bgImage="/publisher-payout-bg.png"
         invertText
@@ -682,7 +682,7 @@ export default function PublisherView() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <a
-              href="mailto:neel@azalea-labs.com"
+              href="mailto:neel@azalea-labs.com?subject=Inquiry%20about%20Production%20%26%20Distribution&body=Hi%2C%20I%27m%20reaching%20out%20about%20Azalea%27s%20audio%20production%20and%20distribution%20services."
               className="inline-block px-12 py-4 bg-white text-black text-sm font-bold uppercase tracking-[0.3em] rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
             >
               Contact our Studio Team

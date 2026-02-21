@@ -26,6 +26,15 @@ const garamond = EB_Garamond({
 export const metadata: Metadata = {
   title: "Azalea Labs",
   description: "The world's largest audio library.",
+  icons: {
+    icon: "/azalea-icon.png",
+    apple: "/azalea-icon.png",
+  },
+  openGraph: {
+    title: "Azalea Labs",
+    description: "The world's largest audio library.",
+    images: [{ url: "/azalea-icon.png" }],
+  },
 };
 
 export default function RootLayout({
