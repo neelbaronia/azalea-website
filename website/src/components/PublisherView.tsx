@@ -501,6 +501,7 @@ function SplitSection({
   visual,
   bgImage,
   invertText,
+  noOverlay,
 }: {
   eyebrow: string;
   headline: React.ReactNode;
@@ -508,13 +509,14 @@ function SplitSection({
   visual: React.ReactNode;
   bgImage?: string;
   invertText?: boolean;
+  noOverlay?: boolean;
 }) {
   return (
     <section className="relative h-screen w-full flex overflow-hidden snap-start snap-always">
       {bgImage && (
         <>
           <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${bgImage}')`, transform: invertText ? undefined : "scaleX(-1)" }} />
-          <div className={`absolute inset-0 ${invertText ? "bg-black/55" : "bg-white/30"}`} />
+          {!noOverlay && <div className={`absolute inset-0 ${invertText ? "bg-black/55" : "bg-white/30"}`} />}
         </>
       )}
       <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
@@ -548,7 +550,7 @@ function SplitSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className={`text-lg font-extrabold leading-relaxed ${invertText ? "text-white/90" : "text-black"}`}
+            className={`text-xl font-extrabold leading-relaxed ${invertText ? "text-white/90" : "text-black"}`}
             style={!invertText && bgImage ? { textShadow: "0 1px 6px rgba(255,255,255,0.5)" } : undefined}
           >
             {body}
@@ -626,6 +628,8 @@ export default function PublisherView() {
         headline={<>Breathe new life into your catalog.</>}
         body="Whether you're an independent author with a single title or a trade publisher with hundreds of titles, we bring every work to life with studio-quality audio productions and expert translations—reaching fresh audiences and reinvigorating your stories for a global stage."
         visual={books.length > 0 ? <WaveformFromBook books={books} /> : <WaveformVisual />}
+        bgImage="/publisher-backlist-bg.png"
+        noOverlay
       />
 
       {/* Section 2: Radical Transparency */}
@@ -667,7 +671,7 @@ export default function PublisherView() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-white/80 font-medium"
+            className="text-2xl text-white/80 font-medium"
           >
             Ready to bring your catalog to life?
           </motion.p>
