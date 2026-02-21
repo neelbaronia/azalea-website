@@ -13,23 +13,25 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
   const isDark = activeTab === "listen";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-6 bg-transparent">
-      <div className="flex items-center gap-3">
-        <Image src="/azalea-icon.png" alt="Azalea" width={40} height={40} className="w-10 h-10" />
+    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
+      {/* Logo */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <Image src="/azalea-icon.png" alt="Azalea" width={32} height={32} className="w-7 h-7 md:w-10 md:h-10" />
         <div className="flex flex-col leading-tight">
-          <span className={`text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Azalea</span>
-          <span className={`text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Labs</span>
+          <span className={`text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Azalea</span>
+          <span className={`text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] transition-colors duration-500 ${isDark ? "text-white" : "text-black"}`}>Labs</span>
         </div>
       </div>
 
+      {/* Tab switcher */}
       <div
-        className={`absolute left-1/2 -translate-x-1/2 flex gap-1 rounded-xl p-1 border backdrop-blur-md transition-colors duration-500 ${
+        className={`flex gap-0.5 rounded-xl p-1 border backdrop-blur-md transition-colors duration-500 flex-shrink min-w-0 ${
           isDark ? "bg-white/10 border-white/10" : "bg-black/5 border-black/5"
         }`}
       >
         <button
           onClick={() => setActiveTab("listen")}
-          className={`relative px-5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors rounded-lg ${
+          className={`relative px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] transition-colors rounded-lg whitespace-nowrap ${
             activeTab === "listen"
               ? isDark ? "text-black" : "text-white"
               : isDark ? "text-white/50 hover:text-white" : "text-black/40 hover:text-black"
@@ -47,7 +49,7 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
 
         <button
           onClick={() => setActiveTab("create")}
-          className={`relative px-5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors rounded-lg ${
+          className={`relative px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] transition-colors rounded-lg whitespace-nowrap ${
             activeTab === "create"
               ? isDark ? "text-black" : "text-white"
               : isDark ? "text-white/50 hover:text-white" : "text-black/40 hover:text-black"
@@ -63,8 +65,6 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           <span className="relative z-10">Create &amp; Distribute</span>
         </button>
       </div>
-
-      <div className="hidden md:block w-[120px]" />
     </nav>
   );
 }

@@ -321,9 +321,9 @@ export default function ConsumerView() {
 
   return (
     <div ref={scrollContainerRef} className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
-      {/* Fixed phone — position driven 1:1 by scroll */}
+      {/* Fixed phone — desktop only, position driven 1:1 by scroll */}
       <div
-        className="fixed top-1/2 left-1/2 z-40"
+        className="hidden md:block fixed top-1/2 left-1/2 z-40"
         style={{
           transform: `translate(-50%, calc(-50% + ${phoneOffsetY}px))`,
           pointerEvents: phoneOffsetY === 0 ? "auto" : "none",
@@ -433,28 +433,28 @@ export default function ConsumerView() {
         style={{ backgroundImage: "url('/section-art-1.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
-        <div className="relative z-10 w-full md:w-2/5 p-8 md:p-16">
+        {/* Desktop: text on left */}
+        <div className="hidden md:block relative z-10 w-2/5 p-16">
           <div className="max-w-sm space-y-6">
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs uppercase tracking-[0.5em] text-white/50"
-            >
-              The Modern Library of Alexandria
-            </motion.p>
+            <p className="text-xs uppercase tracking-[0.5em] text-white/50">The Modern Library of Alexandria</p>
             <HandwrittenHeading lines={["An endless library."]} className="text-white" />
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg text-white/60 font-light leading-relaxed"
-            >
+            <p className="text-lg text-white/60 font-light leading-relaxed">
               Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips.
-            </motion.p>
+            </p>
           </div>
+        </div>
+        {/* Mobile: stacked layout */}
+        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-between h-full py-16 px-6">
+          <div className="text-center space-y-3">
+            <p className="text-xs uppercase tracking-[0.5em] text-white/50">The Modern Library of Alexandria</p>
+            <HandwrittenHeading lines={["An endless library."]} className="text-white" />
+          </div>
+          <div className="flex-1 flex items-center justify-center py-4">
+            {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
+          </div>
+          <p className="text-base text-white/60 font-light leading-relaxed text-center">
+            Step inside the new Alexandria—a boundless collection of stories, voices, and knowledge at your fingertips.
+          </p>
         </div>
       </section>
 
@@ -464,28 +464,28 @@ export default function ConsumerView() {
         style={{ backgroundImage: "url('/section-art-2.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
-        <div className="relative z-10 w-full md:w-2/5 p-8 md:p-16">
+        {/* Desktop: text on left */}
+        <div className="hidden md:block relative z-10 w-2/5 p-16">
           <div className="max-w-sm space-y-6">
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs uppercase tracking-[0.5em] text-white/50"
-            >
-              Stories Within Stories
-            </motion.p>
+            <p className="text-xs uppercase tracking-[0.5em] text-white/50">Stories Within Stories</p>
             <HandwrittenHeading lines={["Dive deeper", "into every story."]} className="text-white" />
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg text-white/60 font-light leading-relaxed"
-            >
+            <p className="text-lg text-white/60 font-light leading-relaxed">
               Tap any book to dive in. Every title invites discovery and every listen expands your world.
-            </motion.p>
+            </p>
           </div>
+        </div>
+        {/* Mobile: stacked layout */}
+        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-between h-full py-16 px-6">
+          <div className="text-center space-y-3">
+            <p className="text-xs uppercase tracking-[0.5em] text-white/50">Stories Within Stories</p>
+            <HandwrittenHeading lines={["Dive deeper", "into every story."]} className="text-white" />
+          </div>
+          <div className="flex-1 flex items-center justify-center py-4">
+            {books.length > 0 && <PhoneMockup books={books} initialScreen="detail" />}
+          </div>
+          <p className="text-base text-white/60 font-light leading-relaxed text-center">
+            Tap any book to dive in. Every title invites discovery and every listen expands your world.
+          </p>
         </div>
       </section>
 
