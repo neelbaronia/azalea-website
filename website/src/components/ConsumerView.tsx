@@ -334,7 +334,7 @@ export default function ConsumerView() {
 
 
       {/* Hero */}
-      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.webp')", backgroundSize: "cover", backgroundPosition: "center" }}>
         {/* Floating icons with physics */}
         <FloatingIcons containerRef={heroRef} books={books} />
 
@@ -403,19 +403,19 @@ export default function ConsumerView() {
             {formState === "success" ? (
               <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
             ) : (
-              <form onSubmit={handleHeroSubmit} className="flex items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+              <form onSubmit={handleHeroSubmit} className="flex flex-col md:flex-row items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)] gap-2 md:gap-0">
                 <input
                   type="email"
                   placeholder="you@email.com"
                   value={heroEmail}
                   onChange={(e) => setHeroEmail(e.target.value)}
                   required
-                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-l-xl border border-r-0 border-white/20"
+                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/20 md:border-r-0"
                 />
                 <button
                   type="submit"
                   disabled={formState === "loading"}
-                  className="shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-r-xl disabled:opacity-60"
+                  className="w-full md:w-auto shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-xl md:rounded-r-xl md:rounded-l-none disabled:opacity-60"
                 >
                   {formState === "loading" ? "..." : "Join the Waitlist"}
                 </button>
@@ -430,7 +430,7 @@ export default function ConsumerView() {
       {/* Section 1: Art of Listening */}
       <section
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
-        style={{ backgroundImage: "url('/section-art-1.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url('/section-art-1.webp')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
         {/* Desktop: text on left */}
@@ -444,12 +444,12 @@ export default function ConsumerView() {
           </div>
         </div>
         {/* Mobile: stacked layout */}
-        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-between h-full py-16 px-6">
-          <div className="text-center space-y-3">
+        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-start h-full pt-40 pb-4 px-6 gap-3">
+          <div className="text-center space-y-1">
             <p className="text-xs uppercase tracking-[0.5em] text-white/50">The Modern Library of Alexandria</p>
             <HandwrittenHeading lines={["An endless library."]} className="text-white" />
           </div>
-          <div className="flex-1 flex items-center justify-center py-4">
+          <div className="flex justify-center">
             {books.length > 0 && <PhoneMockup books={books} initialScreen="home" />}
           </div>
           <p className="text-base text-white/60 font-light leading-relaxed text-center">
@@ -461,7 +461,7 @@ export default function ConsumerView() {
       {/* Section 2: Stories Within Stories */}
       <section
         className="relative h-screen w-full flex items-center snap-start snap-always overflow-hidden"
-        style={{ backgroundImage: "url('/section-art-2.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url('/section-art-2.webp')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
         {/* Desktop: text on left */}
@@ -475,12 +475,12 @@ export default function ConsumerView() {
           </div>
         </div>
         {/* Mobile: stacked layout */}
-        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-between h-full py-16 px-6">
-          <div className="text-center space-y-3">
+        <div className="md:hidden relative z-10 w-full flex flex-col items-center justify-start h-full pt-40 pb-4 px-6 gap-3">
+          <div className="text-center space-y-1">
             <p className="text-xs uppercase tracking-[0.5em] text-white/50">Stories Within Stories</p>
             <HandwrittenHeading lines={["Dive deeper", "into every story."]} className="text-white" />
           </div>
-          <div className="flex-1 flex items-center justify-center py-4">
+          <div className="flex justify-center">
             {books.length > 0 && <PhoneMockup books={books} initialScreen="detail" />}
           </div>
           <p className="text-base text-white/60 font-light leading-relaxed text-center">
@@ -494,7 +494,7 @@ export default function ConsumerView() {
         {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/bhutan-dzong.png')" }}
+          style={{ backgroundImage: "url('/bhutan-dzong.webp')" }}
         />
         {/* Overlay for readability */}
         <div className="absolute inset-0 bg-black/40" />
@@ -526,19 +526,19 @@ export default function ConsumerView() {
             {formState === "success" ? (
               <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
             ) : (
-              <form onSubmit={handleFooterSubmit} className="flex items-stretch w-full max-w-lg mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+              <form onSubmit={handleFooterSubmit} className="flex flex-col md:flex-row items-stretch w-full max-w-lg mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)] gap-2 md:gap-0">
                 <input
                   type="email"
                   placeholder="you@email.com"
                   value={footerEmail}
                   onChange={(e) => setFooterEmail(e.target.value)}
                   required
-                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-l-xl border border-r-0 border-white/20"
+                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/20 md:border-r-0"
                 />
                 <button
                   type="submit"
                   disabled={formState === "loading"}
-                  className="shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-r-xl disabled:opacity-60"
+                  className="w-full md:w-auto shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-xl md:rounded-r-xl md:rounded-l-none disabled:opacity-60"
                 >
                   {formState === "loading" ? "..." : "Get Early Access"}
                 </button>

@@ -24,6 +24,9 @@ interface PhoneMockupProps {
   initialScreen?: "home" | "detail" | "player";
 }
 
+const BASE_W = 330;
+const BASE_H = 570;
+
 export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMockupProps) {
   const [screen, setScreen] = useState<"home" | "detail" | "player">(initialScreen);
   const [selectedBook, setSelectedBook] = useState<Book | null>(books[0] ?? null);
@@ -33,7 +36,7 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
   useEffect(() => {
     const update = () => {
       // Reserve ~280px for heading + body text + padding; phone gets the rest
-      const s = Math.min(1, (window.innerHeight - 280) / 638);
+      const s = Math.min(1, (window.innerHeight - 280) / BASE_H);
       setScale(s);
     };
     update();
@@ -52,12 +55,25 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
   }
 
   return (
+    // Outer wrapper takes the actual scaled dimensions in layout flow
     <div
-      className="relative w-[300px] h-[638px]"
-      style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
+      style={{ position: "relative", width: BASE_W * scale, height: BASE_H * scale, flexShrink: 0 }}
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     >
+      {/* Inner phone — visually scaled but positioned via transform so layout box matches */}
+      <div
+        style={{
+          position: "absolute",
+          width: BASE_W,
+          height: BASE_H,
+          top: 0,
+          left: "50%",
+          marginLeft: -BASE_W / 2,
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+        }}
+      >
       {/* Phone frame */}
       <div className="absolute inset-0 bg-[#1c1c1e] rounded-[3rem] border-[10px] border-[#2a2a2a] shadow-[0_40px_120px_rgba(0,0,0,0.8)] overflow-hidden ring-1 ring-white/5">
         <div className="relative w-full h-full overflow-hidden">
@@ -100,6 +116,7 @@ export default function PhoneMockup({ books, initialScreen = "home" }: PhoneMock
           {/* Home indicator */}
           <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-24 h-1 bg-black/20 rounded-full z-20" />
         </div>
+      </div>
       </div>
     </div>
   );

@@ -394,7 +394,7 @@ const PAYOUT_BARS = [
   { label: "Azalea",  value: 100, color: "bg-blue-900",    textColor: "text-white",    amount: "50%" },
 ];
 
-function PayoutBarChart() {
+function PayoutBarChart({ compact }: { compact?: boolean }) {
   const [inView, setInView] = useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -403,27 +403,27 @@ function PayoutBarChart() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setInView(true); },
-      { threshold: 0.4 }
+      { threshold: 0.2 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={ref} className="w-[360px] space-y-4 pl-10">
+    <div ref={ref} className={`w-full space-y-2 md:space-y-4 ${compact ? "pl-6 max-w-[280px]" : "pl-10 max-w-[360px]"}`}>
       {/* Y-axis label */}
       <p className="text-xs font-bold uppercase tracking-widest text-white">% Revenue Payout to Publishers</p>
 
       {/* Chart */}
-      <div className="flex items-end gap-4 h-64 border-b-2 border-l-2 border-white/40 pb-0 relative">
+      <div className={`flex items-end gap-3 md:gap-4 border-b-2 border-l-2 border-white/40 pb-0 relative ${compact ? "h-28" : "h-28 md:h-64"}`}>
         {/* Y-axis $ label */}
-        <div className="absolute -left-6 top-0 pointer-events-none">
+        <div className="absolute -left-5 top-0 pointer-events-none">
           <span className="text-xs font-bold text-white/70">$</span>
         </div>
         {PAYOUT_BARS.map((bar, i) => (
-          <div key={bar.label} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+          <div key={bar.label} className="flex-1 flex flex-col items-center justify-end gap-1 h-full">
             {/* Amount label above bar */}
-            <span className={`text-sm font-bold ${bar.textColor}`}>
+            <span className={`text-xs font-bold ${bar.textColor}`}>
               {bar.amount}
             </span>
             {/* Bar */}
@@ -440,7 +440,7 @@ function PayoutBarChart() {
       </div>
 
       {/* X-axis labels */}
-      <div className="flex gap-4 px-3">
+      <div className="flex gap-3 md:gap-4 px-2 md:px-3">
         {PAYOUT_BARS.map((bar) => (
           <div key={bar.label} className="flex-1 text-center">
             <span className={`text-xs font-semibold ${bar.label === "Azalea" ? "text-white" : "text-white/60"}`}>
@@ -499,6 +499,7 @@ function SplitSection({
   headline,
   body,
   visual,
+  mobileVisual,
   bgImage,
   invertText,
   noOverlay,
@@ -507,6 +508,7 @@ function SplitSection({
   headline: React.ReactNode;
   body: string;
   visual: React.ReactNode;
+  mobileVisual?: React.ReactNode;
   bgImage?: string;
   invertText?: boolean;
   noOverlay?: boolean;
@@ -521,9 +523,9 @@ function SplitSection({
       )}
       <div className="absolute top-0 left-0 right-0 h-px bg-black/[0.06]" />
 
-      {/* Left: Text */}
-      <div className="w-full md:w-1/2 h-full flex items-center justify-center px-6 md:px-16 relative z-10">
-        <div className="max-w-lg w-full space-y-8">
+      {/* Left: Text (+ mobile visual) */}
+      <div className="w-full md:w-1/2 h-full flex flex-col items-center md:items-center justify-start md:justify-center pt-40 md:pt-0 pb-4 md:pb-0 px-6 md:px-16 relative z-10 overflow-y-auto">
+        <div className="max-w-lg w-full space-y-4 md:space-y-8 text-center md:text-left">
           {eyebrow && (
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -550,15 +552,21 @@ function SplitSection({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className={`text-xl font-extrabold leading-relaxed ${invertText ? "text-white/90" : "text-black"}`}
+            className={`text-base md:text-xl font-extrabold leading-relaxed ${invertText ? "text-white/90" : "text-black"}`}
             style={!invertText && bgImage ? { textShadow: "0 1px 6px rgba(255,255,255,0.5)" } : undefined}
           >
             {body}
           </motion.p>
+          {/* Mobile-only visual below body text */}
+          {(mobileVisual || visual) && (
+            <div className="md:hidden flex justify-center pt-2">
+              {mobileVisual ?? visual}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Right: Visual */}
+      {/* Right: Visual (desktop only) */}
       <div className={`hidden md:flex w-1/2 h-full items-center justify-center relative z-10 ${invertText ? "" : bgImage ? "" : "bg-[#ece9e3]"}`}>
         {visual}
       </div>
@@ -579,7 +587,7 @@ export default function PublisherView() {
       {/* Hero */}
       <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
         {/* Background image */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-hero-bg.png')" }} />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-hero-bg.webp')" }} />
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/50" />
         <div className="text-center space-y-8 max-w-3xl px-6 relative z-10">
@@ -628,7 +636,7 @@ export default function PublisherView() {
         headline={<>Breathe new life into your catalog.</>}
         body="Whether you're an independent author, a trade publisher with hundreds of titles, or even a blogger with an archive, we offer full-service audio production and publication. Bring your every work to life and reach fresh audiences eager to hear your stories for the first time."
         visual={<></>}
-        bgImage="/publisher-backlist-bg.png"
+        bgImage="/publisher-backlist-bg.webp"
         noOverlay
       />
 
@@ -638,7 +646,7 @@ export default function PublisherView() {
         headline={<>Share your stories<br />worldwide.</>}
         body="Beyond production, we seamlessly distribute your content to customers worldwide through the Azalea subscription app, connecting your work to listeners everywhere, in multiple languages, all in one place."
         visual={<></>}
-        bgImage="/publisher-global-bg.png"
+        bgImage="/publisher-global-bg.webp"
       />
 
       {/* Section 3: Payout Model */}
@@ -647,13 +655,14 @@ export default function PublisherView() {
         headline={<>Earn more from<br />every minute.</>}
         body="Azalea listeners pay one all-you-can-eat subscription. Every minute they spend with your work earns you revenue. Unlike models that pay only per title or purchase, our 50/50 revenue share rewards true listener engagement and consistently outpaces major competitors."
         visual={<PayoutBarChart />}
-        bgImage="/publisher-payout-bg.png"
+        mobileVisual={<PayoutBarChart compact />}
+        bgImage="/publisher-payout-bg.webp"
         invertText
       />
 
       {/* Footer CTA */}
       <section className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-desk-bg.png')" }} />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/publisher-desk-bg.webp')" }} />
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute top-0 left-0 right-0 h-px bg-white/10" />
         <div className="text-center space-y-8 max-w-2xl px-6 relative z-10">
