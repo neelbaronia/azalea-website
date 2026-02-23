@@ -1,0 +1,30 @@
+{
+  "title": "Tarrano the Conqueror",
+  "author": "Ray Cummings",
+  "description": "A synchronized assassination. A stolen path to near-immortality. A violet death-beam aimed at the stars. When the enigmatic Tarrano seizes power across Earth, Mars, and Venus, a sharp-tongued reporter, a pair of genius twins, and a fugitive princess form an unlikely resistance. Their chase barrels from Venusian jungles to a Martian City of Ice, through coded broadcasts, aerial battles, and a surveillance ray that sees everything. Tarrano the Conqueror blends spy thriller velocity with space-opera spectacle—a high-stakes fight for freedom against the most dangerous man in the Solar System.",
+  "coverImageName": "CoverTarranoTheConqueror.png",
+  "audioFileName": "Tarrano Sample.mp3",
+  "duration": 27061,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 8", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 9", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 10", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 11", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 12", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 13", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 14", "audioFileName": "Tarrano Sample.mp3" },
+    { "title": "Chapter 15", "audioFileName": "Tarrano Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "SciFiLover", "rating": 4, "comment": "A classic that holds up well. Great world-building!" },
+    { "reviewer": "BookWorm42", "rating": 5, "comment": "Absolutely captivating from start to finish." },
+    { "reviewer": "RetroReader", "rating": 3, "comment": "Enjoyable but dated in some ways." }
+  ]
+}

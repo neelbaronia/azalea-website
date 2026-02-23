@@ -1,0 +1,19 @@
+{
+  "title": "The Phantom Public",
+  "author": "Walter Lippmann",
+  "description": "A provocative examination of democracy and public opinion. Lippmann challenges the romantic notion of an informed citizenry and explores the realistic limits of democratic participation.",
+  "coverImageName": "CoverPhantomPublic.png",
+  "audioFileName": "Phanton Public Sample.mp3",
+  "duration": 10800,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Phanton Public Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Phanton Public Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Phanton Public Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Phanton Public Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Phanton Public Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "PhilosophyNerd", "rating": 5, "comment": "Still remarkably relevant today." },
+    { "reviewer": "JournalismProf", "rating": 4, "comment": "Essential reading for understanding media and democracy." }
+  ]
+}

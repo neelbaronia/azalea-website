@@ -1,0 +1,22 @@
+{
+  "title": "The Sign of the Seven Sins",
+  "author": "William Le Queux",
+  "description": "In the glittering casinos of Monte Carlo, where white and gold façades hide deadly secrets, socialite Carmela Rosselli becomes entangled in a murder mystery that leads from luxury hotels to illicit gambling dens. When her companion is found dead with mysterious marks on his throat, Carmela must navigate a world of poisoned weapons, dangerous conspiracies, and forbidden love to uncover the truth—before she becomes the next victim in a game where the stakes are life and death.",
+  "coverImageName": "CoverSignOfTheSevenSins.png",
+  "audioFileName": "Seven Sins Sample.mp3",
+  "duration": 18185,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Seven Sins Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Seven Sins Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "SpyNovelFan", "rating": 4, "comment": "Classic espionage with great atmosphere." },
+    { "reviewer": "EuroHistory", "rating": 4, "comment": "Fascinating glimpse into early 20th century Europe." },
+    { "reviewer": "NightReader", "rating": 5, "comment": "Couldn't stop listening!" }
+  ]
+}

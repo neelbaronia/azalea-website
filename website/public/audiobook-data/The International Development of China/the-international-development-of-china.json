@@ -1,0 +1,32 @@
+{
+  "title": "The International Development of China",
+  "author": "Sun Yat-sen",
+  "description": "In The International Development of China, founding father of modern China Sun Yat-sen unveils his audacious plan to transform a fractured, semi-colonized nation into a united industrial power. Written in 1920, this work blends political vision with engineering ambition outlining vast railway networks, modernized ports, electrification, and resource development, all designed to lift hundreds of millions out of poverty.",
+  "coverImageName": "CoverInternationalDevelopmentOfChina.png",
+  "audioFileName": "Dev China Sample.mp3",
+  "duration": 22625,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 8", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 9", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 10", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 11", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 12", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 13", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 14", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 15", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 16", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 17", "audioFileName": "Dev China Sample.mp3" },
+    { "title": "Chapter 18", "audioFileName": "Dev China Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "AsianHistory", "rating": 5, "comment": "Incredible insight into early 20th century China." },
+    { "reviewer": "PoliSciMajor", "rating": 4, "comment": "Important historical perspective on development." }
+  ]
+}

@@ -700,6 +700,23 @@ export default function PublisherView() {
         </div>
       </section>
 
+      {/* Footer */}
+      <footer className="w-full bg-black text-white/60 snap-start">
+        <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between gap-8">
+          <div className="space-y-2">
+            <p className="text-white font-bold text-sm uppercase tracking-[0.3em]">Azalea Labs</p>
+            <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Azalea Labs. All rights reserved.</p>
+          </div>
+          <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
+            <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
+            <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
+            <a href="#" className="hover:text-white transition-colors">About</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }

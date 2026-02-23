@@ -1,0 +1,25 @@
+{
+  "title": "The Red Seal",
+  "author": "Natalie Sumner Lincoln",
+  "description": "A Washington D.C. mystery involving a prominent lawyer found dead under suspicious circumstances. As investigations unfold, dark secrets about power and corruption in the nation's capital come to light.",
+  "coverImageName": "CoverRedSeal.png",
+  "audioFileName": "Red Seal Sample.mp3",
+  "duration": 19800,
+  "chapters": [
+    { "title": "Chapter 1", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 2", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 3", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 4", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 5", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 6", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 7", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 8", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 9", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 10", "audioFileName": "Red Seal Sample.mp3" },
+    { "title": "Chapter 11", "audioFileName": "Red Seal Sample.mp3" }
+  ],
+  "reviews": [
+    { "reviewer": "DCNative", "rating": 4, "comment": "Love the historical Washington setting." },
+    { "reviewer": "ThrillerAddict", "rating": 3, "comment": "Solid mystery with good pacing." }
+  ]
+}
