@@ -24,12 +24,9 @@ interface BookMetadata {
   chapters: Chapter[];
 }
 
-const CHAPTER_OVERRIDES: Record<string, string> = {
-  "evolution-of-the-oil-industry": "Chapter 3",
-};
+const CHAPTER_OVERRIDES: Record<string, string> = {};
 
 const FEATURED_IDS = [
-  "evolution-of-the-oil-industry",
   "tarrano-the-conqueror",
   "the-phantom-public",
   "confessions-of-an-anarchist",
