@@ -243,7 +243,7 @@ export default function SamplesPage() {
               const audioUrl = `${book.remoteBaseURL}/chapters/${chapter.fileName}`;
               entries.push({ book, audioUrl });
             }
-          } catch {
+          } catch (e) {
             // skip books whose metadata can't be fetched
           }
         }
