@@ -710,6 +710,7 @@ export default function PublisherView() {
           <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
             <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
             <a href="/samples" className="hover:text-white transition-colors">Samples</a>
+            <a href="/publications" className="hover:text-white transition-colors">Our Publications</a>
             <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
             <a href="#" className="hover:text-white transition-colors">About</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
