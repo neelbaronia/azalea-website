@@ -27,10 +27,12 @@ interface BookMetadata {
 const CHAPTER_OVERRIDES: Record<string, string> = {};
 
 const FEATURED_IDS = [
-  "tarrano-the-conqueror",
-  "the-phantom-public",
-  "confessions-of-an-anarchist",
+  "a-honeymoon-in-space",
   "anthropology-and-modern-life",
+  "diana",
+  "tarrano-the-conqueror",
+  "the-conquest-of-happiness-project-gutenberg",
+  "the-phantom-public",
 ];
 
 function formatDuration(seconds: number): string {
