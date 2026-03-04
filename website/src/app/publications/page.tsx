@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -49,8 +49,114 @@ function PublicationsNavbar() {
   );
 }
 
+interface Chapter {
+  title: string;
+  fileName: string;
+  duration: number;
+  remoteAudioURL: string;
+}
+
 interface BookWithDescription extends Book {
   description?: string;
+  sampleUrl?: string;
+}
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function MiniPlayer({ audioUrl }: { audioUrl: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const seekBarRef = useRef<HTMLDivElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setPlaying(!playing);
+  };
+
+  const seekFromEvent = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+    const bar = seekBarRef.current;
+    if (!bar || !audioRef.current || !duration) return;
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = pct * duration;
+  };
+
+  const handleSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    seekFromEvent(e);
+    setDragging(true);
+    const onMove = (ev: MouseEvent) => seekFromEvent(ev);
+    const onUp = () => {
+      setDragging(false);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
+
+  const progress = duration ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div className="flex items-center gap-3 mt-3">
+      <audio
+        ref={audioRef}
+        src={audioUrl}
+        preload="metadata"
+        onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)}
+        onLoadedMetadata={() => {
+          if (audioRef.current) {
+            setDuration(audioRef.current.duration);
+            audioRef.current.playbackRate = 1.2;
+          }
+        }}
+        onEnded={() => setPlaying(false)}
+      />
+      <button
+        onClick={togglePlay}
+        className="flex-shrink-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-white/80 transition-colors"
+      >
+        {playing ? (
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor">
+            <rect x="2" y="1" width="3.5" height="12" rx="1" />
+            <rect x="8.5" y="1" width="3.5" height="12" rx="1" />
+          </svg>
+        ) : (
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor">
+            <path d="M3 1.5v11l9-5.5z" />
+          </svg>
+        )}
+      </button>
+      <span className="text-xs text-white/40 tabular-nums w-9 text-right">{formatTime(currentTime)}</span>
+      <div
+        ref={seekBarRef}
+        className="flex-1 h-2 bg-white/10 rounded-full cursor-pointer relative group"
+        onMouseDown={handleSeekDown}
+      >
+        <div
+          className="absolute inset-y-0 left-0 bg-white/60 rounded-full"
+          style={{ width: `${progress}%`, transition: dragging ? "none" : "width 0.1s" }}
+        />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ left: `calc(${progress}% - 8px)` }}
+        />
+      </div>
+      <span className="text-xs text-white/40 tabular-nums w-9">{formatTime(duration)}</span>
+    </div>
+  );
 }
 
 export default function PublicationsPage() {
@@ -67,7 +173,18 @@ export default function PublicationsPage() {
               const res = await fetch(`${book.remoteBaseURL}/metadata.json`);
               if (!res.ok) return book;
               const meta = await res.json();
-              return { ...book, description: meta.description || undefined };
+              let sampleUrl: string | undefined;
+              if (meta.chapters?.length) {
+                const chapter = meta.chapters.find(
+                  (ch: Chapter) =>
+                    ch.title.toLowerCase().startsWith("chapter") ||
+                    ch.title.toLowerCase().startsWith("part")
+                ) || meta.chapters[0];
+                if (chapter?.fileName) {
+                  sampleUrl = `${book.remoteBaseURL}/chapters/${chapter.fileName}`;
+                }
+              }
+              return { ...book, description: meta.description || undefined, sampleUrl };
             } catch {
               return book;
             }
@@ -127,17 +244,40 @@ export default function PublicationsPage() {
                           {book.description}
                         </p>
                       )}
-                      <a
-                        href={`https://open.spotify.com/search/${encodeURIComponent(book.title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-white text-base font-semibold rounded-full transition-colors"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                        </svg>
-                        Listen on Spotify
-                      </a>
+                      {book.sampleUrl && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">Listen to a Sample</p>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <MiniPlayer audioUrl={book.sampleUrl} />
+                            </div>
+                            <a
+                              href={`https://open.spotify.com/search/${encodeURIComponent(book.title)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-white text-sm font-semibold rounded-full transition-colors"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                              </svg>
+                              Full Book Available on Spotify
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                      {!book.sampleUrl && (
+                        <a
+                          href={`https://open.spotify.com/search/${encodeURIComponent(book.title)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-white text-base font-semibold rounded-full transition-colors"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                          </svg>
+                          Listen on Spotify
+                        </a>
+                      )}
                     </div>
                   </div>
                 );
