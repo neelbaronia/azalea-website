@@ -280,6 +280,15 @@ export default function ConsumerView() {
       .catch(() => {});
   }, []);
 
+  // Pick 10 random books for the floating icons (stable after first render)
+  const [floatingBooks, setFloatingBooks] = useState<Book[]>([]);
+  useEffect(() => {
+    if (books.length > 0 && floatingBooks.length === 0) {
+      const shuffled = [...books].sort(() => Math.random() - 0.5);
+      setFloatingBooks(shuffled.slice(0, 10));
+    }
+  }, [books]);
+
   // Drive phone position 1:1 with scroll — same speed as page content
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -336,7 +345,7 @@ export default function ConsumerView() {
       {/* Hero */}
       <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.webp')", backgroundSize: "cover", backgroundPosition: "center" }}>
         {/* Floating icons with physics */}
-        <FloatingIcons containerRef={heroRef} books={books} />
+        <FloatingIcons containerRef={heroRef} books={floatingBooks} />
 
         <div className="text-center space-y-8 max-w-3xl px-10 relative z-10 w-full">
           <div className="relative inline-block">
