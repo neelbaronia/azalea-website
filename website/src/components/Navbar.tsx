@@ -101,7 +101,7 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
               isDark ? "text-white/70 hover:text-white" : "text-black/50 hover:text-black"
             }`}
           >
-            Sign In
+            Sign In / Join
           </Link>
         )}
       </div>
