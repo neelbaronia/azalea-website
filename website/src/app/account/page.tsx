@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import AccountActions from "./account-actions";
 
@@ -32,6 +33,12 @@ export default async function AccountPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fbfbfb] px-4">
       <div className="w-full max-w-sm">
+        <Link
+          href="/"
+          className="block text-center text-xs uppercase tracking-[0.15em] font-bold text-gray-400 hover:text-black transition-colors mb-8 font-[family-name:var(--font-geist-sans)]"
+        >
+          &larr; Back to Azalea
+        </Link>
         <h1 className="text-3xl font-bold text-center mb-8 font-[family-name:var(--font-geist-sans)]">
           Account
         </h1>
