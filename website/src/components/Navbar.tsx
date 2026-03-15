@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface NavbarProps {
   activeTab: "listen" | "create";
@@ -11,6 +14,20 @@ interface NavbarProps {
 
 export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
   const isDark = activeTab === "listen";
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
@@ -64,6 +81,29 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           )}
           <span className="relative z-10">Create &amp; Distribute</span>
         </button>
+      </div>
+
+      {/* Auth link */}
+      <div className="flex-shrink-0">
+        {user ? (
+          <Link
+            href="/account"
+            className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${
+              isDark ? "text-white/70 hover:text-white" : "text-black/50 hover:text-black"
+            }`}
+          >
+            Account
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${
+              isDark ? "text-white/70 hover:text-white" : "text-black/50 hover:text-black"
+            }`}
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </nav>
   );
