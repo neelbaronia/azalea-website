@@ -61,12 +61,16 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Build a set of known audiobook titles from library.json to filter out podcasts logged in listening_sessions
+  const knownAudiobookTitles = new Set(libraryBooks.map((b: { title: string }) => b.title));
+
   // Collect all period starts
   const periodSet = new Set<string>();
 
-  // Aggregate audiobooks by period
+  // Aggregate audiobooks by period (only include titles that exist in library.json)
   const audiobookMap = new Map<string, { id: string; title: string; author: string; image_url: string | null; total_seconds: number; listeners: Set<string> }>();
   for (const s of audiobookRes.data ?? []) {
+    if (!knownAudiobookTitles.has(s.audiobook_title)) continue;
     const ps = getPeriodStart(new Date(s.started_at), period);
     periodSet.add(ps);
     const key = `${ps}|${s.audiobook_id}`;

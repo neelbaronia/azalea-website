@@ -255,7 +255,7 @@ export default function AnalyticsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{formatDuration(book.total_seconds)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(book.total_seconds)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{book.unique_listeners}</td>
                   </tr>
                 ))}
@@ -290,7 +290,7 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-6 text-sm tabular-nums shrink-0 ml-4">
-                    <span>{formatDuration(show.total_seconds)}</span>
+                    <span className="whitespace-nowrap">{formatDuration(show.total_seconds)}</span>
                     <span className="text-gray-400 w-8 text-right">{show.unique_listeners}</span>
                     <span className="text-gray-300 text-xs">{expandedShows.has(show.show_id) ? "▲" : "▼"}</span>
                   </div>
@@ -304,7 +304,7 @@ export default function AnalyticsPage() {
                       >
                         <span className="text-gray-600 truncate flex-1 min-w-0 pr-4">{ep.episode_title}</span>
                         <div className="flex items-center gap-6 tabular-nums shrink-0">
-                          <span className="text-gray-500">{formatDuration(ep.total_seconds)}</span>
+                          <span className="text-gray-500 whitespace-nowrap">{formatDuration(ep.total_seconds)}</span>
                           <span className="text-gray-400 w-8 text-right">{ep.unique_listeners}</span>
                           <span className="w-3" />
                         </div>
