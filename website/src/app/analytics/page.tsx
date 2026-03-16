@@ -219,11 +219,6 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Summary */}
-        <div className="flex gap-6 mb-6 text-sm text-gray-500">
-          <span>Total: <strong className="text-black">{formatDuration(totalSeconds)}</strong></span>
-        </div>
-
         {/* Data */}
         {loading ? (
           <p className="text-gray-400 text-sm">Loading...</p>
@@ -260,6 +255,13 @@ export default function AnalyticsPage() {
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t border-gray-200 bg-gray-50 font-medium">
+                  <td className="px-4 py-3">Total</td>
+                  <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(totalSeconds)}</td>
+                  <td className="px-4 py-3"></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         ) : (
@@ -314,6 +316,14 @@ export default function AnalyticsPage() {
                 )}
               </div>
             ))}
+            <div className="flex items-center justify-between px-4 py-3 text-sm font-medium border-t border-gray-200 bg-gray-50 rounded-lg mt-2">
+              <span>Total</span>
+              <div className="flex items-center gap-6 shrink-0 ml-4">
+                <span className="whitespace-nowrap">{formatDuration(totalSeconds)}</span>
+                <span className="w-8"></span>
+                <span className="w-3" />
+              </div>
+            </div>
           </div>
         )}
       </div>
