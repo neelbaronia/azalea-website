@@ -6,22 +6,41 @@ import Link from "next/link";
 const ANALYTICS_PASSWORD = process.env.NEXT_PUBLIC_ANALYTICS_PASSWORD || "azalea";
 
 type PeriodType = "daily" | "weekly" | "monthly";
+type ContentTab = "podcasts" | "audiobooks";
 
-interface AggRow {
-  content_type: string;
-  content_id: string;
-  content_name: string;
-  content_author: string;
+interface AudiobookRow {
+  id: string;
+  title: string;
+  author: string;
+  image_url: string | null;
   total_seconds: number;
-  event_count: number;
-  period_start: string;
+  unique_listeners: number;
+}
+
+interface EpisodeRow {
+  episode_id: string;
+  episode_title: string;
+  total_seconds: number;
+  unique_listeners: number;
+}
+
+interface PodcastShow {
+  show_id: string;
+  show_title: string;
+  show_author: string;
+  image_url: string | null;
+  total_seconds: number;
+  unique_listeners: number;
+  episodes: EpisodeRow[];
 }
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
   if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
 }
 
 function formatPeriodLabel(periodStart: string, period: PeriodType): string {
@@ -32,20 +51,18 @@ function formatPeriodLabel(periodStart: string, period: PeriodType): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-const typeBadgeColors: Record<string, string> = {
-  audiobook: "bg-purple-100 text-purple-800",
-  podcast: "bg-blue-100 text-blue-800",
-};
-
 export default function AnalyticsPage() {
   const [authed, setAuthed] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [period, setPeriod] = useState<PeriodType>("weekly");
-  const [data, setData] = useState<AggRow[]>([]);
+  const [tab, setTab] = useState<ContentTab>("podcasts");
+  const [audiobooks, setAudiobooks] = useState<AudiobookRow[]>([]);
+  const [podcasts, setPodcasts] = useState<PodcastShow[]>([]);
   const [periods, setPeriods] = useState<string[]>([]);
   const [periodIndex, setPeriodIndex] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [expandedShows, setExpandedShows] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("analytics_authed") === "true") {
@@ -60,13 +77,15 @@ export default function AnalyticsPage() {
     try {
       const res = await fetch(`/api/analytics?${params}`);
       const json = await res.json();
-      setData(json.data ?? []);
+      setAudiobooks(json.audiobooks ?? []);
+      setPodcasts(json.podcasts ?? []);
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
       }
     } catch {
-      setData([]);
+      setAudiobooks([]);
+      setPodcasts([]);
     } finally {
       setLoading(false);
     }
@@ -92,6 +111,15 @@ export default function AnalyticsPage() {
     if (newIndex < 0 || newIndex >= periods.length) return;
     setPeriodIndex(newIndex);
     fetchData(period, periods[newIndex]);
+  }
+
+  function toggleShow(showId: string) {
+    setExpandedShows((prev) => {
+      const next = new Set(prev);
+      if (next.has(showId)) next.delete(showId);
+      else next.add(showId);
+      return next;
+    });
   }
 
   if (!authed) {
@@ -121,8 +149,10 @@ export default function AnalyticsPage() {
     );
   }
 
-  const totalSeconds = data.reduce((sum, r) => sum + r.total_seconds, 0);
-  const totalEvents = data.reduce((sum, r) => sum + r.event_count, 0);
+  const currentData = tab === "podcasts" ? podcasts : audiobooks;
+  const totalSeconds = tab === "podcasts"
+    ? podcasts.reduce((sum, s) => sum + s.total_seconds, 0)
+    : audiobooks.reduce((sum, a) => sum + a.total_seconds, 0);
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] px-4 py-8 md:px-8">
@@ -132,6 +162,23 @@ export default function AnalyticsPage() {
           <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors">
             &larr; Home
           </Link>
+        </div>
+
+        {/* Content type tabs */}
+        <div className="flex gap-0 mb-6 border-b border-gray-200">
+          {(["podcasts", "audiobooks"] as ContentTab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-6 py-3 text-base font-medium border-b-2 transition-colors ${
+                tab === t
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {t === "podcasts" ? "Podcasts" : "Audiobooks"}
+            </button>
+          ))}
         </div>
 
         {/* Period toggle */}
@@ -175,43 +222,98 @@ export default function AnalyticsPage() {
         {/* Summary */}
         <div className="flex gap-6 mb-6 text-sm text-gray-500">
           <span>Total: <strong className="text-black">{formatDuration(totalSeconds)}</strong></span>
-          <span>Events: <strong className="text-black">{totalEvents}</strong></span>
         </div>
 
-        {/* Data table */}
+        {/* Data */}
         {loading ? (
           <p className="text-gray-400 text-sm">Loading...</p>
-        ) : data.length === 0 ? (
+        ) : currentData.length === 0 ? (
           <p className="text-gray-400 text-sm">No data for this period.</p>
-        ) : (
+        ) : tab === "audiobooks" ? (
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-left text-gray-500">
-                  <th className="px-4 py-3 font-medium">Content</th>
-                  <th className="px-4 py-3 font-medium">Type</th>
+                  <th className="px-4 py-3 font-medium">Title</th>
                   <th className="px-4 py-3 font-medium text-right">Time</th>
-                  <th className="px-4 py-3 font-medium text-right">Events</th>
+                  <th className="px-4 py-3 font-medium text-right">Listeners</th>
                 </tr>
               </thead>
               <tbody>
-                {data.map((row, i) => (
-                  <tr key={`${row.content_id}-${row.content_type}-${i}`} className="border-t border-gray-100">
+                {audiobooks.map((book) => (
+                  <tr key={book.id} className="border-t border-gray-100">
                     <td className="px-4 py-3">
-                      <div className="font-medium">{row.content_name}</div>
-                      <div className="text-xs text-gray-400">{row.content_author}</div>
+                      <div className="flex items-center gap-3">
+                        {book.image_url ? (
+                          <img src={book.image_url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded bg-gray-100 shrink-0" />
+                        )}
+                        <div>
+                          <div className="font-medium">{book.title}</div>
+                          <div className="text-xs text-gray-400">{book.author}</div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${typeBadgeColors[row.content_type] ?? "bg-gray-100 text-gray-800"}`}>
-                        {row.content_type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{formatDuration(row.total_seconds)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{row.event_count}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{formatDuration(book.total_seconds)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{book.unique_listeners}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-4 py-2 text-sm text-gray-500">
+              <span className="font-medium">Show</span>
+              <div className="flex items-center gap-6 shrink-0 ml-4">
+                <span className="font-medium">Time</span>
+                <span className="font-medium w-8 text-right">Listeners</span>
+                <span className="w-3" />
+              </div>
+            </div>
+            {podcasts.map((show) => (
+              <div key={show.show_id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => toggleShow(show.show_id)}
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {show.image_url ? (
+                      <img src={show.image_url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded bg-gray-100 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm">{show.show_title}</div>
+                      <div className="text-xs text-gray-400">{show.show_author}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6 text-sm tabular-nums shrink-0 ml-4">
+                    <span>{formatDuration(show.total_seconds)}</span>
+                    <span className="text-gray-400 w-8 text-right">{show.unique_listeners}</span>
+                    <span className="text-gray-300 text-xs">{expandedShows.has(show.show_id) ? "▲" : "▼"}</span>
+                  </div>
+                </button>
+                {expandedShows.has(show.show_id) && (
+                  <div className="border-t border-gray-100">
+                    {show.episodes.map((ep) => (
+                      <div
+                        key={ep.episode_id}
+                        className="flex items-center justify-between px-4 py-2.5 pl-8 text-sm border-t border-gray-50 first:border-t-0"
+                      >
+                        <span className="text-gray-600 truncate flex-1 min-w-0 pr-4">{ep.episode_title}</span>
+                        <div className="flex items-center gap-6 tabular-nums shrink-0">
+                          <span className="text-gray-500">{formatDuration(ep.total_seconds)}</span>
+                          <span className="text-gray-400 w-8 text-right">{ep.unique_listeners}</span>
+                          <span className="w-3" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
