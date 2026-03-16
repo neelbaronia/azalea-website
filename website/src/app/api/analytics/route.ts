@@ -1,5 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 type PeriodType = "daily" | "weekly" | "monthly";
 
@@ -202,9 +207,93 @@ export async function GET(req: NextRequest) {
     }))
     .sort((a, b) => b.total_seconds - a.total_seconds);
 
+  // --- Revenue & Payout Calculation ---
+  let revenue = { gross: 0, royalty_pool: 0, royalty_rate: 0.50 };
+
+  if (targetPeriod) {
+    // Calculate period date range (gte inclusive, lt exclusive)
+    const periodDate = new Date(targetPeriod + "T00:00:00Z");
+    let gte: number;
+    let lt: number;
+
+    if (period === "daily") {
+      gte = Math.floor(periodDate.getTime() / 1000);
+      lt = gte + 86400;
+    } else if (period === "weekly") {
+      gte = Math.floor(periodDate.getTime() / 1000);
+      lt = gte + 7 * 86400;
+    } else {
+      // monthly: start of month to start of next month
+      gte = Math.floor(periodDate.getTime() / 1000);
+      const nextMonth = new Date(periodDate);
+      nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+      lt = Math.floor(nextMonth.getTime() / 1000);
+    }
+
+    try {
+      const stripe = getStripe();
+      let grossCents = 0;
+      let hasMore = true;
+      let startingAfter: string | undefined;
+
+      while (hasMore) {
+        const params: Stripe.ChargeListParams = {
+          created: { gte, lt },
+          limit: 100,
+        };
+        if (startingAfter) params.starting_after = startingAfter;
+
+        const charges = await stripe.charges.list(params);
+        for (const charge of charges.data) {
+          if (charge.status === "succeeded") {
+            grossCents += charge.amount;
+          }
+        }
+        hasMore = charges.has_more;
+        if (charges.data.length > 0) {
+          startingAfter = charges.data[charges.data.length - 1].id;
+        }
+      }
+
+      const gross = grossCents / 100;
+      revenue = { gross, royalty_pool: gross * 0.50, royalty_rate: 0.50 };
+    } catch (e) {
+      console.error("Stripe revenue fetch error:", e);
+    }
+  }
+
+  // Calculate per-item payouts based on share of total platform seconds
+  const totalPlatformSeconds =
+    filteredAudiobooks.reduce((s, a) => s + a.total_seconds, 0) +
+    filteredPodcasts.reduce((s, p) => s + p.total_seconds, 0);
+
+  const audiobooksWithPayout = filteredAudiobooks.map((a) => ({
+    ...a,
+    payout: totalPlatformSeconds > 0
+      ? (a.total_seconds / totalPlatformSeconds) * revenue.royalty_pool
+      : 0,
+  }));
+
+  const podcastsWithPayout = filteredPodcasts.map((show) => {
+    const showPayout = totalPlatformSeconds > 0
+      ? (show.total_seconds / totalPlatformSeconds) * revenue.royalty_pool
+      : 0;
+    return {
+      ...show,
+      payout: showPayout,
+      episodes: show.episodes.map((ep) => ({
+        ...ep,
+        payout: show.total_seconds > 0
+          ? (ep.total_seconds / show.total_seconds) * showPayout
+          : 0,
+      })),
+    };
+  });
+
   return NextResponse.json({
-    audiobooks: filteredAudiobooks,
-    podcasts: filteredPodcasts,
+    audiobooks: audiobooksWithPayout,
+    podcasts: podcastsWithPayout,
     periods: allPeriods,
+    revenue,
   });
 }

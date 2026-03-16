@@ -15,6 +15,7 @@ interface AudiobookRow {
   image_url: string | null;
   total_seconds: number;
   unique_listeners: number;
+  payout: number;
 }
 
 interface EpisodeRow {
@@ -22,6 +23,7 @@ interface EpisodeRow {
   episode_title: string;
   total_seconds: number;
   unique_listeners: number;
+  payout: number;
 }
 
 interface PodcastShow {
@@ -31,7 +33,14 @@ interface PodcastShow {
   image_url: string | null;
   total_seconds: number;
   unique_listeners: number;
+  payout: number;
   episodes: EpisodeRow[];
+}
+
+interface Revenue {
+  gross: number;
+  royalty_pool: number;
+  royalty_rate: number;
 }
 
 function formatDuration(seconds: number): string {
@@ -41,6 +50,10 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
+}
+
+function formatCurrency(amount: number): string {
+  return `$${amount.toFixed(2)}`;
 }
 
 function formatPeriodLabel(periodStart: string, period: PeriodType): string {
@@ -63,6 +76,7 @@ export default function AnalyticsPage() {
   const [periodIndex, setPeriodIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [expandedShows, setExpandedShows] = useState<Set<string>>(new Set());
+  const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("analytics_authed") === "true") {
@@ -79,6 +93,7 @@ export default function AnalyticsPage() {
       const json = await res.json();
       setAudiobooks(json.audiobooks ?? []);
       setPodcasts(json.podcasts ?? []);
+      if (json.revenue) setRevenue(json.revenue);
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
@@ -153,6 +168,12 @@ export default function AnalyticsPage() {
   const totalSeconds = tab === "podcasts"
     ? podcasts.reduce((sum, s) => sum + s.total_seconds, 0)
     : audiobooks.reduce((sum, a) => sum + a.total_seconds, 0);
+  const totalPlatformSeconds =
+    podcasts.reduce((sum, s) => sum + s.total_seconds, 0) +
+    audiobooks.reduce((sum, a) => sum + a.total_seconds, 0);
+  const totalPayout = tab === "podcasts"
+    ? podcasts.reduce((sum, s) => sum + s.payout, 0)
+    : audiobooks.reduce((sum, a) => sum + a.payout, 0);
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] px-4 py-8 md:px-8">
@@ -196,6 +217,24 @@ export default function AnalyticsPage() {
           ))}
         </div>
 
+        {/* Revenue summary */}
+        {!loading && revenue.gross > 0 && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
+              <div className="text-xs text-gray-400 mb-1">Gross Revenue</div>
+              <div className="text-lg font-semibold">{formatCurrency(revenue.gross)}</div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
+              <div className="text-xs text-gray-400 mb-1">Royalty Pool (50%)</div>
+              <div className="text-lg font-semibold">{formatCurrency(revenue.royalty_pool)}</div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
+              <div className="text-xs text-gray-400 mb-1">Platform Minutes</div>
+              <div className="text-lg font-semibold">{Math.round(totalPlatformSeconds / 60).toLocaleString()}</div>
+            </div>
+          </div>
+        )}
+
         {/* Period navigation */}
         {periods.length > 0 && (
           <div className="flex items-center gap-4 mb-6">
@@ -232,6 +271,7 @@ export default function AnalyticsPage() {
                   <th className="px-4 py-3 font-medium">Title</th>
                   <th className="px-4 py-3 font-medium text-right">Time</th>
                   <th className="px-4 py-3 font-medium text-right">Listeners</th>
+                  <th className="px-4 py-3 font-medium text-right">Est. Payout</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,6 +292,7 @@ export default function AnalyticsPage() {
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(book.total_seconds)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{book.unique_listeners}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(book.payout)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -260,6 +301,7 @@ export default function AnalyticsPage() {
                   <td className="px-4 py-3">Total</td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(totalSeconds)}</td>
                   <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(totalPayout)}</td>
                 </tr>
               </tfoot>
             </table>
@@ -271,6 +313,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center gap-6 shrink-0 ml-4">
                 <span className="font-medium">Time</span>
                 <span className="font-medium w-8 text-right">Listeners</span>
+                <span className="font-medium w-16 text-right">Payout</span>
                 <span className="w-3" />
               </div>
             </div>
@@ -294,6 +337,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center gap-6 text-sm tabular-nums shrink-0 ml-4">
                     <span className="whitespace-nowrap">{formatDuration(show.total_seconds)}</span>
                     <span className="text-gray-400 w-8 text-right">{show.unique_listeners}</span>
+                    <span className="w-16 text-right">{formatCurrency(show.payout)}</span>
                     <span className="text-gray-300 text-xs">{expandedShows.has(show.show_id) ? "▲" : "▼"}</span>
                   </div>
                 </button>
@@ -308,6 +352,7 @@ export default function AnalyticsPage() {
                         <div className="flex items-center gap-6 tabular-nums shrink-0">
                           <span className="text-gray-500 whitespace-nowrap">{formatDuration(ep.total_seconds)}</span>
                           <span className="text-gray-400 w-8 text-right">{ep.unique_listeners}</span>
+                          <span className="text-gray-400 w-16 text-right">{formatCurrency(ep.payout)}</span>
                           <span className="w-3" />
                         </div>
                       </div>
@@ -321,6 +366,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center gap-6 shrink-0 ml-4">
                 <span className="whitespace-nowrap">{formatDuration(totalSeconds)}</span>
                 <span className="w-8"></span>
+                <span className="w-16 text-right">{formatCurrency(totalPayout)}</span>
                 <span className="w-3" />
               </div>
             </div>
