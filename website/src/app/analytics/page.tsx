@@ -271,6 +271,7 @@ export default function AnalyticsPage() {
                   <th className="px-4 py-3 font-medium text-right">Time</th>
                   <th className="px-4 py-3 font-medium text-right">Listeners</th>
                   <th className="px-4 py-3 font-medium text-right">Est. Payout</th>
+                  <th className="px-4 py-3 font-medium text-right">% Pool</th>
                 </tr>
               </thead>
               <tbody>
@@ -292,6 +293,7 @@ export default function AnalyticsPage() {
                     <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(book.total_seconds)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{book.unique_listeners}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(book.payout)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-gray-400">{totalPlatformSeconds > 0 ? ((book.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -301,6 +303,7 @@ export default function AnalyticsPage() {
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(totalSeconds)}</td>
                   <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(totalPayout)}</td>
+                  <td className="px-4 py-3"></td>
                 </tr>
               </tfoot>
             </table>
@@ -313,6 +316,7 @@ export default function AnalyticsPage() {
                 <span className="font-medium">Time</span>
                 <span className="font-medium w-8 text-right">Listeners</span>
                 <span className="font-medium w-16 text-right">Payout</span>
+                <span className="font-medium w-12 text-right">% Pool</span>
                 <span className="w-3" />
               </div>
             </div>
@@ -337,6 +341,7 @@ export default function AnalyticsPage() {
                     <span className="whitespace-nowrap">{formatDuration(show.total_seconds)}</span>
                     <span className="text-gray-400 w-8 text-right">{show.unique_listeners}</span>
                     <span className="w-16 text-right">{formatCurrency(show.payout)}</span>
+                    <span className="w-12 text-right text-gray-400">{totalPlatformSeconds > 0 ? ((show.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</span>
                     <span className="text-gray-300 text-xs">{expandedShows.has(show.show_id) ? "▲" : "▼"}</span>
                   </div>
                 </button>
@@ -352,6 +357,7 @@ export default function AnalyticsPage() {
                           <span className="text-gray-500 whitespace-nowrap">{formatDuration(ep.total_seconds)}</span>
                           <span className="text-gray-400 w-8 text-right">{ep.unique_listeners}</span>
                           <span className="text-gray-400 w-16 text-right">{formatCurrency(ep.payout)}</span>
+                          <span className="text-gray-400 w-12 text-right">{totalPlatformSeconds > 0 ? ((ep.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</span>
                           <span className="w-3" />
                         </div>
                       </div>
@@ -366,6 +372,7 @@ export default function AnalyticsPage() {
                 <span className="whitespace-nowrap">{formatDuration(totalSeconds)}</span>
                 <span className="w-8"></span>
                 <span className="w-16 text-right">{formatCurrency(totalPayout)}</span>
+                <span className="w-12"></span>
                 <span className="w-3" />
               </div>
             </div>
