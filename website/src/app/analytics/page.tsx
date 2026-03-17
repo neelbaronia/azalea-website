@@ -77,6 +77,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(false);
   const [expandedShows, setExpandedShows] = useState<Set<string>>(new Set());
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
+  const [activeSubscribers, setActiveSubscribers] = useState(0);
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("analytics_authed") === "true") {
@@ -94,6 +95,7 @@ export default function AnalyticsPage() {
       setAudiobooks(json.audiobooks ?? []);
       setPodcasts(json.podcasts ?? []);
       if (json.revenue) setRevenue(json.revenue);
+      if (json.active_subscribers != null) setActiveSubscribers(json.active_subscribers);
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
@@ -185,6 +187,20 @@ export default function AnalyticsPage() {
           </Link>
         </div>
 
+        {/* Top-level summary */}
+        {!loading && (
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+              <div className="text-xs text-gray-400 mb-1">Active Subscribers</div>
+              <div className="text-2xl font-semibold">{activeSubscribers}</div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+              <div className="text-xs text-gray-400 mb-1">Total Royalty Pool</div>
+              <div className="text-2xl font-semibold">{formatCurrency(revenue.royalty_pool)}</div>
+            </div>
+          </div>
+        )}
+
         {/* Content type tabs */}
         <div className="flex gap-0 mb-6 border-b border-gray-200">
           {(["podcasts", "audiobooks"] as ContentTab[]).map((t) => (
@@ -217,23 +233,6 @@ export default function AnalyticsPage() {
           ))}
         </div>
 
-        {/* Revenue summary */}
-        {!loading && revenue.gross > 0 && (
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
-              <div className="text-xs text-gray-400 mb-1">Gross Revenue</div>
-              <div className="text-lg font-semibold">{formatCurrency(revenue.gross)}</div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
-              <div className="text-xs text-gray-400 mb-1">Royalty Pool (50%)</div>
-              <div className="text-lg font-semibold">{formatCurrency(revenue.royalty_pool)}</div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
-              <div className="text-xs text-gray-400 mb-1">Platform Minutes</div>
-              <div className="text-lg font-semibold">{Math.round(totalPlatformSeconds / 60).toLocaleString()}</div>
-            </div>
-          </div>
-        )}
 
         {/* Period navigation */}
         {periods.length > 0 && (

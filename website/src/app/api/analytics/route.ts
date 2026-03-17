@@ -208,27 +208,19 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => b.total_seconds - a.total_seconds);
 
   // --- Revenue & Payout Calculation ---
+  // For daily/weekly views, fetch the full month's revenue and prorate
   let revenue = { gross: 0, royalty_pool: 0, royalty_rate: 0.50 };
 
   if (targetPeriod) {
-    // Calculate period date range (gte inclusive, lt exclusive)
     const periodDate = new Date(targetPeriod + "T00:00:00Z");
-    let gte: number;
-    let lt: number;
 
-    if (period === "daily") {
-      gte = Math.floor(periodDate.getTime() / 1000);
-      lt = gte + 86400;
-    } else if (period === "weekly") {
-      gte = Math.floor(periodDate.getTime() / 1000);
-      lt = gte + 7 * 86400;
-    } else {
-      // monthly: start of month to start of next month
-      gte = Math.floor(periodDate.getTime() / 1000);
-      const nextMonth = new Date(periodDate);
-      nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
-      lt = Math.floor(nextMonth.getTime() / 1000);
-    }
+    // Always fetch the full month's charges
+    const monthStart = new Date(Date.UTC(periodDate.getUTCFullYear(), periodDate.getUTCMonth(), 1));
+    const monthEnd = new Date(Date.UTC(periodDate.getUTCFullYear(), periodDate.getUTCMonth() + 1, 1));
+    const daysInMonth = (monthEnd.getTime() - monthStart.getTime()) / (86400 * 1000);
+
+    const gte = Math.floor(monthStart.getTime() / 1000);
+    const lt = Math.floor(monthEnd.getTime() / 1000);
 
     try {
       const stripe = getStripe();
@@ -255,7 +247,17 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      const gross = grossCents / 100;
+      const monthlyGross = grossCents / 100;
+
+      // Prorate based on period length
+      let prorateFactor = 1;
+      if (period === "daily") {
+        prorateFactor = 1 / daysInMonth;
+      } else if (period === "weekly") {
+        prorateFactor = 7 / daysInMonth;
+      }
+
+      const gross = monthlyGross * prorateFactor;
       revenue = { gross, royalty_pool: gross * 0.50, royalty_rate: 0.50 };
     } catch (e) {
       console.error("Stripe revenue fetch error:", e);
@@ -290,10 +292,34 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // Fetch active subscriber count from Stripe
+  let activeSubscribers = 0;
+  try {
+    const stripe = getStripe();
+    let hasMoreSubs = true;
+    let subStartingAfter: string | undefined;
+    while (hasMoreSubs) {
+      const params: Stripe.SubscriptionListParams = {
+        status: "active",
+        limit: 100,
+      };
+      if (subStartingAfter) params.starting_after = subStartingAfter;
+      const subs = await stripe.subscriptions.list(params);
+      activeSubscribers += subs.data.length;
+      hasMoreSubs = subs.has_more;
+      if (subs.data.length > 0) {
+        subStartingAfter = subs.data[subs.data.length - 1].id;
+      }
+    }
+  } catch (e) {
+    console.error("Stripe subscriber count error:", e);
+  }
+
   return NextResponse.json({
     audiobooks: audiobooksWithPayout,
     podcasts: podcastsWithPayout,
     periods: allPeriods,
     revenue,
+    active_subscribers: activeSubscribers,
   });
 }
