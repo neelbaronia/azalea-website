@@ -297,6 +297,7 @@ export default function SamplesPage() {
             <a href="/samples" className="hover:text-white transition-colors">Samples</a>
             <a href="/publications" className="hover:text-white transition-colors">Our Publications</a>
             <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
+            <a href="/demo/tallys-corner" className="hover:text-white transition-colors">Tally&apos;s Corner Demo</a>
             <a href="#" className="hover:text-white transition-colors">About</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
