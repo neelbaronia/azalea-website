@@ -35,8 +35,20 @@ export default function TallysCornerDemo() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+
+  // Track when user scrolls past the header
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolledPastHeader(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    if (headerRef.current) observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Load sync map
   useEffect(() => {
@@ -111,18 +123,18 @@ export default function TallysCornerDemo() {
   };
 
   // Seek bar
-  const seekFromEvent = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+  const seekFromClientX = (clientX: number) => {
     const bar = seekBarRef.current;
     if (!bar || !audioRef.current || !duration) return;
     const rect = bar.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     audioRef.current.currentTime = pct * duration;
   };
 
   const handleSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    seekFromEvent(e);
+    seekFromClientX(e.clientX);
     setDragging(true);
-    const onMove = (ev: MouseEvent) => seekFromEvent(ev);
+    const onMove = (ev: MouseEvent) => seekFromClientX(ev.clientX);
     const onUp = () => {
       setDragging(false);
       window.removeEventListener("mousemove", onMove);
@@ -130,6 +142,19 @@ export default function TallysCornerDemo() {
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    seekFromClientX(e.touches[0].clientX);
+    setDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    seekFromClientX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    setDragging(false);
   };
 
   // Click sentence to seek
@@ -182,7 +207,7 @@ export default function TallysCornerDemo() {
       />
 
       {/* Header */}
-      <header className="bg-[#2c1810] text-white">
+      <header ref={headerRef} className="bg-[#2c1810] text-white">
         <div className="max-w-2xl mx-auto px-6 py-10 flex items-center gap-6">
           <Image
             src={COVER_URL}
@@ -209,6 +234,37 @@ export default function TallysCornerDemo() {
 
       {/* Sticky audio player */}
       <div className="sticky top-0 z-50 bg-[#2c1810]/95 backdrop-blur-md border-b border-white/10">
+        {/* Collapsible book info — shows when scrolled past header */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            scrolledPastHeader ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="max-w-2xl mx-auto px-6 pt-3 pb-2 flex items-center gap-4">
+            <Image
+              src={COVER_URL}
+              alt="Tally's Corner cover"
+              width={48}
+              height={48}
+              className="rounded flex-shrink-0"
+              style={{ width: 48, height: 48, objectFit: "cover" }}
+            />
+            <div className="min-w-0">
+              <p className="text-amber-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">
+                Azalea Labs Demo
+              </p>
+              <p className="text-white text-sm font-bold font-[family-name:var(--font-garamond)] truncate">
+                Tally&apos;s Corner
+              </p>
+              <p className="text-white/50 text-xs truncate">
+                Elliot Liebow &middot;{" "}
+                <span className="italic font-[family-name:var(--font-garamond)]">
+                  Chapter 6: Men and Jobs
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="max-w-2xl mx-auto px-6 py-3 flex items-center gap-4">
           {/* Play/pause */}
           <button
@@ -233,18 +289,23 @@ export default function TallysCornerDemo() {
           </span>
           <div
             ref={seekBarRef}
-            className="flex-1 h-2 bg-white/15 rounded-full cursor-pointer relative group"
+            className="flex-1 h-6 flex items-center cursor-pointer relative group touch-none"
             onMouseDown={handleSeekDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
+            <div className="w-full h-2 bg-white/15 rounded-full relative">
+              <div
+                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none"
+                style={{
+                  width: `${progress}%`,
+                  transition: dragging ? "none" : "width 0.1s",
+                }}
+              />
+            </div>
             <div
-              className="absolute inset-y-0 left-0 bg-amber-400 rounded-full"
-              style={{
-                width: `${progress}%`,
-                transition: dragging ? "none" : "width 0.1s",
-              }}
-            />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
               style={{ left: `calc(${progress}% - 8px)` }}
             />
           </div>
