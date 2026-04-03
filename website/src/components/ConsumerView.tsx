@@ -273,11 +273,7 @@ export default function ConsumerView() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [phoneOffsetY, setPhoneOffsetY] = useState(10000);
-  const [heroBackground] = useState(() => {
-    if (typeof window === "undefined") return HERO_BACKGROUNDS[0];
-    const randomIndex = Math.floor(Math.random() * HERO_BACKGROUNDS.length);
-    return HERO_BACKGROUNDS[randomIndex];
-  });
+  const [heroBackground, setHeroBackground] = useState<string | null>(null);
 
   const [heroEmail, setHeroEmail] = useState("");
   const [footerEmail, setFooterEmail] = useState("");
@@ -288,6 +284,14 @@ export default function ConsumerView() {
       .then((r) => r.json())
       .then(setBooks)
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const randomIndex = Math.floor(Math.random() * HERO_BACKGROUNDS.length);
+      setHeroBackground(HERO_BACKGROUNDS[randomIndex]);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   // Pick 10 random books for the floating icons (stable after first render)
@@ -353,18 +357,20 @@ export default function ConsumerView() {
 
 
       {/* Hero */}
-      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: `url('${heroBackground}')`, backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: heroBackground ? `url('${heroBackground}')` : undefined, backgroundSize: "cover", backgroundPosition: "center" }}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(8,16,28,0.36),rgba(8,16,28,0.16)_28%,rgba(8,16,28,0.02)_54%,transparent_72%)] pointer-events-none" />
         {/* Floating icons with physics */}
         <FloatingIcons containerRef={heroRef} books={floatingBooks} />
 
-        <div className="text-center space-y-8 max-w-3xl px-10 relative z-10 w-full">
+        <div className="text-center space-y-8 max-w-3xl px-6 md:px-10 relative z-10 w-full">
+          <div className="mx-auto w-full max-w-2xl rounded-[2rem] border border-white/10 bg-black/14 px-6 pt-18 pb-10 md:px-10 md:pt-24 md:pb-12 shadow-[0_24px_90px_rgba(0,0,0,0.28)] backdrop-blur-[10px]">
           <div className="relative inline-block">
             {/* "Listen." written above in ink */}
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 1.8 }}
-              className="absolute -top-10 md:-top-18 left-1/2 -translate-x-1/2 text-5xl md:text-8xl font-bold text-white whitespace-nowrap"
+              className="absolute -top-8 md:-top-14 left-1/2 -translate-x-1/2 text-5xl md:text-8xl font-bold text-white whitespace-nowrap drop-shadow-[0_3px_18px_rgba(0,0,0,0.5)]"
               style={{ fontFamily: "var(--font-caveat), cursive" }}
             >
               {/* Animate each letter with stagger */}
@@ -384,7 +390,7 @@ export default function ConsumerView() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.15 }}
-              className="text-5xl md:text-8xl font-bold tracking-tight leading-[1.05] relative text-white"
+              className="text-5xl md:text-8xl font-bold tracking-tight leading-[1.05] relative text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
             >
               Read.
               {/* Strikethrough line */}
@@ -406,11 +412,11 @@ export default function ConsumerView() {
               </svg>
             </motion.h1>
           </div>
-          <motion.p
+            <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-xl md:text-2xl text-white/90 font-semibold leading-relaxed max-w-xl mx-auto"
+            className="text-xl md:text-2xl text-white font-semibold leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]"
           >
             Audiobooks, Podcasts, and more in the world&apos;s largest audio library. Unlimited access for $9/mo.
           </motion.p>
@@ -420,7 +426,7 @@ export default function ConsumerView() {
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             {formState === "success" ? (
-              <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
+              <p className="text-white font-semibold text-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]">You&apos;re on the list. We&apos;ll be in touch.</p>
             ) : (
               <form onSubmit={handleHeroSubmit} className="flex flex-col md:flex-row items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)] gap-2 md:gap-0">
                 <input
@@ -429,7 +435,7 @@ export default function ConsumerView() {
                   value={heroEmail}
                   onChange={(e) => setHeroEmail(e.target.value)}
                   required
-                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/20 md:border-r-0"
+                  className="min-w-0 w-full px-8 py-5 bg-black/20 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/65 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/28 md:border-r-0"
                 />
                 <button
                   type="submit"
@@ -443,6 +449,7 @@ export default function ConsumerView() {
             {formState === "duplicate" && <p className="text-white/60 text-xs mt-2">You&apos;re already on the list!</p>}
             {formState === "error" && <p className="text-red-300 text-xs mt-2">Something went wrong. Please try again.</p>}
           </motion.div>
+          </div>
         </div>
       </section>
 
