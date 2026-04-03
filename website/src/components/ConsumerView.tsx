@@ -23,6 +23,11 @@ interface Ball {
 }
 
 const COVER_SIZES_BASE = [132, 115, 142, 120, 144, 126, 113, 134, 122, 138];
+const HERO_BACKGROUNDS = [
+  "/hero-alt-1.png",
+  "/hero-alt-2.png",
+  "/hero-alt-3.png",
+];
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -268,6 +273,11 @@ export default function ConsumerView() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [phoneOffsetY, setPhoneOffsetY] = useState(10000);
+  const [heroBackground] = useState(() => {
+    if (typeof window === "undefined") return HERO_BACKGROUNDS[0];
+    const randomIndex = Math.floor(Math.random() * HERO_BACKGROUNDS.length);
+    return HERO_BACKGROUNDS[randomIndex];
+  });
 
   const [heroEmail, setHeroEmail] = useState("");
   const [footerEmail, setFooterEmail] = useState("");
@@ -343,7 +353,7 @@ export default function ConsumerView() {
 
 
       {/* Hero */}
-      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: "url('/hero-bg.webp')", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <section ref={heroRef} className="relative h-screen w-full flex items-center justify-center snap-start snap-always overflow-hidden" style={{ backgroundImage: `url('${heroBackground}')`, backgroundSize: "cover", backgroundPosition: "center" }}>
         {/* Floating icons with physics */}
         <FloatingIcons containerRef={heroRef} books={floatingBooks} />
 
