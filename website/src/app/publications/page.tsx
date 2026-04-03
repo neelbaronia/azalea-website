@@ -161,7 +161,7 @@ export default function PublicationsPage() {
               <a href="/demo/tallys-corner" className="hover:text-white transition-colors">Tally&apos;s Corner Demo</a>
               <a href="#" className="hover:text-white transition-colors">About</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
             </div>
           </div>
         </footer>
