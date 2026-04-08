@@ -411,12 +411,13 @@ export default function ConsumerView() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-xl md:text-2xl text-white font-semibold leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]"
           >
-            Audiobooks, Podcasts, and more in the world&apos;s largest audio library. Unlimited access for $9/mo.
+            Audiobooks, Podcasts, and more in the world&apos;s largest audio library. Try it free for a limited time.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
+            className="flex flex-col items-center gap-3"
           >
             <a
               href={IOS_APP_URL}
@@ -441,6 +442,9 @@ export default function ConsumerView() {
                 </span>
               </span>
             </a>
+            <p className="text-sm md:text-base font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]">
+              Unlimited access for $9/mo.
+            </p>
           </motion.div>
           </div>
         </div>
