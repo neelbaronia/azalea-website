@@ -28,6 +28,7 @@ const HERO_BACKGROUNDS = [
   "/hero-alt-2.png",
   "/hero-alt-3.png",
 ];
+const IOS_APP_URL = "https://apps.apple.com/us/app/azalea-audio/id6761150322";
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -275,7 +276,6 @@ export default function ConsumerView() {
   const [phoneOffsetY, setPhoneOffsetY] = useState(10000);
   const [heroBackground, setHeroBackground] = useState<string | null>(null);
 
-  const [heroEmail, setHeroEmail] = useState("");
   const [footerEmail, setFooterEmail] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
 
@@ -327,13 +327,6 @@ export default function ConsumerView() {
     container.addEventListener("scroll", onScroll, { passive: true });
     return () => container.removeEventListener("scroll", onScroll);
   }, []);
-
-  async function handleHeroSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (formState === "loading") return;
-    setFormState("loading");
-    setFormState(await submitWaitlist(heroEmail));
-  }
 
   async function handleFooterSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -425,29 +418,29 @@ export default function ConsumerView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            {formState === "success" ? (
-              <p className="text-white font-semibold text-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]">You&apos;re on the list. We&apos;ll be in touch.</p>
-            ) : (
-              <form onSubmit={handleHeroSubmit} className="flex flex-col md:flex-row items-stretch w-full mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)] gap-2 md:gap-0">
-                <input
-                  type="email"
-                  placeholder="you@email.com"
-                  value={heroEmail}
-                  onChange={(e) => setHeroEmail(e.target.value)}
-                  required
-                  className="min-w-0 w-full px-8 py-5 bg-black/20 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/65 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/28 md:border-r-0"
-                />
-                <button
-                  type="submit"
-                  disabled={formState === "loading"}
-                  className="w-full md:w-auto shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-xl md:rounded-r-xl md:rounded-l-none disabled:opacity-60"
-                >
-                  {formState === "loading" ? "..." : "Join the Waitlist"}
-                </button>
-              </form>
-            )}
-            {formState === "duplicate" && <p className="text-white/60 text-xs mt-2">You&apos;re already on the list!</p>}
-            {formState === "error" && <p className="text-red-300 text-xs mt-2">Something went wrong. Please try again.</p>}
+            <a
+              href={IOS_APP_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download on the App Store"
+              className="inline-flex items-center gap-4 px-7 py-4 bg-black text-white hover:bg-black/90 transition-all rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-8 w-8 shrink-0 fill-current"
+              >
+                <path d="M16.7 12.6c0-2 1.6-3 1.7-3.1-1-1.4-2.6-1.6-3.1-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.7-.8-2.8-.8-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.6 2.1 2.8 2.1 1.1 0 1.5-.7 2.9-.7 1.3 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.1.8-1.2 1.1-2.3 1.1-2.3-.1 0-2.6-1-2.6-3.6ZM14.5 6.5c.6-.8 1.1-1.9 1-3-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.8-1 2.9 1 .1 2-.5 2.6-1.2Z" />
+              </svg>
+              <span className="flex flex-col items-start leading-none">
+                <span className="text-[0.65rem] font-medium uppercase tracking-[0.22em] text-white/70">
+                  Download on the
+                </span>
+                <span className="text-xl font-semibold tracking-[0.04em]">
+                  App Store
+                </span>
+              </span>
+            </a>
           </motion.div>
           </div>
         </div>
