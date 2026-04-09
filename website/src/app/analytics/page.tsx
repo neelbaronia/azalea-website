@@ -43,6 +43,23 @@ interface Revenue {
   royalty_rate: number;
 }
 
+interface AdminMetrics {
+  dau: number;
+  wau: number;
+  mau: number;
+  all_time_listeners: number;
+  listeners_in_period: number;
+  new_listeners_in_period: number;
+  returning_listeners_in_period: number;
+  retained_listeners_from_previous_period: number;
+  previous_period_listeners: number;
+  retention_rate: number | null;
+  total_sessions_in_period: number;
+  average_listen_seconds_per_listener: number;
+  previous_period: string | null;
+  target_period: string | null;
+}
+
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -78,6 +95,22 @@ export default function AnalyticsPage() {
   const [expandedShows, setExpandedShows] = useState<Set<string>>(new Set());
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
   const [activeSubscribers, setActiveSubscribers] = useState(0);
+  const [admin, setAdmin] = useState<AdminMetrics>({
+    dau: 0,
+    wau: 0,
+    mau: 0,
+    all_time_listeners: 0,
+    listeners_in_period: 0,
+    new_listeners_in_period: 0,
+    returning_listeners_in_period: 0,
+    retained_listeners_from_previous_period: 0,
+    previous_period_listeners: 0,
+    retention_rate: null,
+    total_sessions_in_period: 0,
+    average_listen_seconds_per_listener: 0,
+    previous_period: null,
+    target_period: null,
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("analytics_authed") === "true") {
@@ -96,6 +129,7 @@ export default function AnalyticsPage() {
       setPodcasts(json.podcasts ?? []);
       if (json.revenue) setRevenue(json.revenue);
       if (json.active_subscribers != null) setActiveSubscribers(json.active_subscribers);
+      if (json.admin) setAdmin(json.admin);
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
@@ -103,6 +137,22 @@ export default function AnalyticsPage() {
     } catch {
       setAudiobooks([]);
       setPodcasts([]);
+      setAdmin({
+        dau: 0,
+        wau: 0,
+        mau: 0,
+        all_time_listeners: 0,
+        listeners_in_period: 0,
+        new_listeners_in_period: 0,
+        returning_listeners_in_period: 0,
+        retained_listeners_from_previous_period: 0,
+        previous_period_listeners: 0,
+        retention_rate: null,
+        total_sessions_in_period: 0,
+        average_listen_seconds_per_listener: 0,
+        previous_period: null,
+        target_period: null,
+      });
     } finally {
       setLoading(false);
     }
@@ -197,6 +247,88 @@ export default function AnalyticsPage() {
             <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
               <div className="text-xs text-gray-400 mb-1">Total Royalty Pool</div>
               <div className="text-2xl font-semibold">{formatCurrency(revenue.royalty_pool)}</div>
+            </div>
+          </div>
+        )}
+
+        {!loading && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">Admin Overview</h2>
+              <span className="text-xs text-gray-400">
+                {admin.target_period ? formatPeriodLabel(admin.target_period, period) : "Current period"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-1">DAU</div>
+                <div className="text-2xl font-semibold">{admin.dau}</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-1">WAU</div>
+                <div className="text-2xl font-semibold">{admin.wau}</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-1">MAU</div>
+                <div className="text-2xl font-semibold">{admin.mau}</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-1">All-Time Listeners</div>
+                <div className="text-2xl font-semibold">{admin.all_time_listeners}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-3">Current Period</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-400">Listeners</div>
+                    <div className="text-lg font-semibold">{admin.listeners_in_period}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Sessions</div>
+                    <div className="text-lg font-semibold">{admin.total_sessions_in_period}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">New</div>
+                    <div className="text-lg font-semibold">{admin.new_listeners_in_period}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Returning</div>
+                    <div className="text-lg font-semibold">{admin.returning_listeners_in_period}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                <div className="text-xs text-gray-400 mb-3">Engagement</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-400">Avg Listen / Listener</div>
+                    <div className="text-lg font-semibold">
+                      {formatDuration(admin.average_listen_seconds_per_listener)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Retention</div>
+                    <div className="text-lg font-semibold">
+                      {admin.retention_rate != null ? `${(admin.retention_rate * 100).toFixed(1)}%` : "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Retained Users</div>
+                    <div className="text-lg font-semibold">{admin.retained_listeners_from_previous_period}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Prev Period Base</div>
+                    <div className="text-lg font-semibold">{admin.previous_period_listeners}</div>
+                  </div>
+                </div>
+                {admin.previous_period && (
+                  <p className="text-xs text-gray-400 mt-3">
+                    Retention is measured against {formatPeriodLabel(admin.previous_period, period)}.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}

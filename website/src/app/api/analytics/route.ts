@@ -8,6 +8,24 @@ function getStripe() {
 
 type PeriodType = "daily" | "weekly" | "monthly";
 
+interface SessionRow {
+  started_at: string;
+  seconds_listened: number;
+  device_id: string;
+}
+
+function shiftPeriodStart(periodStart: string, period: PeriodType, direction: -1 | 1): string {
+  const date = new Date(`${periodStart}T00:00:00Z`);
+  if (period === "daily") {
+    date.setUTCDate(date.getUTCDate() + direction);
+  } else if (period === "weekly") {
+    date.setUTCDate(date.getUTCDate() + (7 * direction));
+  } else {
+    date.setUTCMonth(date.getUTCMonth() + direction);
+  }
+  return getPeriodStart(date, period);
+}
+
 function getPeriodStart(date: Date, period: PeriodType): string {
   if (period === "daily") {
     return date.toISOString().slice(0, 10);
@@ -174,6 +192,72 @@ export async function GET(req: NextRequest) {
   const allPeriods = [...periodSet].sort((a, b) => b.localeCompare(a));
   const targetPeriod = periodStart || allPeriods[0];
 
+  const combinedSessions: SessionRow[] = [
+    ...(audiobookRes.data ?? []).map((s) => ({
+      started_at: s.started_at,
+      seconds_listened: s.seconds_listened,
+      device_id: s.device_id,
+    })),
+    ...(podcastRes.data ?? []).map((s) => ({
+      started_at: s.started_at,
+      seconds_listened: s.seconds_listened,
+      device_id: s.device_id,
+    })),
+  ];
+
+  const now = new Date();
+  const oneDayAgo = now.getTime() - (24 * 60 * 60 * 1000);
+  const sevenDaysAgo = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = now.getTime() - (30 * 24 * 60 * 60 * 1000);
+
+  const dau = new Set<string>();
+  const wau = new Set<string>();
+  const mau = new Set<string>();
+  const allTimeListeners = new Set<string>();
+  const firstSeenByDevice = new Map<string, string>();
+
+  for (const session of combinedSessions) {
+    allTimeListeners.add(session.device_id);
+    const ts = new Date(session.started_at).getTime();
+    if (ts >= oneDayAgo) dau.add(session.device_id);
+    if (ts >= sevenDaysAgo) wau.add(session.device_id);
+    if (ts >= thirtyDaysAgo) mau.add(session.device_id);
+
+    const existing = firstSeenByDevice.get(session.device_id);
+    if (!existing || session.started_at < existing) {
+      firstSeenByDevice.set(session.device_id, session.started_at);
+    }
+  }
+
+  const currentPeriodSessions = targetPeriod
+    ? combinedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
+    : [];
+  const currentPeriodListeners = new Set(currentPeriodSessions.map((s) => s.device_id));
+  const newListeners = new Set(
+    [...currentPeriodListeners].filter((deviceId) => {
+      const firstSeen = firstSeenByDevice.get(deviceId);
+      return firstSeen ? getPeriodStart(new Date(firstSeen), period) === targetPeriod : false;
+    })
+  );
+  const returningListeners = currentPeriodListeners.size - newListeners.size;
+  const totalSessionCount = currentPeriodSessions.length;
+  const averageListenSecondsPerListener =
+    currentPeriodListeners.size > 0 ? totalPlatformSeconds / currentPeriodListeners.size : 0;
+
+  const previousPeriod = targetPeriod ? shiftPeriodStart(targetPeriod, period, -1) : null;
+  const previousPeriodListeners = previousPeriod
+    ? new Set(
+        combinedSessions
+          .filter((s) => getPeriodStart(new Date(s.started_at), period) === previousPeriod)
+          .map((s) => s.device_id)
+      )
+    : new Set<string>();
+  const retainedListeners = new Set(
+    [...currentPeriodListeners].filter((deviceId) => previousPeriodListeners.has(deviceId))
+  );
+  const retentionRate =
+    previousPeriodListeners.size > 0 ? retainedListeners.size / previousPeriodListeners.size : null;
+
   // Filter to target period and serialize Sets to counts
   const filteredAudiobooks = [...audiobookMap.entries()]
     .filter(([key]) => key.startsWith(`${targetPeriod}|`))
@@ -206,6 +290,10 @@ export async function GET(req: NextRequest) {
         .sort((a, b) => b.total_seconds - a.total_seconds),
     }))
     .sort((a, b) => b.total_seconds - a.total_seconds);
+
+  const totalPlatformSeconds =
+    filteredAudiobooks.reduce((s, a) => s + a.total_seconds, 0) +
+    filteredPodcasts.reduce((s, p) => s + p.total_seconds, 0);
 
   // --- Revenue & Payout Calculation ---
   // For daily/weekly views, fetch the full month's revenue and prorate
@@ -265,10 +353,6 @@ export async function GET(req: NextRequest) {
   }
 
   // Calculate per-item payouts based on share of total platform seconds
-  const totalPlatformSeconds =
-    filteredAudiobooks.reduce((s, a) => s + a.total_seconds, 0) +
-    filteredPodcasts.reduce((s, p) => s + p.total_seconds, 0);
-
   const audiobooksWithPayout = filteredAudiobooks.map((a) => ({
     ...a,
     payout: totalPlatformSeconds > 0
@@ -321,5 +405,21 @@ export async function GET(req: NextRequest) {
     periods: allPeriods,
     revenue,
     active_subscribers: activeSubscribers,
+    admin: {
+      dau: dau.size,
+      wau: wau.size,
+      mau: mau.size,
+      all_time_listeners: allTimeListeners.size,
+      listeners_in_period: currentPeriodListeners.size,
+      new_listeners_in_period: newListeners.size,
+      returning_listeners_in_period: returningListeners,
+      retained_listeners_from_previous_period: retainedListeners.size,
+      previous_period_listeners: previousPeriodListeners.size,
+      retention_rate: retentionRate,
+      total_sessions_in_period: totalSessionCount,
+      average_listen_seconds_per_listener: averageListenSecondsPerListener,
+      previous_period: previousPeriod,
+      target_period: targetPeriod,
+    },
   });
 }
