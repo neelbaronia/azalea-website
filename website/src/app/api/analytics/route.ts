@@ -18,6 +18,10 @@ interface DetailedSessionRow extends SessionRow {
   source: "audiobook" | "podcast";
 }
 
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function shiftPeriodStart(periodStart: string, period: PeriodType, direction: -1 | 1): string {
   const date = new Date(`${periodStart}T00:00:00Z`);
   if (period === "daily") {
@@ -314,14 +318,29 @@ export async function GET(req: NextRequest) {
   const retentionRate =
     previousPeriodListeners.size > 0 ? retainedListeners.size / previousPeriodListeners.size : null;
 
+  const emailByDeviceId = new Map<string, string>();
+  const listenerIdsThatLookLikeUserIds = [...activeListenerMap.keys()].filter(isUuid);
+  if (listenerIdsThatLookLikeUserIds.length > 0) {
+    await Promise.all(
+      listenerIdsThatLookLikeUserIds.map(async (listenerId) => {
+        const { data, error } = await supabase.auth.admin.getUserById(listenerId);
+        if (!error && data.user?.email) {
+          emailByDeviceId.set(listenerId, data.user.email);
+        }
+      })
+    );
+  }
+
   const activeListeners = [...activeListenerMap.values()]
     .map((listener) => {
       const isNew = newListeners.has(listener.device_id);
       const isRetained = retainedListeners.has(listener.device_id);
       const shortId = listener.device_id.slice(0, 6);
+      const email = emailByDeviceId.get(listener.device_id) ?? null;
       return {
         device_id: listener.device_id,
-        label: `Listener ${shortId}`,
+        email,
+        label: email ?? `Listener ${shortId}`,
         total_seconds: listener.total_seconds,
         audiobook_seconds: listener.audiobook_seconds,
         podcast_seconds: listener.podcast_seconds,

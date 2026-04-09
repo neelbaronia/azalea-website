@@ -60,6 +60,7 @@ interface AdminMetrics {
   target_period: string | null;
   active_listeners: {
     device_id: string;
+    email: string | null;
     label: string;
     total_seconds: number;
     audiobook_seconds: number;
