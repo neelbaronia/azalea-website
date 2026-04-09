@@ -241,8 +241,6 @@ export async function GET(req: NextRequest) {
   );
   const returningListeners = currentPeriodListeners.size - newListeners.size;
   const totalSessionCount = currentPeriodSessions.length;
-  const averageListenSecondsPerListener =
-    currentPeriodListeners.size > 0 ? totalPlatformSeconds / currentPeriodListeners.size : 0;
 
   const previousPeriod = targetPeriod ? shiftPeriodStart(targetPeriod, period, -1) : null;
   const previousPeriodListeners = previousPeriod
@@ -294,6 +292,8 @@ export async function GET(req: NextRequest) {
   const totalPlatformSeconds =
     filteredAudiobooks.reduce((s, a) => s + a.total_seconds, 0) +
     filteredPodcasts.reduce((s, p) => s + p.total_seconds, 0);
+  const averageListenSecondsPerListener =
+    currentPeriodListeners.size > 0 ? totalPlatformSeconds / currentPeriodListeners.size : 0;
 
   // --- Revenue & Payout Calculation ---
   // For daily/weekly views, fetch the full month's revenue and prorate
