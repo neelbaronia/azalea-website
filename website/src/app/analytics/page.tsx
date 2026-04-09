@@ -58,6 +58,18 @@ interface AdminMetrics {
   average_listen_seconds_per_listener: number;
   previous_period: string | null;
   target_period: string | null;
+  active_listeners: {
+    device_id: string;
+    label: string;
+    total_seconds: number;
+    audiobook_seconds: number;
+    podcast_seconds: number;
+    session_count: number;
+    last_started_at: string;
+    is_new: boolean;
+    is_returning: boolean;
+    is_retained: boolean;
+  }[];
 }
 
 function formatDuration(seconds: number): string {
@@ -110,6 +122,7 @@ export default function AnalyticsPage() {
     average_listen_seconds_per_listener: 0,
     previous_period: null,
     target_period: null,
+    active_listeners: [],
   });
 
   useEffect(() => {
@@ -152,6 +165,7 @@ export default function AnalyticsPage() {
         average_listen_seconds_per_listener: 0,
         previous_period: null,
         target_period: null,
+        active_listeners: [],
       });
     } finally {
       setLoading(false);
@@ -226,6 +240,10 @@ export default function AnalyticsPage() {
   const totalPayout = tab === "podcasts"
     ? podcasts.reduce((sum, s) => sum + s.payout, 0)
     : audiobooks.reduce((sum, a) => sum + a.payout, 0);
+  const maxActiveListenerSeconds = admin.active_listeners.reduce(
+    (max, listener) => Math.max(max, listener.total_seconds),
+    0
+  );
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] px-4 py-8 md:px-8">
@@ -329,6 +347,91 @@ export default function AnalyticsPage() {
                   </p>
                 )}
               </div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg px-5 py-4 mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-sm font-medium text-black">Active Listeners</h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Ranked by total listen time for this {period === "daily" ? "day" : period === "weekly" ? "week" : "month"}.
+                  </p>
+                </div>
+                <div className="text-xs text-gray-400">
+                  {admin.active_listeners.length} users
+                </div>
+              </div>
+              {admin.active_listeners.length === 0 ? (
+                <p className="text-sm text-gray-400">No active listeners in this period yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {admin.active_listeners.map((listener, index) => {
+                    const audiobookWidth = listener.total_seconds > 0
+                      ? (listener.audiobook_seconds / listener.total_seconds) * 100
+                      : 0;
+                    const podcastWidth = listener.total_seconds > 0
+                      ? (listener.podcast_seconds / listener.total_seconds) * 100
+                      : 0;
+                    const rowWidth = maxActiveListenerSeconds > 0
+                      ? (listener.total_seconds / maxActiveListenerSeconds) * 100
+                      : 0;
+
+                    return (
+                      <div key={`${listener.device_id}-${listener.last_started_at}`} className="border border-gray-100 rounded-lg p-3">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs text-gray-400 tabular-nums">#{index + 1}</span>
+                              <span className="font-medium text-sm">{listener.label}</span>
+                              {listener.is_new && (
+                                <span className="text-[10px] uppercase tracking-[0.12em] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                  New
+                                </span>
+                              )}
+                              {listener.is_retained && (
+                                <span className="text-[10px] uppercase tracking-[0.12em] text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">
+                                  Retained
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              {listener.session_count} sessions
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-sm font-medium tabular-nums">{formatDuration(listener.total_seconds)}</div>
+                            <div className="text-xs text-gray-400">
+                              {new Date(listener.last_started_at).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full overflow-hidden flex"
+                            style={{ width: `${rowWidth}%` }}
+                          >
+                            <div
+                              className="h-full bg-black"
+                              style={{ width: `${audiobookWidth}%` }}
+                            />
+                            <div
+                              className="h-full bg-gray-400"
+                              style={{ width: `${podcastWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 mt-2 text-xs text-gray-400">
+                          <span>Audiobooks {formatDuration(listener.audiobook_seconds)}</span>
+                          <span>Podcasts {formatDuration(listener.podcast_seconds)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -14,6 +14,10 @@ interface SessionRow {
   device_id: string;
 }
 
+interface DetailedSessionRow extends SessionRow {
+  source: "audiobook" | "podcast";
+}
+
 function shiftPeriodStart(periodStart: string, period: PeriodType, direction: -1 | 1): string {
   const date = new Date(`${periodStart}T00:00:00Z`);
   if (period === "daily") {
@@ -204,6 +208,20 @@ export async function GET(req: NextRequest) {
       device_id: s.device_id,
     })),
   ];
+  const detailedSessions: DetailedSessionRow[] = [
+    ...(audiobookRes.data ?? []).map((s) => ({
+      started_at: s.started_at,
+      seconds_listened: s.seconds_listened,
+      device_id: s.device_id,
+      source: "audiobook" as const,
+    })),
+    ...(podcastRes.data ?? []).map((s) => ({
+      started_at: s.started_at,
+      seconds_listened: s.seconds_listened,
+      device_id: s.device_id,
+      source: "podcast" as const,
+    })),
+  ];
 
   const now = new Date();
   const oneDayAgo = now.getTime() - (24 * 60 * 60 * 1000);
@@ -232,6 +250,9 @@ export async function GET(req: NextRequest) {
   const currentPeriodSessions = targetPeriod
     ? combinedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
     : [];
+  const currentPeriodDetailedSessions = targetPeriod
+    ? detailedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
+    : [];
   const currentPeriodListeners = new Set(currentPeriodSessions.map((s) => s.device_id));
   const newListeners = new Set(
     [...currentPeriodListeners].filter((deviceId) => {
@@ -241,6 +262,43 @@ export async function GET(req: NextRequest) {
   );
   const returningListeners = currentPeriodListeners.size - newListeners.size;
   const totalSessionCount = currentPeriodSessions.length;
+
+  const activeListenerMap = new Map<
+    string,
+    {
+      device_id: string;
+      total_seconds: number;
+      audiobook_seconds: number;
+      podcast_seconds: number;
+      session_count: number;
+      last_started_at: string;
+    }
+  >();
+
+  for (const session of currentPeriodDetailedSessions) {
+    const existing = activeListenerMap.get(session.device_id);
+    if (existing) {
+      existing.total_seconds += session.seconds_listened;
+      existing.session_count += 1;
+      if (session.source === "audiobook") {
+        existing.audiobook_seconds += session.seconds_listened;
+      } else {
+        existing.podcast_seconds += session.seconds_listened;
+      }
+      if (session.started_at > existing.last_started_at) {
+        existing.last_started_at = session.started_at;
+      }
+    } else {
+      activeListenerMap.set(session.device_id, {
+        device_id: session.device_id,
+        total_seconds: session.seconds_listened,
+        audiobook_seconds: session.source === "audiobook" ? session.seconds_listened : 0,
+        podcast_seconds: session.source === "podcast" ? session.seconds_listened : 0,
+        session_count: 1,
+        last_started_at: session.started_at,
+      });
+    }
+  }
 
   const previousPeriod = targetPeriod ? shiftPeriodStart(targetPeriod, period, -1) : null;
   const previousPeriodListeners = previousPeriod
@@ -255,6 +313,26 @@ export async function GET(req: NextRequest) {
   );
   const retentionRate =
     previousPeriodListeners.size > 0 ? retainedListeners.size / previousPeriodListeners.size : null;
+
+  const activeListeners = [...activeListenerMap.values()]
+    .map((listener) => {
+      const isNew = newListeners.has(listener.device_id);
+      const isRetained = retainedListeners.has(listener.device_id);
+      const shortId = listener.device_id.slice(0, 6);
+      return {
+        device_id: listener.device_id,
+        label: `Listener ${shortId}`,
+        total_seconds: listener.total_seconds,
+        audiobook_seconds: listener.audiobook_seconds,
+        podcast_seconds: listener.podcast_seconds,
+        session_count: listener.session_count,
+        last_started_at: listener.last_started_at,
+        is_new: isNew,
+        is_returning: !isNew,
+        is_retained: isRetained,
+      };
+    })
+    .sort((a, b) => b.total_seconds - a.total_seconds);
 
   // Filter to target period and serialize Sets to counts
   const filteredAudiobooks = [...audiobookMap.entries()]
@@ -420,6 +498,7 @@ export async function GET(req: NextRequest) {
       average_listen_seconds_per_listener: averageListenSecondsPerListener,
       previous_period: previousPeriod,
       target_period: targetPeriod,
+      active_listeners: activeListeners,
     },
   });
 }
