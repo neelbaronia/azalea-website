@@ -442,9 +442,6 @@ export default function ConsumerView() {
                 </span>
               </span>
             </a>
-            <p className="text-sm md:text-base font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.42)]">
-              Unlimited access for $9/mo coming soon...
-            </p>
           </motion.div>
           </div>
         </div>
