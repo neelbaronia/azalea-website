@@ -47,7 +47,7 @@ function getListenerKey(session: Pick<SessionRow, "device_id" | "user_id">): str
   return session.user_id ?? `device:${session.device_id}`;
 }
 
-function shiftPeriodStart(periodStart: string, period: PeriodType, direction: -1 | 1): string {
+function shiftPeriodStart(periodStart: string, period: PeriodType, direction: number): string {
   const date = new Date(`${periodStart}T00:00:00Z`);
   if (period === "daily") {
     date.setUTCDate(date.getUTCDate() + direction);
