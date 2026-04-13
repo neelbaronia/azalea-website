@@ -43,6 +43,19 @@ interface Revenue {
   royalty_rate: number;
 }
 
+interface TimeSeriesPoint {
+  period_start: string;
+  label: string;
+  value: number;
+}
+
+interface AnalyticsTimeSeries {
+  signups_daily: TimeSeriesPoint[];
+  active_users_daily: TimeSeriesPoint[];
+  active_users_weekly: TimeSeriesPoint[];
+  active_users_monthly: TimeSeriesPoint[];
+}
+
 interface AdminMetrics {
   dau: number;
   wau: number;
@@ -73,6 +86,15 @@ interface AdminMetrics {
   }[];
 }
 
+function emptyTimeSeries(): AnalyticsTimeSeries {
+  return {
+    signups_daily: [],
+    active_users_daily: [],
+    active_users_weekly: [],
+    active_users_monthly: [],
+  };
+}
+
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -94,6 +116,70 @@ function formatPeriodLabel(periodStart: string, period: PeriodType): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
+function MiniBarChart({
+  title,
+  subtitle,
+  data,
+  tone = "black",
+}: {
+  title: string;
+  subtitle: string;
+  data: TimeSeriesPoint[];
+  tone?: "black" | "gray";
+}) {
+  const maxValue = data.reduce((max, point) => Math.max(max, point.value), 0);
+  const barColor = tone === "black" ? "bg-black" : "bg-gray-500";
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-sm font-medium text-black">{title}</h3>
+          <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-xl font-semibold tabular-nums">
+            {data.length > 0 ? data[data.length - 1].value : 0}
+          </div>
+          <div className="text-[11px] text-gray-400">latest</div>
+        </div>
+      </div>
+      {data.length === 0 ? (
+        <p className="text-sm text-gray-400">No data yet.</p>
+      ) : (
+        <>
+          <div className="flex items-end gap-1 h-36">
+            {data.map((point) => {
+              const height = maxValue > 0 ? Math.max((point.value / maxValue) * 100, point.value > 0 ? 6 : 2) : 2;
+              return (
+                <div
+                  key={point.period_start}
+                  className="flex-1 flex flex-col justify-end items-center group min-w-0"
+                  title={`${point.label}: ${point.value}`}
+                >
+                  <div className="text-[10px] text-gray-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {point.value}
+                  </div>
+                  <div className="w-full h-full flex items-end">
+                    <div
+                      className={`w-full rounded-t-[4px] ${barColor}`}
+                      style={{ height: `${height}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-3 mt-3 text-[11px] text-gray-400">
+            <span>{data[0]?.label}</span>
+            <span>{data[data.length - 1]?.label}</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
   const [authed, setAuthed] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -108,6 +194,7 @@ export default function AnalyticsPage() {
   const [expandedShows, setExpandedShows] = useState<Set<string>>(new Set());
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
   const [activeSubscribers, setActiveSubscribers] = useState(0);
+  const [timeseries, setTimeseries] = useState<AnalyticsTimeSeries>(emptyTimeSeries());
   const [admin, setAdmin] = useState<AdminMetrics>({
     dau: 0,
     wau: 0,
@@ -144,6 +231,7 @@ export default function AnalyticsPage() {
       if (json.revenue) setRevenue(json.revenue);
       if (json.active_subscribers != null) setActiveSubscribers(json.active_subscribers);
       if (json.admin) setAdmin(json.admin);
+      setTimeseries(json.timeseries ?? emptyTimeSeries());
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
@@ -151,6 +239,7 @@ export default function AnalyticsPage() {
     } catch {
       setAudiobooks([]);
       setPodcasts([]);
+      setTimeseries(emptyTimeSeries());
       setAdmin({
         dau: 0,
         wau: 0,
@@ -433,6 +522,30 @@ export default function AnalyticsPage() {
                   })}
                 </div>
               )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <MiniBarChart
+                title="New Signups"
+                subtitle="Profiles created per day over the last 30 days."
+                data={timeseries.signups_daily}
+              />
+              <MiniBarChart
+                title="Daily Active Users"
+                subtitle="Unique listeners per day over the last 30 days."
+                data={timeseries.active_users_daily}
+                tone="gray"
+              />
+              <MiniBarChart
+                title="Weekly Active Users"
+                subtitle="Unique listeners per week over the last 12 weeks."
+                data={timeseries.active_users_weekly}
+              />
+              <MiniBarChart
+                title="Monthly Active Users"
+                subtitle="Unique listeners per month over the last 12 months."
+                data={timeseries.active_users_monthly}
+                tone="gray"
+              />
             </div>
           </div>
         )}

@@ -8,6 +8,12 @@ function getStripe() {
 
 type PeriodType = "daily" | "weekly" | "monthly";
 
+interface TimeSeriesPoint {
+  period_start: string;
+  label: string;
+  value: number;
+}
+
 interface SessionRow {
   started_at: string;
   seconds_listened: number;
@@ -46,6 +52,29 @@ function getPeriodStart(date: Date, period: PeriodType): string {
   return `${date.toISOString().slice(0, 7)}-01`;
 }
 
+function formatShortPeriodLabel(periodStart: string, period: PeriodType): string {
+  const date = new Date(`${periodStart}T00:00:00Z`);
+  if (period === "daily") {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  }
+  if (period === "weekly") {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  }
+  return date.toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" });
+}
+
+function buildTrailingPeriods(period: PeriodType, count: number, endDate: Date): string[] {
+  const normalized = new Date(endDate);
+  const currentStart = getPeriodStart(normalized, period);
+  const periods: string[] = [];
+
+  for (let index = count - 1; index >= 0; index -= 1) {
+    periods.push(shiftPeriodStart(currentStart, period, -index));
+  }
+
+  return periods;
+}
+
 export async function GET(req: NextRequest) {
   const period = (req.nextUrl.searchParams.get("period") || "daily") as PeriodType;
   const periodStart = req.nextUrl.searchParams.get("period_start");
@@ -58,7 +87,7 @@ export async function GET(req: NextRequest) {
 
   const LIBRARY_URL = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
 
-  const [audiobookRes, podcastRes, showsRes, libraryRes] = await Promise.all([
+  const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes] = await Promise.all([
     supabase
       .from("listening_sessions")
       .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id"),
@@ -68,6 +97,9 @@ export async function GET(req: NextRequest) {
     supabase
       .from("shows")
       .select("id, image_url"),
+    supabase
+      .from("profiles")
+      .select("created_at"),
     fetch(LIBRARY_URL).then((r) => r.ok ? r.json() : []).catch(() => []),
   ]);
 
@@ -250,6 +282,51 @@ export async function GET(req: NextRequest) {
       firstSeenByDevice.set(session.device_id, session.started_at);
     }
   }
+
+  const signupsByDay = new Map<string, number>();
+  for (const profile of profilesRes.data ?? []) {
+    const dayStart = getPeriodStart(new Date(profile.created_at), "daily");
+    signupsByDay.set(dayStart, (signupsByDay.get(dayStart) ?? 0) + 1);
+  }
+
+  const activityBuckets = {
+    daily: new Map<string, Set<string>>(),
+    weekly: new Map<string, Set<string>>(),
+    monthly: new Map<string, Set<string>>(),
+  } satisfies Record<PeriodType, Map<string, Set<string>>>;
+
+  for (const session of combinedSessions) {
+    for (const bucketPeriod of ["daily", "weekly", "monthly"] as PeriodType[]) {
+      const bucketStart = getPeriodStart(new Date(session.started_at), bucketPeriod);
+      const bucket = activityBuckets[bucketPeriod].get(bucketStart) ?? new Set<string>();
+      bucket.add(session.device_id);
+      activityBuckets[bucketPeriod].set(bucketStart, bucket);
+    }
+  }
+
+  const signupsSeries: TimeSeriesPoint[] = buildTrailingPeriods("daily", 30, now).map((bucketStart) => ({
+    period_start: bucketStart,
+    label: formatShortPeriodLabel(bucketStart, "daily"),
+    value: signupsByDay.get(bucketStart) ?? 0,
+  }));
+
+  const activeUsersDailySeries: TimeSeriesPoint[] = buildTrailingPeriods("daily", 30, now).map((bucketStart) => ({
+    period_start: bucketStart,
+    label: formatShortPeriodLabel(bucketStart, "daily"),
+    value: activityBuckets.daily.get(bucketStart)?.size ?? 0,
+  }));
+
+  const activeUsersWeeklySeries: TimeSeriesPoint[] = buildTrailingPeriods("weekly", 12, now).map((bucketStart) => ({
+    period_start: bucketStart,
+    label: formatShortPeriodLabel(bucketStart, "weekly"),
+    value: activityBuckets.weekly.get(bucketStart)?.size ?? 0,
+  }));
+
+  const activeUsersMonthlySeries: TimeSeriesPoint[] = buildTrailingPeriods("monthly", 12, now).map((bucketStart) => ({
+    period_start: bucketStart,
+    label: formatShortPeriodLabel(bucketStart, "monthly"),
+    value: activityBuckets.monthly.get(bucketStart)?.size ?? 0,
+  }));
 
   const currentPeriodSessions = targetPeriod
     ? combinedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
@@ -518,6 +595,12 @@ export async function GET(req: NextRequest) {
       previous_period: previousPeriod,
       target_period: targetPeriod,
       active_listeners: activeListeners,
+    },
+    timeseries: {
+      signups_daily: signupsSeries,
+      active_users_daily: activeUsersDailySeries,
+      active_users_weekly: activeUsersWeeklySeries,
+      active_users_monthly: activeUsersMonthlySeries,
     },
   });
 }
