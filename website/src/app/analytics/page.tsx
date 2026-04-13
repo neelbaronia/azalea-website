@@ -49,12 +49,26 @@ interface TimeSeriesPoint {
   value: number;
 }
 
+interface ActivitySeriesPoint {
+  period_start: string;
+  label: string;
+  unique_listeners: number;
+  total_seconds: number;
+  users: {
+    device_id: string;
+    label: string;
+    total_seconds: number;
+  }[];
+}
+
 interface AnalyticsTimeSeries {
   signups_daily: TimeSeriesPoint[];
-  active_users_daily: TimeSeriesPoint[];
-  active_users_weekly: TimeSeriesPoint[];
-  active_users_monthly: TimeSeriesPoint[];
+  active_users_daily: ActivitySeriesPoint[];
+  active_users_weekly: ActivitySeriesPoint[];
+  active_users_monthly: ActivitySeriesPoint[];
 }
+
+type ActivityChartMode = "count" | "time";
 
 interface AdminMetrics {
   dau: number;
@@ -148,13 +162,13 @@ function MiniBarChart({
         <p className="text-sm text-gray-400">No data yet.</p>
       ) : (
         <>
-          <div className="flex items-end gap-1 h-36">
+          <div className="flex items-stretch gap-1 h-36">
             {data.map((point) => {
               const height = maxValue > 0 ? Math.max((point.value / maxValue) * 100, point.value > 0 ? 6 : 2) : 2;
               return (
                 <div
                   key={point.period_start}
-                  className="flex-1 flex flex-col justify-end items-center group min-w-0"
+                  className="flex-1 h-full flex flex-col justify-end items-center group min-w-0"
                   title={`${point.label}: ${point.value}`}
                 >
                   <div className="text-[10px] text-gray-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -180,6 +194,156 @@ function MiniBarChart({
   );
 }
 
+const STACK_COLORS = [
+  "#111111",
+  "#4b5563",
+  "#2563eb",
+  "#059669",
+  "#d97706",
+  "#dc2626",
+  "#7c3aed",
+  "#0891b2",
+];
+
+function colorForUser(deviceId: string): string {
+  if (deviceId === "other") return "#9ca3af";
+  let hash = 0;
+  for (let index = 0; index < deviceId.length; index += 1) {
+    hash = (hash * 31 + deviceId.charCodeAt(index)) >>> 0;
+  }
+  return STACK_COLORS[hash % STACK_COLORS.length];
+}
+
+function StackedActivityChart({
+  title,
+  subtitle,
+  data,
+  mode,
+  onModeChange,
+}: {
+  title: string;
+  subtitle: string;
+  data: ActivitySeriesPoint[];
+  mode: ActivityChartMode;
+  onModeChange: (mode: ActivityChartMode) => void;
+}) {
+  const maxSeconds = data.reduce((max, point) => Math.max(max, point.total_seconds), 0);
+  const maxCount = data.reduce((max, point) => Math.max(max, point.unique_listeners), 0);
+  const latest = data.length > 0 ? data[data.length - 1] : null;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h3 className="text-sm font-medium text-black">{title}</h3>
+          <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-xl font-semibold tabular-nums">{latest?.unique_listeners ?? 0}</div>
+          <div className="text-[11px] text-gray-400">unique</div>
+          <div className="text-sm font-medium tabular-nums mt-2">{formatDuration(latest?.total_seconds ?? 0)}</div>
+          <div className="text-[11px] text-gray-400">listen time</div>
+          <div className="mt-3 inline-flex rounded-md border border-gray-200 p-0.5 bg-gray-50">
+            <button
+              type="button"
+              onClick={() => onModeChange("count")}
+              className={`px-2.5 py-1 text-[11px] rounded transition-colors ${
+                mode === "count" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-black"
+              }`}
+            >
+              Count
+            </button>
+            <button
+              type="button"
+              onClick={() => onModeChange("time")}
+              className={`px-2.5 py-1 text-[11px] rounded transition-colors ${
+                mode === "time" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-black"
+              }`}
+            >
+              Time
+            </button>
+          </div>
+        </div>
+      </div>
+      {data.length === 0 ? (
+        <p className="text-sm text-gray-400">No data yet.</p>
+      ) : (
+        <>
+          <div className="flex items-stretch gap-1 h-40">
+            {data.map((point) => {
+              const barHeight = mode === "time"
+                ? (maxSeconds > 0
+                    ? Math.max((point.total_seconds / maxSeconds) * 100, point.total_seconds > 0 ? 8 : 2)
+                    : 2)
+                : (maxCount > 0
+                    ? Math.max((point.unique_listeners / maxCount) * 100, point.unique_listeners > 0 ? 8 : 2)
+                    : 2);
+              const titleText = [
+                `${point.label}`,
+                `${point.unique_listeners} unique users`,
+                `${formatDuration(point.total_seconds)} total listened`,
+                ...point.users.map((user) => `${user.label}: ${formatDuration(user.total_seconds)}`),
+              ].join("\n");
+
+              return (
+                <div
+                  key={point.period_start}
+                  className="flex-1 h-full flex flex-col justify-end items-center group min-w-0"
+                  title={titleText}
+                >
+                  <div className="text-[10px] text-gray-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {mode === "count" ? point.unique_listeners : formatDuration(point.total_seconds)}
+                  </div>
+                  <div className="w-full h-full flex items-end">
+                    {mode === "count" ? (
+                      <div
+                        className="w-full rounded-t-[4px] bg-[#6d48e5]"
+                        style={{ height: `${barHeight}%` }}
+                      />
+                    ) : (
+                      <div
+                        className="w-full rounded-t-[4px] bg-gray-100 overflow-hidden flex flex-col-reverse"
+                        style={{ height: `${barHeight}%` }}
+                      >
+                        {point.users.map((user) => (
+                          <div
+                            key={`${point.period_start}-${user.device_id}`}
+                            style={{
+                              height: point.total_seconds > 0 ? `${(user.total_seconds / point.total_seconds) * 100}%` : "0%",
+                              backgroundColor: colorForUser(user.device_id),
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-3 mt-3 text-[11px] text-gray-400">
+            <span>{data[0]?.label}</span>
+            <span>{data[data.length - 1]?.label}</span>
+          </div>
+          {mode === "time" && latest && latest.users.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-[11px] text-gray-500">
+              {latest.users.map((user) => (
+                <div key={`legend-${user.device_id}`} className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: colorForUser(user.device_id) }}
+                  />
+                  <span>{user.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
   const [authed, setAuthed] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -195,6 +359,9 @@ export default function AnalyticsPage() {
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
   const [activeSubscribers, setActiveSubscribers] = useState(0);
   const [timeseries, setTimeseries] = useState<AnalyticsTimeSeries>(emptyTimeSeries());
+  const [dailyChartMode, setDailyChartMode] = useState<ActivityChartMode>("time");
+  const [weeklyChartMode, setWeeklyChartMode] = useState<ActivityChartMode>("time");
+  const [monthlyChartMode, setMonthlyChartMode] = useState<ActivityChartMode>("time");
   const [admin, setAdmin] = useState<AdminMetrics>({
     dau: 0,
     wau: 0,
@@ -523,28 +690,32 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 mt-4">
               <MiniBarChart
                 title="New Signups"
                 subtitle="Profiles created per day over the last 30 days."
                 data={timeseries.signups_daily}
               />
-              <MiniBarChart
+              <StackedActivityChart
                 title="Daily Active Users"
-                subtitle="Unique listeners per day over the last 30 days."
+                subtitle="Unique listeners and total time per day, stacked by user."
                 data={timeseries.active_users_daily}
-                tone="gray"
+                mode={dailyChartMode}
+                onModeChange={setDailyChartMode}
               />
-              <MiniBarChart
+              <StackedActivityChart
                 title="Weekly Active Users"
-                subtitle="Unique listeners per week over the last 12 weeks."
+                subtitle="Unique listeners and total time per week, stacked by user."
                 data={timeseries.active_users_weekly}
+                mode={weeklyChartMode}
+                onModeChange={setWeeklyChartMode}
               />
-              <MiniBarChart
+              <StackedActivityChart
                 title="Monthly Active Users"
-                subtitle="Unique listeners per month over the last 12 months."
+                subtitle="Unique listeners and total time per month, stacked by user."
                 data={timeseries.active_users_monthly}
-                tone="gray"
+                mode={monthlyChartMode}
+                onModeChange={setMonthlyChartMode}
               />
             </div>
           </div>
