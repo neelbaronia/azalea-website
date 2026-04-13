@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 
 const ANALYTICS_PASSWORD = process.env.NEXT_PUBLIC_ANALYTICS_PASSWORD || "azalea";
@@ -69,6 +69,7 @@ interface AnalyticsTimeSeries {
 }
 
 type ActivityChartMode = "count" | "time";
+type ActivitySeriesPeriod = "daily" | "weekly" | "monthly";
 
 interface AdminMetrics {
   dau: number;
@@ -145,7 +146,7 @@ function MiniBarChart({
   const barColor = tone === "black" ? "bg-black" : "bg-gray-500";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+    <div className="bg-white border border-gray-200 rounded-lg px-5 py-4 min-w-[280px] lg:min-w-[300px] xl:min-w-[320px] shrink-0">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <h3 className="text-sm font-medium text-black">{title}</h3>
@@ -195,24 +196,17 @@ function MiniBarChart({
 }
 
 const STACK_COLORS = [
-  "#111111",
-  "#4b5563",
   "#2563eb",
+  "#dc2626",
   "#059669",
   "#d97706",
-  "#dc2626",
   "#7c3aed",
   "#0891b2",
+  "#db2777",
+  "#65a30d",
+  "#ea580c",
+  "#4f46e5",
 ];
-
-function colorForUser(deviceId: string): string {
-  if (deviceId === "other") return "#9ca3af";
-  let hash = 0;
-  for (let index = 0; index < deviceId.length; index += 1) {
-    hash = (hash * 31 + deviceId.charCodeAt(index)) >>> 0;
-  }
-  return STACK_COLORS[hash % STACK_COLORS.length];
-}
 
 function StackedActivityChart({
   title,
@@ -220,24 +214,43 @@ function StackedActivityChart({
   data,
   mode,
   onModeChange,
+  headerControls,
+  className = "",
 }: {
   title: string;
   subtitle: string;
   data: ActivitySeriesPoint[];
   mode: ActivityChartMode;
   onModeChange: (mode: ActivityChartMode) => void;
+  headerControls?: ReactNode;
+  className?: string;
 }) {
   const maxSeconds = data.reduce((max, point) => Math.max(max, point.total_seconds), 0);
   const maxCount = data.reduce((max, point) => Math.max(max, point.unique_listeners), 0);
   const latest = data.length > 0 ? data[data.length - 1] : null;
+  const legendSource = [...data].reverse().find((point) => point.users.length > 0) ?? null;
+  const legendUsers = legendSource?.users ?? [];
+  const colorByUserId = new Map<string, string>();
+
+  legendUsers.forEach((user, index) => {
+    colorByUserId.set(
+      user.device_id,
+      user.device_id === "other" ? "#9ca3af" : STACK_COLORS[index % STACK_COLORS.length]
+    );
+  });
+
+  function colorForUser(deviceId: string): string {
+    return colorByUserId.get(deviceId) ?? "#9ca3af";
+  }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+    <div className={`bg-white border border-gray-200 rounded-lg px-5 py-4 min-w-[280px] lg:min-w-[300px] xl:min-w-[320px] shrink-0 ${className}`}>
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <h3 className="text-sm font-medium text-black">{title}</h3>
           <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
         </div>
+        {headerControls && <div className="shrink-0">{headerControls}</div>}
         <div className="text-right shrink-0">
           <div className="text-xl font-semibold tabular-nums">{latest?.unique_listeners ?? 0}</div>
           <div className="text-[11px] text-gray-400">unique</div>
@@ -325,9 +338,9 @@ function StackedActivityChart({
             <span>{data[0]?.label}</span>
             <span>{data[data.length - 1]?.label}</span>
           </div>
-          {mode === "time" && latest && latest.users.length > 0 && (
+          {mode === "time" && legendUsers.length > 0 && (
             <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-[11px] text-gray-500">
-              {latest.users.map((user) => (
+              {legendUsers.map((user) => (
                 <div key={`legend-${user.device_id}`} className="flex items-center gap-2">
                   <span
                     className="inline-block w-2.5 h-2.5 rounded-full"
@@ -359,9 +372,8 @@ export default function AnalyticsPage() {
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
   const [activeSubscribers, setActiveSubscribers] = useState(0);
   const [timeseries, setTimeseries] = useState<AnalyticsTimeSeries>(emptyTimeSeries());
-  const [dailyChartMode, setDailyChartMode] = useState<ActivityChartMode>("time");
-  const [weeklyChartMode, setWeeklyChartMode] = useState<ActivityChartMode>("time");
-  const [monthlyChartMode, setMonthlyChartMode] = useState<ActivityChartMode>("time");
+  const [activeChartMode, setActiveChartMode] = useState<ActivityChartMode>("time");
+  const [activeSeriesPeriod, setActiveSeriesPeriod] = useState<ActivitySeriesPeriod>("weekly");
   const [admin, setAdmin] = useState<AdminMetrics>({
     dau: 0,
     wau: 0,
@@ -501,6 +513,24 @@ export default function AnalyticsPage() {
     (max, listener) => Math.max(max, listener.total_seconds),
     0
   );
+  const activeSeriesData =
+    activeSeriesPeriod === "daily"
+      ? timeseries.active_users_daily
+      : activeSeriesPeriod === "weekly"
+        ? timeseries.active_users_weekly
+        : timeseries.active_users_monthly;
+  const activeSeriesTitle =
+    activeSeriesPeriod === "daily"
+      ? "Daily Active Users"
+      : activeSeriesPeriod === "weekly"
+        ? "Weekly Active Users"
+        : "Monthly Active Users";
+  const activeSeriesSubtitle =
+    activeSeriesPeriod === "daily"
+      ? "Unique listeners and total time per day."
+      : activeSeriesPeriod === "weekly"
+        ? "Unique listeners and total time per week."
+        : "Unique listeners and total time per month.";
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] px-4 py-8 md:px-8">
@@ -690,32 +720,35 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 mt-4">
+            <div className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-4 mt-4 items-start">
               <MiniBarChart
                 title="New Signups"
                 subtitle="Profiles created per day over the last 30 days."
                 data={timeseries.signups_daily}
               />
               <StackedActivityChart
-                title="Daily Active Users"
-                subtitle="Unique listeners and total time per day, stacked by user."
-                data={timeseries.active_users_daily}
-                mode={dailyChartMode}
-                onModeChange={setDailyChartMode}
-              />
-              <StackedActivityChart
-                title="Weekly Active Users"
-                subtitle="Unique listeners and total time per week, stacked by user."
-                data={timeseries.active_users_weekly}
-                mode={weeklyChartMode}
-                onModeChange={setWeeklyChartMode}
-              />
-              <StackedActivityChart
-                title="Monthly Active Users"
-                subtitle="Unique listeners and total time per month, stacked by user."
-                data={timeseries.active_users_monthly}
-                mode={monthlyChartMode}
-                onModeChange={setMonthlyChartMode}
+                title={activeSeriesTitle}
+                subtitle={activeSeriesSubtitle}
+                data={activeSeriesData}
+                mode={activeChartMode}
+                onModeChange={setActiveChartMode}
+                className="min-w-0"
+                headerControls={
+                  <div className="inline-flex rounded-md border border-gray-200 p-0.5 bg-gray-50">
+                    {(["daily", "weekly", "monthly"] as ActivitySeriesPeriod[]).map((value) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setActiveSeriesPeriod(value)}
+                        className={`px-3 py-1.5 text-xs rounded transition-colors ${
+                          activeSeriesPeriod === value ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-black"
+                        }`}
+                      >
+                        {value === "daily" ? "Daily" : value === "weekly" ? "Weekly" : "Monthly"}
+                      </button>
+                    ))}
+                  </div>
+                }
               />
             </div>
           </div>
