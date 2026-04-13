@@ -14,18 +14,37 @@ interface TimeSeriesPoint {
   value: number;
 }
 
+interface ActivitySeriesPoint {
+  period_start: string;
+  label: string;
+  unique_listeners: number;
+  total_seconds: number;
+  users: {
+    device_id: string;
+    label: string;
+    total_seconds: number;
+  }[];
+}
+
 interface SessionRow {
   started_at: string;
   seconds_listened: number;
   device_id: string;
+  user_id: string | null;
 }
 
 interface DetailedSessionRow extends SessionRow {
   source: "audiobook" | "podcast";
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+interface ResolvedListenerIdentity {
+  key: string;
+  device_id: string;
+  user_id: string | null;
+}
+
+function getListenerKey(session: Pick<SessionRow, "device_id" | "user_id">): string {
+  return session.user_id ?? `device:${session.device_id}`;
 }
 
 function shiftPeriodStart(periodStart: string, period: PeriodType, direction: -1 | 1): string {
@@ -90,10 +109,10 @@ export async function GET(req: NextRequest) {
   const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes] = await Promise.all([
     supabase
       .from("listening_sessions")
-      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id"),
+      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id"),
     supabase
       .from("podcast_listening_sessions")
-      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id"),
+      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id"),
     supabase
       .from("shows")
       .select("id, image_url"),
@@ -136,11 +155,12 @@ export async function GET(req: NextRequest) {
     if (!knownAudiobookTitles.has(s.audiobook_title)) continue;
     const ps = getPeriodStart(new Date(s.started_at), period);
     periodSet.add(ps);
+    const listenerKey = getListenerKey(s);
     const key = `${ps}|${s.audiobook_id}`;
     const existing = audiobookMap.get(key);
     if (existing) {
       existing.total_seconds += s.seconds_listened;
-      existing.listeners.add(s.device_id);
+      existing.listeners.add(listenerKey);
     } else {
       audiobookMap.set(key, {
         id: s.audiobook_id,
@@ -148,7 +168,7 @@ export async function GET(req: NextRequest) {
         author: s.audiobook_author,
         image_url: audiobookImageMap.get(s.audiobook_title) ?? null,
         total_seconds: s.seconds_listened,
-        listeners: new Set([s.device_id]),
+        listeners: new Set([listenerKey]),
       });
     }
   }
@@ -166,21 +186,22 @@ export async function GET(req: NextRequest) {
   for (const s of podcastRes.data ?? []) {
     const ps = getPeriodStart(new Date(s.started_at), period);
     periodSet.add(ps);
+    const listenerKey = getListenerKey(s);
     const showKey = `${ps}|${s.show_id}`;
     const existing = showMap.get(showKey);
     if (existing) {
       existing.total_seconds += s.seconds_listened;
-      existing.listeners.add(s.device_id);
+      existing.listeners.add(listenerKey);
       const ep = existing.episodes.get(s.episode_id);
       if (ep) {
         ep.total_seconds += s.seconds_listened;
-        ep.listeners.add(s.device_id);
+        ep.listeners.add(listenerKey);
       } else {
         existing.episodes.set(s.episode_id, {
           episode_id: s.episode_id,
           episode_title: s.episode_title,
           total_seconds: s.seconds_listened,
-          listeners: new Set([s.device_id]),
+          listeners: new Set([listenerKey]),
         });
       }
     } else {
@@ -189,7 +210,7 @@ export async function GET(req: NextRequest) {
         episode_id: s.episode_id,
         episode_title: s.episode_title,
         total_seconds: s.seconds_listened,
-        listeners: new Set([s.device_id]),
+        listeners: new Set([listenerKey]),
       });
       showMap.set(showKey, {
         show_id: s.show_id,
@@ -197,7 +218,7 @@ export async function GET(req: NextRequest) {
         show_author: s.show_author,
         image_url: showImageMap.get(s.show_id) ?? null,
         total_seconds: s.seconds_listened,
-        listeners: new Set([s.device_id]),
+        listeners: new Set([listenerKey]),
         episodes,
       });
     }
@@ -237,11 +258,13 @@ export async function GET(req: NextRequest) {
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
       device_id: s.device_id,
+      user_id: s.user_id,
     })),
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
       device_id: s.device_id,
+      user_id: s.user_id,
     })),
   ];
   const detailedSessions: DetailedSessionRow[] = [
@@ -249,12 +272,14 @@ export async function GET(req: NextRequest) {
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
       device_id: s.device_id,
+      user_id: s.user_id,
       source: "audiobook" as const,
     })),
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
       device_id: s.device_id,
+      user_id: s.user_id,
       source: "podcast" as const,
     })),
   ];
@@ -268,18 +293,19 @@ export async function GET(req: NextRequest) {
   const wau = new Set<string>();
   const mau = new Set<string>();
   const allTimeListeners = new Set<string>();
-  const firstSeenByDevice = new Map<string, string>();
+  const firstSeenByListener = new Map<string, string>();
 
   for (const session of combinedSessions) {
-    allTimeListeners.add(session.device_id);
+    const listenerKey = getListenerKey(session);
+    allTimeListeners.add(listenerKey);
     const ts = new Date(session.started_at).getTime();
-    if (ts >= oneDayAgo) dau.add(session.device_id);
-    if (ts >= sevenDaysAgo) wau.add(session.device_id);
-    if (ts >= thirtyDaysAgo) mau.add(session.device_id);
+    if (ts >= oneDayAgo) dau.add(listenerKey);
+    if (ts >= sevenDaysAgo) wau.add(listenerKey);
+    if (ts >= thirtyDaysAgo) mau.add(listenerKey);
 
-    const existing = firstSeenByDevice.get(session.device_id);
+    const existing = firstSeenByListener.get(listenerKey);
     if (!existing || session.started_at < existing) {
-      firstSeenByDevice.set(session.device_id, session.started_at);
+      firstSeenByListener.set(listenerKey, session.started_at);
     }
   }
 
@@ -290,18 +316,104 @@ export async function GET(req: NextRequest) {
   }
 
   const activityBuckets = {
-    daily: new Map<string, Set<string>>(),
-    weekly: new Map<string, Set<string>>(),
-    monthly: new Map<string, Set<string>>(),
-  } satisfies Record<PeriodType, Map<string, Set<string>>>;
+    daily: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
+    weekly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
+    monthly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
+  } satisfies Record<PeriodType, Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>>;
 
   for (const session of combinedSessions) {
     for (const bucketPeriod of ["daily", "weekly", "monthly"] as PeriodType[]) {
       const bucketStart = getPeriodStart(new Date(session.started_at), bucketPeriod);
-      const bucket = activityBuckets[bucketPeriod].get(bucketStart) ?? new Set<string>();
-      bucket.add(session.device_id);
+      const listenerKey = getListenerKey(session);
+      const bucket = activityBuckets[bucketPeriod].get(bucketStart) ?? {
+        listeners: new Set<string>(),
+        listenerTotals: new Map<string, ResolvedListenerIdentity & { total_seconds: number }>(),
+        total_seconds: 0,
+      };
+      bucket.listeners.add(listenerKey);
+      const existing = bucket.listenerTotals.get(listenerKey);
+      if (existing) {
+        existing.total_seconds += session.seconds_listened;
+      } else {
+        bucket.listenerTotals.set(listenerKey, {
+          key: listenerKey,
+          device_id: session.device_id,
+          user_id: session.user_id,
+          total_seconds: session.seconds_listened,
+        });
+      }
+      bucket.total_seconds += session.seconds_listened;
       activityBuckets[bucketPeriod].set(bucketStart, bucket);
     }
+  }
+
+  const allUserIds = [...new Set(
+    combinedSessions
+      .map((session) => session.user_id)
+      .filter((value): value is string => Boolean(value))
+  )];
+  const fullNameByUserId = new Map<string, string | null>();
+  const emailByUserId = new Map<string, string | null>();
+
+  if (allUserIds.length > 0) {
+    const { data: listenerProfiles, error: listenerProfilesError } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", allUserIds);
+
+    if (listenerProfilesError) {
+      console.error("Analytics profile lookup error:", listenerProfilesError);
+    } else {
+      for (const profile of listenerProfiles ?? []) {
+        fullNameByUserId.set(profile.id, profile.full_name ?? null);
+      }
+    }
+
+    await Promise.all(
+      allUserIds.map(async (userId) => {
+        const { data, error } = await supabase.auth.admin.getUserById(userId);
+        if (!error) {
+          emailByUserId.set(userId, data.user?.email ?? null);
+        }
+      })
+    );
+  }
+
+  function getListenerLabel(listener: Pick<ResolvedListenerIdentity, "device_id" | "user_id">): string {
+    const fullName = listener.user_id ? (fullNameByUserId.get(listener.user_id) ?? null) : null;
+    const email = listener.user_id ? (emailByUserId.get(listener.user_id) ?? null) : null;
+    return fullName ?? email ?? `Listener ${listener.device_id.slice(0, 6)}`;
+  }
+
+  function buildActivitySeries(chartPeriod: PeriodType, count: number): ActivitySeriesPoint[] {
+    return buildTrailingPeriods(chartPeriod, count, now).map((bucketStart) => {
+      const bucket = activityBuckets[chartPeriod].get(bucketStart);
+      const rankedUsers = bucket
+        ? [...bucket.listenerTotals.values()]
+            .sort((a, b) => b.total_seconds - a.total_seconds)
+            .map((listener) => ({
+              device_id: listener.device_id,
+              label: getListenerLabel(listener),
+              total_seconds: listener.total_seconds,
+            }))
+        : [];
+
+      const primaryUsers = rankedUsers.slice(0, 6);
+      const otherSeconds = rankedUsers.slice(6).reduce((sum, user) => sum + user.total_seconds, 0);
+
+      return {
+        period_start: bucketStart,
+        label: formatShortPeriodLabel(bucketStart, chartPeriod),
+        unique_listeners: bucket?.listeners.size ?? 0,
+        total_seconds: bucket?.total_seconds ?? 0,
+        users: otherSeconds > 0
+          ? [
+              ...primaryUsers,
+              { device_id: "other", label: "Other", total_seconds: otherSeconds },
+            ]
+          : primaryUsers,
+      };
+    });
   }
 
   const signupsSeries: TimeSeriesPoint[] = buildTrailingPeriods("daily", 30, now).map((bucketStart) => ({
@@ -310,23 +422,9 @@ export async function GET(req: NextRequest) {
     value: signupsByDay.get(bucketStart) ?? 0,
   }));
 
-  const activeUsersDailySeries: TimeSeriesPoint[] = buildTrailingPeriods("daily", 30, now).map((bucketStart) => ({
-    period_start: bucketStart,
-    label: formatShortPeriodLabel(bucketStart, "daily"),
-    value: activityBuckets.daily.get(bucketStart)?.size ?? 0,
-  }));
-
-  const activeUsersWeeklySeries: TimeSeriesPoint[] = buildTrailingPeriods("weekly", 12, now).map((bucketStart) => ({
-    period_start: bucketStart,
-    label: formatShortPeriodLabel(bucketStart, "weekly"),
-    value: activityBuckets.weekly.get(bucketStart)?.size ?? 0,
-  }));
-
-  const activeUsersMonthlySeries: TimeSeriesPoint[] = buildTrailingPeriods("monthly", 12, now).map((bucketStart) => ({
-    period_start: bucketStart,
-    label: formatShortPeriodLabel(bucketStart, "monthly"),
-    value: activityBuckets.monthly.get(bucketStart)?.size ?? 0,
-  }));
+  const activeUsersDailySeries = buildActivitySeries("daily", 30);
+  const activeUsersWeeklySeries = buildActivitySeries("weekly", 12);
+  const activeUsersMonthlySeries = buildActivitySeries("monthly", 12);
 
   const currentPeriodSessions = targetPeriod
     ? combinedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
@@ -334,10 +432,10 @@ export async function GET(req: NextRequest) {
   const currentPeriodDetailedSessions = targetPeriod
     ? detailedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
     : [];
-  const currentPeriodListeners = new Set(currentPeriodSessions.map((s) => s.device_id));
+  const currentPeriodListeners = new Set(currentPeriodSessions.map((s) => getListenerKey(s)));
   const newListeners = new Set(
-    [...currentPeriodListeners].filter((deviceId) => {
-      const firstSeen = firstSeenByDevice.get(deviceId);
+    [...currentPeriodListeners].filter((listenerKey) => {
+      const firstSeen = firstSeenByListener.get(listenerKey);
       return firstSeen ? getPeriodStart(new Date(firstSeen), period) === targetPeriod : false;
     })
   );
@@ -347,7 +445,9 @@ export async function GET(req: NextRequest) {
   const activeListenerMap = new Map<
     string,
     {
+      key: string;
       device_id: string;
+      user_id: string | null;
       total_seconds: number;
       audiobook_seconds: number;
       podcast_seconds: number;
@@ -357,7 +457,8 @@ export async function GET(req: NextRequest) {
   >();
 
   for (const session of currentPeriodDetailedSessions) {
-    const existing = activeListenerMap.get(session.device_id);
+    const listenerKey = getListenerKey(session);
+    const existing = activeListenerMap.get(listenerKey);
     if (existing) {
       existing.total_seconds += session.seconds_listened;
       existing.session_count += 1;
@@ -370,8 +471,10 @@ export async function GET(req: NextRequest) {
         existing.last_started_at = session.started_at;
       }
     } else {
-      activeListenerMap.set(session.device_id, {
+      activeListenerMap.set(listenerKey, {
+        key: listenerKey,
         device_id: session.device_id,
+        user_id: session.user_id,
         total_seconds: session.seconds_listened,
         audiobook_seconds: session.source === "audiobook" ? session.seconds_listened : 0,
         podcast_seconds: session.source === "podcast" ? session.seconds_listened : 0,
@@ -386,38 +489,27 @@ export async function GET(req: NextRequest) {
     ? new Set(
         combinedSessions
           .filter((s) => getPeriodStart(new Date(s.started_at), period) === previousPeriod)
-          .map((s) => s.device_id)
+          .map((s) => getListenerKey(s))
       )
     : new Set<string>();
   const retainedListeners = new Set(
-    [...currentPeriodListeners].filter((deviceId) => previousPeriodListeners.has(deviceId))
+    [...currentPeriodListeners].filter((listenerKey) => previousPeriodListeners.has(listenerKey))
   );
   const retentionRate =
     previousPeriodListeners.size > 0 ? retainedListeners.size / previousPeriodListeners.size : null;
 
-  const emailByDeviceId = new Map<string, string>();
-  const listenerIdsThatLookLikeUserIds = [...activeListenerMap.keys()].filter(isUuid);
-  if (listenerIdsThatLookLikeUserIds.length > 0) {
-    await Promise.all(
-      listenerIdsThatLookLikeUserIds.map(async (listenerId) => {
-        const { data, error } = await supabase.auth.admin.getUserById(listenerId);
-        if (!error && data.user?.email) {
-          emailByDeviceId.set(listenerId, data.user.email);
-        }
-      })
-    );
-  }
-
   const activeListeners = [...activeListenerMap.values()]
     .map((listener) => {
-      const isNew = newListeners.has(listener.device_id);
-      const isRetained = retainedListeners.has(listener.device_id);
-      const shortId = listener.device_id.slice(0, 6);
-      const email = emailByDeviceId.get(listener.device_id) ?? null;
+      const isNew = newListeners.has(listener.key);
+      const isRetained = retainedListeners.has(listener.key);
+      const fullName = listener.user_id ? (fullNameByUserId.get(listener.user_id) ?? null) : null;
+      const email = listener.user_id ? (emailByUserId.get(listener.user_id) ?? null) : null;
       return {
         device_id: listener.device_id,
+        user_id: listener.user_id,
+        full_name: fullName,
         email,
-        label: email ?? `Listener ${shortId}`,
+        label: getListenerLabel(listener),
         total_seconds: listener.total_seconds,
         audiobook_seconds: listener.audiobook_seconds,
         podcast_seconds: listener.podcast_seconds,
