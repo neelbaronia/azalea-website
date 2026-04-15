@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Image from "next/image";
 
 interface Fragment {
   id: number;
@@ -14,7 +13,6 @@ interface Fragment {
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
 const AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
-const COVER_URL = `${R2_BASE}/cover.png`;
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -227,15 +225,7 @@ export default function TallysCornerDemo() {
 
       {/* Header */}
       <header ref={headerRef} className="bg-[#2c1810] text-white">
-        <div className="max-w-2xl mx-auto px-6 py-10 flex items-center gap-6">
-          <Image
-            src={COVER_URL}
-            alt="Tally's Corner cover"
-            width={120}
-            height={120}
-            className="rounded-lg shadow-lg flex-shrink-0"
-            style={{ width: 120, height: 120, objectFit: "cover" }}
-          />
+        <div className="max-w-2xl mx-auto px-6 py-10">
           <div>
             <p className="text-amber-300/80 text-xs font-bold uppercase tracking-[0.2em] mb-1">
               Azalea Labs Demo
@@ -259,15 +249,7 @@ export default function TallysCornerDemo() {
             scrolledPastHeader ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="max-w-2xl mx-auto px-6 pt-3 pb-2 flex items-center gap-4">
-            <Image
-              src={COVER_URL}
-              alt="Tally's Corner cover"
-              width={48}
-              height={48}
-              className="rounded flex-shrink-0"
-              style={{ width: 48, height: 48, objectFit: "cover" }}
-            />
+          <div className="max-w-2xl mx-auto px-6 pt-3 pb-2">
             <div className="min-w-0">
               <p className="text-amber-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">
                 Azalea Labs Demo
