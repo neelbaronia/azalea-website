@@ -34,6 +34,7 @@ export default function TallysCornerDemo() {
   const [dragging, setDragging] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loading, setLoading] = useState(true);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -99,6 +100,7 @@ export default function TallysCornerDemo() {
   };
 
   const cycleSpeed = () => {
+    if (audioError) return;
     const currentIdx = SPEEDS.indexOf(playbackRate);
     const nextIdx = (currentIdx + 1) % SPEEDS.length;
     const newRate = SPEEDS[nextIdx];
@@ -111,21 +113,32 @@ export default function TallysCornerDemo() {
     setActiveIndex(-1);
   };
 
+  const handleAudioError = () => {
+    setPlaying(false);
+    setAudioError("Audio file unavailable. The current Tally's Corner demo asset is missing.");
+  };
+
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || audioError) return;
     if (playing) {
       audio.pause();
+      setPlaying(false);
     } else {
-      audio.play();
+      audio
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => {
+          setPlaying(false);
+          setAudioError("Audio playback failed. The current Tally's Corner demo asset is unavailable.");
+        });
     }
-    setPlaying(!playing);
   };
 
   // Seek bar
   const seekFromClientX = (clientX: number) => {
     const bar = seekBarRef.current;
-    if (!bar || !audioRef.current || !duration) return;
+    if (!bar || !audioRef.current || !duration || audioError) return;
     const rect = bar.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     audioRef.current.currentTime = pct * duration;
@@ -159,11 +172,16 @@ export default function TallysCornerDemo() {
 
   // Click sentence to seek
   const seekToFragment = (frag: Fragment) => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || audioError) return;
     audioRef.current.currentTime = frag.begin;
     if (!playing) {
-      audioRef.current.play();
-      setPlaying(true);
+      audioRef.current
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => {
+          setPlaying(false);
+          setAudioError("Audio playback failed. The current Tally's Corner demo asset is unavailable.");
+        });
     }
   };
 
@@ -204,6 +222,7 @@ export default function TallysCornerDemo() {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
+        onError={handleAudioError}
       />
 
       {/* Header */}
@@ -269,7 +288,8 @@ export default function TallysCornerDemo() {
           {/* Play/pause */}
           <button
             onClick={togglePlay}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 text-[#2c1810] flex items-center justify-center hover:bg-amber-300 transition-colors"
+            disabled={Boolean(audioError)}
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 text-[#2c1810] flex items-center justify-center hover:bg-amber-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {playing ? (
               <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor">
@@ -316,11 +336,19 @@ export default function TallysCornerDemo() {
           {/* Playback speed */}
           <button
             onClick={cycleSpeed}
-            className="flex-shrink-0 px-2 py-1 rounded-md bg-white/10 text-white/70 text-xs font-bold tabular-nums hover:bg-white/20 transition-colors min-w-[3rem]"
+            disabled={Boolean(audioError)}
+            className="flex-shrink-0 px-2 py-1 rounded-md bg-white/10 text-white/70 text-xs font-bold tabular-nums hover:bg-white/20 transition-colors min-w-[3rem] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {playbackRate}x
           </button>
         </div>
+        {audioError && (
+          <div className="max-w-2xl mx-auto px-6 pb-3">
+            <div className="rounded-md border border-amber-300/30 bg-amber-200/10 px-3 py-2 text-xs text-amber-100">
+              {audioError}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Text area */}
