@@ -2,6 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+const ANALYTICS_API_SECRET = process.env.ANALYTICS_API_SECRET;
+
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }
@@ -94,7 +96,20 @@ function buildTrailingPeriods(period: PeriodType, count: number, endDate: Date):
   return periods;
 }
 
+function getTomorrowStartUtcIso(from: Date): string {
+  const tomorrow = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate() + 1));
+  return tomorrow.toISOString();
+}
+
 export async function GET(req: NextRequest) {
+  const providedSecret = req.headers.get("x-analytics-secret");
+  if (!ANALYTICS_API_SECRET) {
+    return NextResponse.json({ error: "Analytics secret not configured" }, { status: 500 });
+  }
+  if (!providedSecret || providedSecret !== ANALYTICS_API_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const period = (req.nextUrl.searchParams.get("period") || "daily") as PeriodType;
   const periodStart = req.nextUrl.searchParams.get("period_start");
 
@@ -103,22 +118,41 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = createAdminClient();
+  const now = new Date();
+  const trailingDailyPeriods = buildTrailingPeriods("daily", 30, now);
+  const trailingWeeklyPeriods = buildTrailingPeriods("weekly", 12, now);
+  const trailingMonthlyPeriods = buildTrailingPeriods("monthly", 12, now);
+  const periodOptions = period === "daily"
+    ? trailingDailyPeriods
+    : period === "weekly"
+      ? trailingWeeklyPeriods
+      : trailingMonthlyPeriods;
+  const allPeriods = [...periodOptions].reverse();
+  const targetPeriod = periodStart && allPeriods.includes(periodStart) ? periodStart : allPeriods[0];
+  const previousPeriod = shiftPeriodStart(targetPeriod, period, -1);
+  const analyticsWindowStart = trailingMonthlyPeriods[0];
+  const analyticsWindowEnd = getTomorrowStartUtcIso(now);
 
   const LIBRARY_URL = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
 
   const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes] = await Promise.all([
     supabase
       .from("listening_sessions")
-      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id"),
+      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
+      .gte("started_at", analyticsWindowStart)
+      .lt("started_at", analyticsWindowEnd),
     supabase
       .from("podcast_listening_sessions")
-      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id"),
+      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id")
+      .gte("started_at", analyticsWindowStart)
+      .lt("started_at", analyticsWindowEnd),
     supabase
       .from("shows")
       .select("id, image_url"),
     supabase
       .from("profiles")
-      .select("created_at"),
+      .select("created_at")
+      .gte("created_at", trailingDailyPeriods[0]),
     fetch(LIBRARY_URL).then((r) => r.ok ? r.json() : []).catch(() => []),
   ]);
 
@@ -146,15 +180,11 @@ export async function GET(req: NextRequest) {
   // Build a set of known audiobook titles from library.json to filter out podcasts logged in listening_sessions
   const knownAudiobookTitles = new Set(libraryBooks.map((b: { title: string }) => b.title));
 
-  // Collect all period starts
-  const periodSet = new Set<string>();
-
   // Aggregate audiobooks by period (only include titles that exist in library.json)
   const audiobookMap = new Map<string, { id: string; title: string; author: string; image_url: string | null; total_seconds: number; listeners: Set<string> }>();
   for (const s of audiobookRes.data ?? []) {
     if (!knownAudiobookTitles.has(s.audiobook_title)) continue;
     const ps = getPeriodStart(new Date(s.started_at), period);
-    periodSet.add(ps);
     const listenerKey = getListenerKey(s);
     const key = `${ps}|${s.audiobook_id}`;
     const existing = audiobookMap.get(key);
@@ -185,7 +215,6 @@ export async function GET(req: NextRequest) {
   }>();
   for (const s of podcastRes.data ?? []) {
     const ps = getPeriodStart(new Date(s.started_at), period);
-    periodSet.add(ps);
     const listenerKey = getListenerKey(s);
     const showKey = `${ps}|${s.show_id}`;
     const existing = showMap.get(showKey);
@@ -250,9 +279,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const allPeriods = [...periodSet].sort((a, b) => b.localeCompare(a));
-  const targetPeriod = periodStart || allPeriods[0];
-
   const combinedSessions: SessionRow[] = [
     ...(audiobookRes.data ?? []).map((s) => ({
       started_at: s.started_at,
@@ -284,7 +310,6 @@ export async function GET(req: NextRequest) {
     })),
   ];
 
-  const now = new Date();
   const oneDayAgo = now.getTime() - (24 * 60 * 60 * 1000);
   const sevenDaysAgo = now.getTime() - (7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = now.getTime() - (30 * 24 * 60 * 60 * 1000);
@@ -347,45 +372,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const allUserIds = [...new Set(
-    combinedSessions
-      .map((session) => session.user_id)
-      .filter((value): value is string => Boolean(value))
-  )];
-  const fullNameByUserId = new Map<string, string | null>();
-  const emailByUserId = new Map<string, string | null>();
-
-  if (allUserIds.length > 0) {
-    const { data: listenerProfiles, error: listenerProfilesError } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .in("id", allUserIds);
-
-    if (listenerProfilesError) {
-      console.error("Analytics profile lookup error:", listenerProfilesError);
-    } else {
-      for (const profile of listenerProfiles ?? []) {
-        fullNameByUserId.set(profile.id, profile.full_name ?? null);
-      }
-    }
-
-    await Promise.all(
-      allUserIds.map(async (userId) => {
-        const { data, error } = await supabase.auth.admin.getUserById(userId);
-        if (!error) {
-          emailByUserId.set(userId, data.user?.email ?? null);
-        }
-      })
-    );
-  }
-
-  function getListenerLabel(listener: Pick<ResolvedListenerIdentity, "device_id" | "user_id">): string {
-    const fullName = listener.user_id ? (fullNameByUserId.get(listener.user_id) ?? null) : null;
-    const email = listener.user_id ? (emailByUserId.get(listener.user_id) ?? null) : null;
-    return fullName ?? email ?? `Listener ${listener.device_id.slice(0, 6)}`;
-  }
-
-  function buildActivitySeries(chartPeriod: PeriodType, count: number): ActivitySeriesPoint[] {
+  function buildActivitySeries(chartPeriod: PeriodType, count: number, labelForListener: (listener: Pick<ResolvedListenerIdentity, "device_id" | "user_id">) => string): ActivitySeriesPoint[] {
     return buildTrailingPeriods(chartPeriod, count, now).map((bucketStart) => {
       const bucket = activityBuckets[chartPeriod].get(bucketStart);
       const rankedUsers = bucket
@@ -393,7 +380,7 @@ export async function GET(req: NextRequest) {
             .sort((a, b) => b.total_seconds - a.total_seconds)
             .map((listener) => ({
               device_id: listener.device_id,
-              label: getListenerLabel(listener),
+              label: labelForListener(listener),
               total_seconds: listener.total_seconds,
             }))
         : [];
@@ -416,15 +403,11 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const signupsSeries: TimeSeriesPoint[] = buildTrailingPeriods("daily", 30, now).map((bucketStart) => ({
+  const signupsSeries: TimeSeriesPoint[] = trailingDailyPeriods.map((bucketStart) => ({
     period_start: bucketStart,
     label: formatShortPeriodLabel(bucketStart, "daily"),
     value: signupsByDay.get(bucketStart) ?? 0,
   }));
-
-  const activeUsersDailySeries = buildActivitySeries("daily", 30);
-  const activeUsersWeeklySeries = buildActivitySeries("weekly", 12);
-  const activeUsersMonthlySeries = buildActivitySeries("monthly", 12);
 
   const currentPeriodSessions = targetPeriod
     ? combinedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
@@ -433,6 +416,58 @@ export async function GET(req: NextRequest) {
     ? detailedSessions.filter((s) => getPeriodStart(new Date(s.started_at), period) === targetPeriod)
     : [];
   const currentPeriodListeners = new Set(currentPeriodSessions.map((s) => getListenerKey(s)));
+
+  const currentListenerDeviceIds = [...new Set(currentPeriodSessions.map((session) => session.device_id))];
+  const currentListenerUserIds = [...new Set(
+    currentPeriodSessions
+      .map((session) => session.user_id)
+      .filter((value): value is string => Boolean(value))
+  )];
+
+  if (currentListenerDeviceIds.length > 0 || currentListenerUserIds.length > 0) {
+    const emptyResult = Promise.resolve({ data: [] as SessionRow[], error: null });
+    const [audioByDeviceRes, podcastByDeviceRes, audioByUserRes, podcastByUserRes] = await Promise.all([
+      currentListenerDeviceIds.length > 0
+        ? supabase
+            .from("listening_sessions")
+            .select("started_at, seconds_listened, device_id, user_id")
+            .in("device_id", currentListenerDeviceIds)
+        : emptyResult,
+      currentListenerDeviceIds.length > 0
+        ? supabase
+            .from("podcast_listening_sessions")
+            .select("started_at, seconds_listened, device_id, user_id")
+            .in("device_id", currentListenerDeviceIds)
+        : emptyResult,
+      currentListenerUserIds.length > 0
+        ? supabase
+            .from("listening_sessions")
+            .select("started_at, seconds_listened, device_id, user_id")
+            .in("user_id", currentListenerUserIds)
+        : emptyResult,
+      currentListenerUserIds.length > 0
+        ? supabase
+            .from("podcast_listening_sessions")
+            .select("started_at, seconds_listened, device_id, user_id")
+            .in("user_id", currentListenerUserIds)
+        : emptyResult,
+    ]);
+
+    for (const result of [audioByDeviceRes, podcastByDeviceRes, audioByUserRes, podcastByUserRes]) {
+      if (result.error) {
+        console.error("Analytics first-seen lookup error:", result.error);
+        continue;
+      }
+      for (const session of result.data ?? []) {
+        const listenerKey = getListenerKey(session);
+        const existing = firstSeenByListener.get(listenerKey);
+        if (!existing || session.started_at < existing) {
+          firstSeenByListener.set(listenerKey, session.started_at);
+        }
+      }
+    }
+  }
+
   const newListeners = new Set(
     [...currentPeriodListeners].filter((listenerKey) => {
       const firstSeen = firstSeenByListener.get(listenerKey);
@@ -441,6 +476,59 @@ export async function GET(req: NextRequest) {
   );
   const returningListeners = currentPeriodListeners.size - newListeners.size;
   const totalSessionCount = currentPeriodSessions.length;
+
+  const visibleChartUserIds = new Set<string>();
+  for (const bucketMap of Object.values(activityBuckets)) {
+    for (const bucket of bucketMap.values()) {
+      const topListeners = [...bucket.listenerTotals.values()]
+        .sort((a, b) => b.total_seconds - a.total_seconds)
+        .slice(0, 6);
+      for (const listener of topListeners) {
+        if (listener.user_id) visibleChartUserIds.add(listener.user_id);
+      }
+    }
+  }
+
+  const resolvedUserIds = [...new Set([
+    ...currentListenerUserIds,
+    ...visibleChartUserIds,
+  ])];
+  const fullNameByUserId = new Map<string, string | null>();
+  const emailByUserId = new Map<string, string | null>();
+
+  if (resolvedUserIds.length > 0) {
+    const { data: listenerProfiles, error: listenerProfilesError } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", resolvedUserIds);
+
+    if (listenerProfilesError) {
+      console.error("Analytics profile lookup error:", listenerProfilesError);
+    } else {
+      for (const profile of listenerProfiles ?? []) {
+        fullNameByUserId.set(profile.id, profile.full_name ?? null);
+      }
+    }
+
+    await Promise.all(
+      resolvedUserIds.map(async (userId) => {
+        const { data, error } = await supabase.auth.admin.getUserById(userId);
+        if (!error) {
+          emailByUserId.set(userId, data.user?.email ?? null);
+        }
+      })
+    );
+  }
+
+  function getListenerLabel(listener: Pick<ResolvedListenerIdentity, "device_id" | "user_id">): string {
+    const fullName = listener.user_id ? (fullNameByUserId.get(listener.user_id) ?? null) : null;
+    const email = listener.user_id ? (emailByUserId.get(listener.user_id) ?? null) : null;
+    return fullName ?? email ?? `Listener ${listener.device_id.slice(0, 6)}`;
+  }
+
+  const activeUsersDailySeries = buildActivitySeries("daily", 30, getListenerLabel);
+  const activeUsersWeeklySeries = buildActivitySeries("weekly", 12, getListenerLabel);
+  const activeUsersMonthlySeries = buildActivitySeries("monthly", 12, getListenerLabel);
 
   const activeListenerMap = new Map<
     string,
@@ -484,7 +572,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const previousPeriod = targetPeriod ? shiftPeriodStart(targetPeriod, period, -1) : null;
   const previousPeriodListeners = previousPeriod
     ? new Set(
         combinedSessions

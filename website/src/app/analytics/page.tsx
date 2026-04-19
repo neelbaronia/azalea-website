@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 
-const ANALYTICS_PASSWORD = process.env.NEXT_PUBLIC_ANALYTICS_PASSWORD || "azalea";
-
 type PeriodType = "daily" | "weekly" | "monthly";
 type ContentTab = "podcasts" | "audiobooks";
 
@@ -359,8 +357,10 @@ function StackedActivityChart({
 
 export default function AnalyticsPage() {
   const [authed, setAuthed] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [period, setPeriod] = useState<PeriodType>("weekly");
   const [tab, setTab] = useState<ContentTab>("podcasts");
   const [audiobooks, setAudiobooks] = useState<AudiobookRow[]>([]);
@@ -393,9 +393,27 @@ export default function AnalyticsPage() {
   });
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem("analytics_authed") === "true") {
-      setAuthed(true);
-    }
+    let cancelled = false;
+
+    fetch("/api/analytics/auth", { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) return { authed: false };
+        return res.json();
+      })
+      .then((json) => {
+        if (cancelled) return;
+        setAuthed(Boolean(json.authed));
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAuthed(false);
+        setAuthChecked(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const fetchData = useCallback(async (p: PeriodType, periodStart?: string) => {
@@ -403,7 +421,14 @@ export default function AnalyticsPage() {
     const params = new URLSearchParams({ period: p });
     if (periodStart) params.set("period_start", periodStart);
     try {
-      const res = await fetch(`/api/analytics?${params}`);
+      const res = await fetch(`/api/analytics/proxy?${params}`, { cache: "no-store" });
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error("Failed to fetch analytics");
+      }
       const json = await res.json();
       setAudiobooks(json.audiobooks ?? []);
       setPodcasts(json.podcasts ?? []);
@@ -445,14 +470,28 @@ export default function AnalyticsPage() {
     if (authed) fetchData(period);
   }, [authed, period, fetchData]);
 
-  function handlePasswordSubmit(e: React.FormEvent) {
+  async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (passwordInput === ANALYTICS_PASSWORD) {
-      sessionStorage.setItem("analytics_authed", "true");
+    setPasswordSubmitting(true);
+    setPasswordError(false);
+    try {
+      const res = await fetch("/api/analytics/auth", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ password: passwordInput }),
+      });
+      if (!res.ok) {
+        setPasswordError(true);
+        return;
+      }
       setAuthed(true);
-      setPasswordError(false);
-    } else {
+      setPasswordInput("");
+    } catch {
       setPasswordError(true);
+    } finally {
+      setPasswordSubmitting(false);
     }
   }
 
@@ -470,6 +509,14 @@ export default function AnalyticsPage() {
       else next.add(showId);
       return next;
     });
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fbfbfb] px-4">
+        <p className="text-sm text-gray-400">Loading...</p>
+      </div>
+    );
   }
 
   if (!authed) {
@@ -490,9 +537,10 @@ export default function AnalyticsPage() {
           )}
           <button
             type="submit"
-            className="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            disabled={passwordSubmitting}
+            className="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
-            Enter
+            {passwordSubmitting ? "Entering..." : "Enter"}
           </button>
         </form>
       </div>
