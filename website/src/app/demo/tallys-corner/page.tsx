@@ -31,53 +31,75 @@ const ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
 
 function transformAlignment(data: AlignmentData): Fragment[] {
   const { displayText, words } = data;
-  const paragraphs = displayText.split("\n\n");
+  if (words.length === 0) return [];
+
   const fragments: Fragment[] = [];
-  let charOffset = 0;
+  let paragraph = 0;
+  let sentenceWords: AlignmentWord[] = [words[0]];
 
-  for (let pIdx = 0; pIdx < paragraphs.length; pIdx++) {
-    const para = paragraphs[pIdx];
-    // Split paragraph into sentences (keep the delimiter with the sentence)
-    const sentences = para.match(/[^.!?]*[.!?]+[\s"]*/g) || [para];
-    // Handle trailing text without sentence-ending punctuation
-    const joined = sentences.join("");
-    if (joined.length < para.length) {
-      const remainder = para.slice(joined.length).trim();
-      if (remainder) sentences.push(remainder);
-    }
+  for (let i = 1; i < words.length; i++) {
+    const prev = words[i - 1];
+    const curr = words[i];
+    const gap = displayText.slice(prev.charEnd, curr.charStart);
 
-    let sentCharOffset = charOffset;
-    for (const rawSentence of sentences) {
-      const sentence = rawSentence.trim();
-      if (!sentence) continue;
+    // Detect paragraph break (double newline) or sentence break (punct + space)
+    const isParaBreak = gap.includes("\n\n");
+    const isSentenceBreak = /[.!?]["'\u201D)]*\s/.test(gap);
 
-      const sentStart = displayText.indexOf(sentence, sentCharOffset);
-      if (sentStart === -1) {
-        sentCharOffset += rawSentence.length;
-        continue;
-      }
-      const sentEnd = sentStart + sentence.length;
-
-      // Find words that fall within this sentence's char range
-      const sentWords = words.filter(
-        (w) => w.charStart >= sentStart && w.charEnd <= sentEnd
+    if (isParaBreak || isSentenceBreak) {
+      // Flush current sentence
+      const text = displayText
+        .slice(sentenceWords[0].charStart, prev.charEnd)
+        .trim();
+      // Include trailing punctuation after last word
+      const afterLast = displayText.slice(
+        prev.charEnd,
+        curr.charStart
       );
+      const trailingPunct = afterLast.match(/^[.!?,"'\u201D)\u2019]*/)?.[0] || "";
+      const fullText = (text + trailingPunct).trim();
 
-      if (sentWords.length > 0) {
+      if (fullText && sentenceWords.length > 0) {
         fragments.push({
           id: fragments.length,
-          begin: sentWords[0].start,
-          end: sentWords[sentWords.length - 1].end,
-          text: sentence,
-          paragraph: pIdx,
+          begin: sentenceWords[0].start,
+          end: sentenceWords[sentenceWords.length - 1].end,
+          text: fullText,
+          paragraph,
         });
       }
 
-      sentCharOffset = sentEnd;
+      if (isParaBreak) paragraph++;
+      sentenceWords = [curr];
+    } else {
+      sentenceWords.push(curr);
     }
+  }
 
-    // Account for paragraph text + double-newline separator
-    charOffset += para.length + 2;
+  // Flush final sentence
+  if (sentenceWords.length > 0) {
+    const last = sentenceWords[sentenceWords.length - 1];
+    const text = displayText
+      .slice(sentenceWords[0].charStart, last.charEnd)
+      .trim();
+    // Grab any trailing punctuation after the last word
+    const trailing = displayText.slice(last.charEnd).match(/^[.!?,"'\u201D)\u2019]*/)?.[0] || "";
+    const fullText = (text + trailing).trim();
+    if (fullText) {
+      fragments.push({
+        id: fragments.length,
+        begin: sentenceWords[0].start,
+        end: last.end,
+        text: fullText,
+        paragraph,
+      });
+    }
+  }
+
+  // Extend each fragment's end to the next fragment's begin so the
+  // highlight stays on the current sentence until the next one starts.
+  for (let i = 0; i < fragments.length - 1; i++) {
+    fragments[i].end = fragments[i + 1].begin;
   }
 
   return fragments;
