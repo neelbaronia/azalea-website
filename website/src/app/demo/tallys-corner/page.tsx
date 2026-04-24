@@ -10,9 +10,78 @@ interface Fragment {
   paragraph: number;
 }
 
+interface AlignmentWord {
+  index: number;
+  text: string;
+  start: number;
+  end: number;
+  charStart: number;
+  charEnd: number;
+}
+
+interface AlignmentData {
+  displayText: string;
+  words: AlignmentWord[];
+}
+
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
 const AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
+const ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
+
+function transformAlignment(data: AlignmentData): Fragment[] {
+  const { displayText, words } = data;
+  const paragraphs = displayText.split("\n\n");
+  const fragments: Fragment[] = [];
+  let charOffset = 0;
+
+  for (let pIdx = 0; pIdx < paragraphs.length; pIdx++) {
+    const para = paragraphs[pIdx];
+    // Split paragraph into sentences (keep the delimiter with the sentence)
+    const sentences = para.match(/[^.!?]*[.!?]+[\s"]*/g) || [para];
+    // Handle trailing text without sentence-ending punctuation
+    const joined = sentences.join("");
+    if (joined.length < para.length) {
+      const remainder = para.slice(joined.length).trim();
+      if (remainder) sentences.push(remainder);
+    }
+
+    let sentCharOffset = charOffset;
+    for (const rawSentence of sentences) {
+      const sentence = rawSentence.trim();
+      if (!sentence) continue;
+
+      const sentStart = displayText.indexOf(sentence, sentCharOffset);
+      if (sentStart === -1) {
+        sentCharOffset += rawSentence.length;
+        continue;
+      }
+      const sentEnd = sentStart + sentence.length;
+
+      // Find words that fall within this sentence's char range
+      const sentWords = words.filter(
+        (w) => w.charStart >= sentStart && w.charEnd <= sentEnd
+      );
+
+      if (sentWords.length > 0) {
+        fragments.push({
+          id: fragments.length,
+          begin: sentWords[0].start,
+          end: sentWords[sentWords.length - 1].end,
+          text: sentence,
+          paragraph: pIdx,
+        });
+      }
+
+      sentCharOffset = sentEnd;
+    }
+
+    // Account for paragraph text + double-newline separator
+    charOffset += para.length + 2;
+  }
+
+  return fragments;
+}
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -49,12 +118,12 @@ export default function TallysCornerDemo() {
     return () => observer.disconnect();
   }, []);
 
-  // Load sync map
+  // Load alignment data from R2 and transform to sentence-level fragments
   useEffect(() => {
-    fetch("/demo-data/tallys-corner-ch6-syncmap.json")
+    fetch(ALIGNMENT_URL)
       .then((r) => r.json())
-      .then((data: Fragment[]) => {
-        setFragments(data);
+      .then((data: AlignmentData) => {
+        setFragments(transformAlignment(data));
         setLoading(false);
       })
       .catch(() => setLoading(false));
