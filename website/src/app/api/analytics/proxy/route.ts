@@ -15,15 +15,22 @@ export async function GET(req: NextRequest) {
 
   const upstreamUrl = new URL("/api/analytics", req.url);
   upstreamUrl.search = req.nextUrl.search;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let userId: string | null = null;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    userId = user?.id ?? null;
+  } catch (error) {
+    console.error("Analytics proxy user lookup failed:", error);
+  }
 
   const upstream = await fetch(upstreamUrl.toString(), {
     headers: {
       "x-analytics-secret": ANALYTICS_API_SECRET,
-      ...(user?.id ? { "x-analytics-user-id": user.id } : {}),
+      ...(userId ? { "x-analytics-user-id": userId } : {}),
     },
     cache: "no-store",
   });
