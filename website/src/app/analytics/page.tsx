@@ -131,6 +131,14 @@ function emptyPersonalUsage(): PersonalUsage | null {
   return null;
 }
 
+function isPodcastContentType(contentType: string): boolean {
+  return contentType.toLowerCase().includes("podcast");
+}
+
+function isAudiobookContentType(contentType: string): boolean {
+  return contentType.toLowerCase().includes("audiobook");
+}
+
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -583,6 +591,12 @@ export default function AnalyticsPage() {
   const totalPayout = tab === "podcasts"
     ? podcasts.reduce((sum, s) => sum + s.payout, 0)
     : audiobooks.reduce((sum, a) => sum + a.payout, 0);
+  const personalPodcastRows = personal?.content.filter((row) => isPodcastContentType(row.content_type)) ?? [];
+  const personalAudiobookRows = personal?.content.filter((row) => isAudiobookContentType(row.content_type)) ?? [];
+  const usingPersonalContent = Boolean(personal);
+  const currentPersonalData = tab === "podcasts" ? personalPodcastRows : personalAudiobookRows;
+  const personalTotalSeconds = currentPersonalData.reduce((sum, row) => sum + row.total_seconds, 0);
+  const personalTotalEvents = currentPersonalData.reduce((sum, row) => sum + row.event_count, 0);
   const maxActiveListenerSeconds = admin.active_listeners.reduce(
     (max, listener) => Math.max(max, listener.total_seconds),
     0
@@ -945,6 +959,36 @@ export default function AnalyticsPage() {
         {/* Data */}
         {loading ? (
           <p className="text-gray-400 text-sm">Loading...</p>
+        ) : usingPersonalContent ? currentPersonalData.length === 0 ? (
+          <p className="text-gray-400 text-sm">No personal listening data for this period.</p>
+        ) : (
+          <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm text-gray-500 bg-gray-50">
+              <span className="font-medium">{tab === "podcasts" ? "Podcast" : "Audiobook"}</span>
+              <span className="font-medium text-right">Time</span>
+              <span className="font-medium text-right">Events</span>
+            </div>
+            <div>
+              {currentPersonalData.map((row) => (
+                <div
+                  key={`${row.content_type}:${row.content_id}`}
+                  className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm border-t border-gray-100 first:border-t-0"
+                >
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{row.label}</div>
+                    <div className="text-xs text-gray-400 truncate">{row.content_id}</div>
+                  </div>
+                  <div className="text-right tabular-nums whitespace-nowrap">{formatDuration(row.total_seconds)}</div>
+                  <div className="text-right tabular-nums">{row.event_count}</div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm font-medium border-t border-gray-200 bg-gray-50">
+              <span>Total</span>
+              <span className="text-right tabular-nums whitespace-nowrap">{formatDuration(personalTotalSeconds)}</span>
+              <span className="text-right tabular-nums">{personalTotalEvents}</span>
+            </div>
+          </div>
         ) : currentData.length === 0 ? (
           <p className="text-gray-400 text-sm">No data for this period.</p>
         ) : tab === "audiobooks" ? (
