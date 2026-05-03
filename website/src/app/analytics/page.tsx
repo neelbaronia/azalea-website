@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 type PeriodType = "daily" | "weekly" | "monthly";
 type ContentTab = "podcasts" | "audiobooks";
@@ -387,8 +388,10 @@ function StackedActivityChart({
 }
 
 export default function AnalyticsPage() {
+  const supabase = createClient();
   const [authed, setAuthed] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [siteUserId, setSiteUserId] = useState<string | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
@@ -448,9 +451,31 @@ export default function AnalyticsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return;
+      setSiteUserId(user?.id ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      setSiteUserId(session?.user?.id ?? null);
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
+
   const fetchData = useCallback(async (p: PeriodType, periodStart?: string) => {
     setLoading(true);
     const params = new URLSearchParams({ period: p });
+    if (siteUserId) params.set("user_id", siteUserId);
     if (periodStart) params.set("period_start", periodStart);
     try {
       const res = await fetch(`/api/analytics/proxy?${params}`, { cache: "no-store" });
@@ -498,7 +523,7 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [siteUserId]);
 
   useEffect(() => {
     if (authed) fetchData(period);

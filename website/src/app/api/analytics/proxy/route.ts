@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
 
   const upstreamUrl = new URL("/api/analytics", req.url);
   upstreamUrl.search = req.nextUrl.search;
+  const requestedUserId = req.nextUrl.searchParams.get("user_id");
   let userId: string | null = null;
 
   try {
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
   const upstream = await fetch(upstreamUrl.toString(), {
     headers: {
       "x-analytics-secret": ANALYTICS_API_SECRET,
-      ...(userId ? { "x-analytics-user-id": userId } : {}),
+      ...((userId ?? requestedUserId) ? { "x-analytics-user-id": userId ?? requestedUserId! } : {}),
     },
     cache: "no-store",
   });
