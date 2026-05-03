@@ -66,6 +66,25 @@ interface AnalyticsTimeSeries {
   active_users_monthly: ActivitySeriesPoint[];
 }
 
+interface PersonalUsageContentRow {
+  content_type: string;
+  content_id: string;
+  label: string;
+  total_seconds: number;
+  event_count: number;
+  period_start: string;
+}
+
+interface PersonalUsage {
+  user_id: string;
+  period_type: PeriodType;
+  target_period: string;
+  total_seconds: number;
+  event_count: number;
+  content: PersonalUsageContentRow[];
+  timeseries: TimeSeriesPoint[];
+}
+
 type ActivityChartMode = "count" | "time";
 type ActivitySeriesPeriod = "daily" | "weekly" | "monthly";
 
@@ -106,6 +125,10 @@ function emptyTimeSeries(): AnalyticsTimeSeries {
     active_users_weekly: [],
     active_users_monthly: [],
   };
+}
+
+function emptyPersonalUsage(): PersonalUsage | null {
+  return null;
 }
 
 function formatDuration(seconds: number): string {
@@ -372,6 +395,7 @@ export default function AnalyticsPage() {
   const [revenue, setRevenue] = useState<Revenue>({ gross: 0, royalty_pool: 0, royalty_rate: 0.50 });
   const [activeSubscribers, setActiveSubscribers] = useState(0);
   const [timeseries, setTimeseries] = useState<AnalyticsTimeSeries>(emptyTimeSeries());
+  const [personal, setPersonal] = useState<PersonalUsage | null>(emptyPersonalUsage());
   const [activeChartMode, setActiveChartMode] = useState<ActivityChartMode>("time");
   const [activeSeriesPeriod, setActiveSeriesPeriod] = useState<ActivitySeriesPeriod>("weekly");
   const [admin, setAdmin] = useState<AdminMetrics>({
@@ -436,6 +460,7 @@ export default function AnalyticsPage() {
       if (json.active_subscribers != null) setActiveSubscribers(json.active_subscribers);
       if (json.admin) setAdmin(json.admin);
       setTimeseries(json.timeseries ?? emptyTimeSeries());
+      setPersonal(json.personal ?? emptyPersonalUsage());
       if (json.periods?.length) {
         setPeriods(json.periods);
         if (!periodStart) setPeriodIndex(0);
@@ -444,6 +469,7 @@ export default function AnalyticsPage() {
       setAudiobooks([]);
       setPodcasts([]);
       setTimeseries(emptyTimeSeries());
+      setPersonal(emptyPersonalUsage());
       setAdmin({
         dau: 0,
         wau: 0,
@@ -579,6 +605,7 @@ export default function AnalyticsPage() {
       : activeSeriesPeriod === "weekly"
         ? "Unique listeners and total time per week."
         : "Unique listeners and total time per month.";
+  const personalTopContent = personal?.content.slice(0, 8) ?? [];
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] px-4 py-8 md:px-8">
@@ -602,6 +629,63 @@ export default function AnalyticsPage() {
               <div className="text-2xl font-semibold">{formatCurrency(revenue.royalty_pool)}</div>
             </div>
           </div>
+        )}
+
+        {!loading && (
+          personal && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Your Usage</h2>
+                <span className="text-xs text-gray-400">
+                  {formatPeriodLabel(personal.target_period, personal.period_type)}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] gap-4">
+                <MiniBarChart
+                  title="Personal Listen Time"
+                  subtitle={`Rolled up from listening_time_agg for your ${period === "daily" ? "daily" : period === "weekly" ? "weekly" : "monthly"} periods.`}
+                  data={personal.timeseries}
+                  tone="gray"
+                />
+                <div className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-black">Top Content</h3>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Filtered by your signed-in user id, not the global `user_id=&quot;*&quot;` rows.
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-xl font-semibold tabular-nums">{formatDuration(personal.total_seconds)}</div>
+                      <div className="text-[11px] text-gray-400">total time</div>
+                      <div className="text-sm font-medium tabular-nums mt-2">{personal.event_count}</div>
+                      <div className="text-[11px] text-gray-400">events</div>
+                    </div>
+                  </div>
+                  {personalTopContent.length === 0 ? (
+                    <p className="text-sm text-gray-400">No personal aggregate rows for this period yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {personalTopContent.map((row) => (
+                        <div key={`${row.content_type}:${row.content_id}`} className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium text-black truncate">{row.label}</div>
+                            <div className="text-xs text-gray-400">
+                              {row.content_type} • {row.content_id}
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-sm font-medium tabular-nums">{formatDuration(row.total_seconds)}</div>
+                            <div className="text-xs text-gray-400 tabular-nums">{row.event_count} events</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
         )}
 
         {!loading && (

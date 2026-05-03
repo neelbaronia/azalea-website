@@ -28,6 +28,16 @@ interface ActivitySeriesPoint {
   }[];
 }
 
+interface ListeningTimeAggRow {
+  period_type: PeriodType;
+  period_start: string;
+  content_type: string;
+  content_id: string;
+  user_id: string;
+  total_seconds: number;
+  event_count: number;
+}
+
 interface SessionRow {
   started_at: string;
   seconds_listened: number;
@@ -103,6 +113,7 @@ function getTomorrowStartUtcIso(from: Date): string {
 
 export async function GET(req: NextRequest) {
   const providedSecret = req.headers.get("x-analytics-secret");
+  const analyticsUserId = req.headers.get("x-analytics-user-id");
   if (!ANALYTICS_API_SECRET) {
     return NextResponse.json({ error: "Analytics secret not configured" }, { status: 500 });
   }
@@ -135,7 +146,7 @@ export async function GET(req: NextRequest) {
 
   const LIBRARY_URL = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
 
-  const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes] = await Promise.all([
+  const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
     supabase
       .from("listening_sessions")
       .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
@@ -154,10 +165,29 @@ export async function GET(req: NextRequest) {
       .select("created_at")
       .gte("created_at", trailingDailyPeriods[0]),
     fetch(LIBRARY_URL).then((r) => r.ok ? r.json() : []).catch(() => []),
+    analyticsUserId
+      ? supabase
+          .from("listening_time_agg")
+          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, event_count")
+          .eq("user_id", analyticsUserId)
+          .eq("period_type", period)
+          .eq("period_start", targetPeriod)
+      : Promise.resolve({ data: [] as ListeningTimeAggRow[], error: null }),
+    analyticsUserId
+      ? supabase
+          .from("listening_time_agg")
+          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, event_count")
+          .eq("user_id", analyticsUserId)
+          .eq("period_type", period)
+          .in("period_start", periodOptions)
+      : Promise.resolve({ data: [] as ListeningTimeAggRow[], error: null }),
   ]);
 
-  if (audiobookRes.error || podcastRes.error) {
-    console.error("Analytics query error:", audiobookRes.error || podcastRes.error);
+  if (audiobookRes.error || podcastRes.error || personalAggRes.error || personalAggSeriesRes.error) {
+    console.error(
+      "Analytics query error:",
+      audiobookRes.error || podcastRes.error || personalAggRes.error || personalAggSeriesRes.error
+    );
     return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
   }
 
@@ -175,6 +205,16 @@ export async function GET(req: NextRequest) {
     if (baseUrl) {
       audiobookImageMap.set(book.title, `${baseUrl}/cover.png`);
     }
+  }
+  const audiobookLabelById = new Map<string, string>();
+  for (const book of libraryBooks) {
+    if (typeof book.id === "string" && typeof book.title === "string") {
+      audiobookLabelById.set(book.id, book.title);
+    }
+  }
+  const showTitleById = new Map<string, string>();
+  for (const session of podcastRes.data ?? []) {
+    showTitleById.set(session.show_id, session.show_title);
   }
 
   // Build a set of known audiobook titles from library.json to filter out podcasts logged in listening_sessions
@@ -752,6 +792,47 @@ export async function GET(req: NextRequest) {
     console.error("Stripe subscriber count error:", e);
   }
 
+  const personalRows = (personalAggRes.data ?? []) as ListeningTimeAggRow[];
+  const personalSeriesRows = (personalAggSeriesRes.data ?? []) as ListeningTimeAggRow[];
+  const personalBuckets = new Map<string, { total_seconds: number; event_count: number }>();
+
+  for (const row of personalSeriesRows) {
+    const bucket = personalBuckets.get(row.period_start) ?? { total_seconds: 0, event_count: 0 };
+    bucket.total_seconds += row.total_seconds;
+    bucket.event_count += row.event_count;
+    personalBuckets.set(row.period_start, bucket);
+  }
+
+  function getPersonalContentLabel(row: Pick<ListeningTimeAggRow, "content_type" | "content_id">): string {
+    if (row.content_type === "audiobook") {
+      return audiobookLabelById.get(row.content_id) ?? row.content_id;
+    }
+    if (row.content_type === "podcast_show") {
+      return showTitleById.get(row.content_id) ?? row.content_id;
+    }
+    return row.content_id;
+  }
+
+  const personalContent = personalRows
+    .map((row) => ({
+      content_type: row.content_type,
+      content_id: row.content_id,
+      label: getPersonalContentLabel(row),
+      total_seconds: row.total_seconds,
+      event_count: row.event_count,
+      period_start: row.period_start,
+    }))
+    .sort((a, b) => b.total_seconds - a.total_seconds);
+
+  const personalTimeSeries = periodOptions.map((bucketStart) => {
+    const bucket = personalBuckets.get(bucketStart);
+    return {
+      period_start: bucketStart,
+      label: formatShortPeriodLabel(bucketStart, period),
+      value: bucket?.total_seconds ?? 0,
+    };
+  });
+
   return NextResponse.json({
     audiobooks: audiobooksWithPayout,
     podcasts: podcastsWithPayout,
@@ -781,5 +862,16 @@ export async function GET(req: NextRequest) {
       active_users_weekly: activeUsersWeeklySeries,
       active_users_monthly: activeUsersMonthlySeries,
     },
+    personal: analyticsUserId
+      ? {
+          user_id: analyticsUserId,
+          period_type: period,
+          target_period: targetPeriod,
+          total_seconds: personalContent.reduce((sum, row) => sum + row.total_seconds, 0),
+          event_count: personalContent.reduce((sum, row) => sum + row.event_count, 0),
+          content: personalContent,
+          timeseries: personalTimeSeries,
+        }
+      : null,
   });
 }

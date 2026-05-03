@@ -1,4 +1,5 @@
 import { ANALYTICS_AUTH_COOKIE } from "@/lib/analytics-auth";
+import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 const ANALYTICS_API_SECRET = process.env.ANALYTICS_API_SECRET;
@@ -14,10 +15,15 @@ export async function GET(req: NextRequest) {
 
   const upstreamUrl = new URL("/api/analytics", req.url);
   upstreamUrl.search = req.nextUrl.search;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const upstream = await fetch(upstreamUrl.toString(), {
     headers: {
       "x-analytics-secret": ANALYTICS_API_SECRET,
+      ...(user?.id ? { "x-analytics-user-id": user.id } : {}),
     },
     cache: "no-store",
   });
