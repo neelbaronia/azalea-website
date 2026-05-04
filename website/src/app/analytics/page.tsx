@@ -587,19 +587,6 @@ export default function AnalyticsPage() {
     });
   }
 
-  useEffect(() => {
-    if (admin.active_listeners.length === 0) {
-      setExpandedListeners(new Set());
-      return;
-    }
-
-    setExpandedListeners((prev) => {
-      if (prev.size > 0) return prev;
-      const first = admin.active_listeners[0];
-      return new Set([`${first.device_id}-${first.last_started_at}`]);
-    });
-  }, [admin.active_listeners]);
-
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfbfb] px-4">
