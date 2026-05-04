@@ -587,6 +587,19 @@ export default function AnalyticsPage() {
     });
   }
 
+  useEffect(() => {
+    if (admin.active_listeners.length === 0) {
+      setExpandedListeners(new Set());
+      return;
+    }
+
+    setExpandedListeners((prev) => {
+      if (prev.size > 0) return prev;
+      const first = admin.active_listeners[0];
+      return new Set([`${first.device_id}-${first.last_started_at}`]);
+    });
+  }, [admin.active_listeners]);
+
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfbfb] px-4">
@@ -830,6 +843,9 @@ export default function AnalyticsPage() {
                   <p className="text-xs text-gray-400 mt-1">
                     Ranked by total listen time for this {period === "daily" ? "day" : period === "weekly" ? "week" : "month"}.
                   </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Expand a listener to see the specific titles and episodes they played.
+                  </p>
                 </div>
                 <div className="text-xs text-gray-400">
                   {admin.active_listeners.length} users
@@ -878,9 +894,10 @@ export default function AnalyticsPage() {
                             <button
                               type="button"
                               onClick={() => toggleListenerDetails(listenerKey)}
-                              className="text-xs text-gray-400 hover:text-black transition-colors mt-0.5"
+                              className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2 py-1 text-xs text-gray-500 hover:text-black hover:border-gray-300 transition-colors mt-0.5"
                             >
-                              {isExpanded ? "Hide" : "Details"}
+                              <span>{isExpanded ? "Hide" : "Show"} listening</span>
+                              <span aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
                             </button>
                             <div>
                               <div className="text-sm font-medium tabular-nums">{formatDuration(listener.total_seconds)}</div>
