@@ -113,6 +113,13 @@ interface AdminMetrics {
     podcast_seconds: number;
     session_count: number;
     last_started_at: string;
+    top_content: {
+      type: "audiobook" | "podcast";
+      title: string;
+      parent_title: string | null;
+      total_seconds: number;
+      session_count: number;
+    }[];
     is_new: boolean;
     is_returning: boolean;
     is_retained: boolean;
@@ -409,6 +416,7 @@ export default function AnalyticsPage() {
   const [personal, setPersonal] = useState<PersonalUsage | null>(emptyPersonalUsage());
   const [activeChartMode, setActiveChartMode] = useState<ActivityChartMode>("time");
   const [activeSeriesPeriod, setActiveSeriesPeriod] = useState<ActivitySeriesPeriod>("weekly");
+  const [expandedListeners, setExpandedListeners] = useState<Set<string>>(new Set());
   const [admin, setAdmin] = useState<AdminMetrics>({
     dau: 0,
     wau: 0,
@@ -566,6 +574,15 @@ export default function AnalyticsPage() {
       const next = new Set(prev);
       if (next.has(showId)) next.delete(showId);
       else next.add(showId);
+      return next;
+    });
+  }
+
+  function toggleListenerDetails(listenerKey: string) {
+    setExpandedListeners((prev) => {
+      const next = new Set(prev);
+      if (next.has(listenerKey)) next.delete(listenerKey);
+      else next.add(listenerKey);
       return next;
     });
   }
@@ -832,9 +849,11 @@ export default function AnalyticsPage() {
                     const rowWidth = maxActiveListenerSeconds > 0
                       ? (listener.total_seconds / maxActiveListenerSeconds) * 100
                       : 0;
+                    const listenerKey = `${listener.device_id}-${listener.last_started_at}`;
+                    const isExpanded = expandedListeners.has(listenerKey);
 
                     return (
-                      <div key={`${listener.device_id}-${listener.last_started_at}`} className="border border-gray-100 rounded-lg p-3">
+                      <div key={listenerKey} className="border border-gray-100 rounded-lg p-3">
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -855,14 +874,23 @@ export default function AnalyticsPage() {
                               {listener.session_count} sessions
                             </div>
                           </div>
-                          <div className="text-right shrink-0">
-                            <div className="text-sm font-medium tabular-nums">{formatDuration(listener.total_seconds)}</div>
-                            <div className="text-xs text-gray-400">
-                              {new Date(listener.last_started_at).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
+                          <div className="text-right shrink-0 flex items-start gap-3">
+                            <button
+                              type="button"
+                              onClick={() => toggleListenerDetails(listenerKey)}
+                              className="text-xs text-gray-400 hover:text-black transition-colors mt-0.5"
+                            >
+                              {isExpanded ? "Hide" : "Details"}
+                            </button>
+                            <div>
+                              <div className="text-sm font-medium tabular-nums">{formatDuration(listener.total_seconds)}</div>
+                              <div className="text-xs text-gray-400">
+                                {new Date(listener.last_started_at).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -885,6 +913,29 @@ export default function AnalyticsPage() {
                           <span>Audiobooks {formatDuration(listener.audiobook_seconds)}</span>
                           <span>Podcasts {formatDuration(listener.podcast_seconds)}</span>
                         </div>
+                        {isExpanded && (
+                          <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                            {listener.top_content.length === 0 ? (
+                              <p className="text-xs text-gray-400">No item-level breakdown available.</p>
+                            ) : (
+                              listener.top_content.map((item) => (
+                                <div key={`${listenerKey}-${item.type}-${item.title}`} className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <div className="text-sm font-medium text-black truncate">{item.title}</div>
+                                    <div className="text-xs text-gray-400 truncate">
+                                      {item.type === "podcast" ? "Podcast" : "Audiobook"}
+                                      {item.parent_title ? ` • ${item.parent_title}` : ""}
+                                    </div>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <div className="text-sm font-medium tabular-nums">{formatDuration(item.total_seconds)}</div>
+                                    <div className="text-xs text-gray-400 tabular-nums">{item.session_count} sessions</div>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

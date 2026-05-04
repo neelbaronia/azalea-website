@@ -47,6 +47,9 @@ interface SessionRow {
 
 interface DetailedSessionRow extends SessionRow {
   source: "audiobook" | "podcast";
+  content_id: string;
+  content_title: string;
+  parent_title: string | null;
 }
 
 interface ResolvedListenerIdentity {
@@ -340,6 +343,9 @@ export async function GET(req: NextRequest) {
       device_id: s.device_id,
       user_id: s.user_id,
       source: "audiobook" as const,
+      content_id: s.audiobook_id,
+      content_title: s.audiobook_title,
+      parent_title: s.audiobook_author,
     })),
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
@@ -347,6 +353,9 @@ export async function GET(req: NextRequest) {
       device_id: s.device_id,
       user_id: s.user_id,
       source: "podcast" as const,
+      content_id: s.episode_id,
+      content_title: s.episode_title,
+      parent_title: s.show_title,
     })),
   ];
 
@@ -581,6 +590,7 @@ export async function GET(req: NextRequest) {
       podcast_seconds: number;
       session_count: number;
       last_started_at: string;
+      content: Map<string, { type: "audiobook" | "podcast"; title: string; parent_title: string | null; total_seconds: number; session_count: number }>;
     }
   >();
 
@@ -595,6 +605,20 @@ export async function GET(req: NextRequest) {
       } else {
         existing.podcast_seconds += session.seconds_listened;
       }
+      const contentKey = `${session.source}:${session.content_id}`;
+      const existingContent = existing.content.get(contentKey);
+      if (existingContent) {
+        existingContent.total_seconds += session.seconds_listened;
+        existingContent.session_count += 1;
+      } else {
+        existing.content.set(contentKey, {
+          type: session.source,
+          title: session.content_title,
+          parent_title: session.parent_title,
+          total_seconds: session.seconds_listened,
+          session_count: 1,
+        });
+      }
       if (session.started_at > existing.last_started_at) {
         existing.last_started_at = session.started_at;
       }
@@ -608,6 +632,15 @@ export async function GET(req: NextRequest) {
         podcast_seconds: session.source === "podcast" ? session.seconds_listened : 0,
         session_count: 1,
         last_started_at: session.started_at,
+        content: new Map([
+          [`${session.source}:${session.content_id}`, {
+            type: session.source,
+            title: session.content_title,
+            parent_title: session.parent_title,
+            total_seconds: session.seconds_listened,
+            session_count: 1,
+          }],
+        ]),
       });
     }
   }
@@ -642,6 +675,9 @@ export async function GET(req: NextRequest) {
         podcast_seconds: listener.podcast_seconds,
         session_count: listener.session_count,
         last_started_at: listener.last_started_at,
+        top_content: [...listener.content.values()]
+          .sort((a, b) => b.total_seconds - a.total_seconds)
+          .slice(0, 8),
         is_new: isNew,
         is_returning: !isNew,
         is_retained: isRetained,
