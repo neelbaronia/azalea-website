@@ -181,6 +181,7 @@ function MiniBarChart({
 }) {
   const maxValue = data.reduce((max, point) => Math.max(max, point.value), 0);
   const barColor = tone === "black" ? "bg-black" : "bg-gray-500";
+  const totalValue = data.reduce((sum, point) => sum + point.value, 0);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg px-5 py-4 min-w-[280px] lg:min-w-[300px] xl:min-w-[320px] shrink-0">
@@ -191,9 +192,9 @@ function MiniBarChart({
         </div>
         <div className="text-right shrink-0">
           <div className="text-xl font-semibold tabular-nums">
-            {data.length > 0 ? data[data.length - 1].value : 0}
+            {totalValue}
           </div>
-          <div className="text-[11px] text-gray-400">latest</div>
+          <div className="text-[11px] text-gray-400">30d total</div>
         </div>
       </div>
       {data.length === 0 ? (
