@@ -41,6 +41,7 @@ const METADATA_URL = `${R2_BASE}/metadata.json`;
 const DEFAULT_AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
 const DEFAULT_ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
 const DEFAULT_CHAPTER_LABEL = "Chapter 6: Men and Jobs";
+const HIGHLIGHT_LEAD_SECONDS = 0.18;
 
 function transformAlignment(data: AlignmentData): Fragment[] {
   const { displayText, words } = data;
@@ -209,13 +210,16 @@ export default function TallysCornerDemo() {
     [fragments]
   );
 
+  const syncActiveFragment = useCallback((time: number) => {
+    setCurrentTime(time);
+    const idx = findActiveIndex(time + HIGHLIGHT_LEAD_SECONDS);
+    setActiveIndex(idx);
+  }, [findActiveIndex]);
+
   // Audio event handlers
   const handleTimeUpdate = () => {
     if (!audioRef.current) return;
-    const t = audioRef.current.currentTime;
-    setCurrentTime(t);
-    const idx = findActiveIndex(t);
-    setActiveIndex(idx);
+    syncActiveFragment(audioRef.current.currentTime);
   };
 
   const handleLoadedMetadata = () => {
@@ -267,7 +271,9 @@ export default function TallysCornerDemo() {
     if (!bar || !audioRef.current || !duration || audioError) return;
     const rect = bar.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    audioRef.current.currentTime = pct * duration;
+    const nextTime = pct * duration;
+    audioRef.current.currentTime = nextTime;
+    syncActiveFragment(nextTime);
   };
 
   const handleSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -300,6 +306,7 @@ export default function TallysCornerDemo() {
   const seekToFragment = (frag: Fragment) => {
     if (!audioRef.current || audioError) return;
     audioRef.current.currentTime = frag.begin;
+    syncActiveFragment(frag.begin);
     if (!playing) {
       audioRef.current
         .play()
