@@ -24,10 +24,23 @@ interface AlignmentData {
   words: AlignmentWord[];
 }
 
+interface ChapterMetadata {
+  title: string;
+  fileName: string;
+  remoteAudioURL?: string;
+  remoteAlignmentURL?: string;
+}
+
+interface BookMetadata {
+  chapters?: ChapterMetadata[];
+}
+
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
-const AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
-const ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
+const METADATA_URL = `${R2_BASE}/metadata.json`;
+const DEFAULT_AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
+const DEFAULT_ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
+const DEFAULT_CHAPTER_LABEL = "Chapter 6: Men and Jobs";
 
 function transformAlignment(data: AlignmentData): Fragment[] {
   const { displayText, words } = data;
@@ -126,6 +139,9 @@ export default function TallysCornerDemo() {
   const [audioError, setAudioError] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(DEFAULT_AUDIO_URL);
+  const [alignmentUrl, setAlignmentUrl] = useState(DEFAULT_ALIGNMENT_URL);
+  const [chapterLabel, setChapterLabel] = useState(DEFAULT_CHAPTER_LABEL);
   const headerRef = useRef<HTMLElement>(null);
 
   const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -140,16 +156,37 @@ export default function TallysCornerDemo() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(METADATA_URL)
+      .then((r) => r.json())
+      .then((data: BookMetadata) => {
+        if (cancelled) return;
+        const target = data.chapters?.find((chapter) => chapter.fileName === "06-men-and-jobs.mp3");
+        if (!target) return;
+
+        if (target.remoteAudioURL) setAudioUrl(target.remoteAudioURL);
+        if (target.remoteAlignmentURL) setAlignmentUrl(target.remoteAlignmentURL);
+        if (target.title) setChapterLabel(`Chapter 6: ${target.title}`);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Load alignment data from R2 and transform to sentence-level fragments
   useEffect(() => {
-    fetch(ALIGNMENT_URL)
+    fetch(alignmentUrl)
       .then((r) => r.json())
       .then((data: AlignmentData) => {
         setFragments(transformAlignment(data));
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [alignmentUrl]);
 
   // Find active fragment via binary search
   const findActiveIndex = useCallback(
@@ -306,7 +343,7 @@ export default function TallysCornerDemo() {
     <div className="min-h-screen bg-[#faf8f1]">
       <audio
         ref={audioRef}
-        src={AUDIO_URL}
+        src={audioUrl}
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -326,7 +363,7 @@ export default function TallysCornerDemo() {
             </h1>
             <p className="text-white/60 text-sm mt-1">by Elliot Liebow</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
-              Chapter 6: Men and Jobs
+              {chapterLabel}
             </p>
           </div>
         </div>
@@ -351,7 +388,7 @@ export default function TallysCornerDemo() {
               <p className="text-white/50 text-xs truncate">
                 Elliot Liebow &middot;{" "}
                 <span className="italic font-[family-name:var(--font-garamond)]">
-                  Chapter 6: Men and Jobs
+                  {chapterLabel}
                 </span>
               </p>
             </div>
