@@ -689,10 +689,6 @@ export default function AnalyticsPage() {
   const personalTotalSeconds = currentPersonalData.reduce((sum, row) => sum + row.total_seconds, 0);
   const personalTotalWallClockSeconds = currentPersonalData.reduce((sum, row) => sum + row.wall_clock_seconds, 0);
   const personalTotalEvents = currentPersonalData.reduce((sum, row) => sum + row.event_count, 0);
-  const maxActiveListenerSeconds = admin.active_listeners.reduce(
-    (max, listener) => Math.max(max, listener.total_seconds),
-    0
-  );
   const activeSeriesData =
     activeSeriesPeriod === "daily"
       ? timeseries.active_users_daily
@@ -905,9 +901,6 @@ export default function AnalyticsPage() {
                     const podcastWidth = listener.total_seconds > 0
                       ? (listener.podcast_seconds / listener.total_seconds) * 100
                       : 0;
-                    const rowWidth = maxActiveListenerSeconds > 0
-                      ? (listener.total_seconds / maxActiveListenerSeconds) * 100
-                      : 0;
                     const listenerKey = `${listener.device_id}-${listener.last_started_at}`;
                     const isExpanded = expandedListeners.has(listenerKey);
 
@@ -960,7 +953,7 @@ export default function AnalyticsPage() {
                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full overflow-hidden flex"
-                            style={{ width: `${rowWidth}%` }}
+                            style={{ width: "100%" }}
                           >
                             <div
                               className="h-full bg-black"
