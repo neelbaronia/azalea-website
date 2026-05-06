@@ -209,12 +209,12 @@ export async function GET(req: NextRequest) {
   const [audiobookRes, podcastRes, showsRes, authUsersRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
     supabase
       .from("listening_sessions")
-      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
+      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
       .from("podcast_listening_sessions")
-      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
+      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
@@ -594,25 +594,25 @@ export async function GET(req: NextRequest) {
       currentListenerDeviceIds.length > 0
         ? supabase
             .from("listening_sessions")
-            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
+            .select("started_at, seconds_listened, device_id, user_id")
             .in("device_id", currentListenerDeviceIds)
         : emptyResult,
       currentListenerDeviceIds.length > 0
         ? supabase
             .from("podcast_listening_sessions")
-            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
+            .select("started_at, seconds_listened, device_id, user_id")
             .in("device_id", currentListenerDeviceIds)
         : emptyResult,
       currentListenerUserIds.length > 0
         ? supabase
             .from("listening_sessions")
-            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
+            .select("started_at, seconds_listened, device_id, user_id")
             .in("user_id", currentListenerUserIds)
         : emptyResult,
       currentListenerUserIds.length > 0
         ? supabase
             .from("podcast_listening_sessions")
-            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
+            .select("started_at, seconds_listened, device_id, user_id")
             .in("user_id", currentListenerUserIds)
         : emptyResult,
     ]);
