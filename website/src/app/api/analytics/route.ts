@@ -114,6 +114,39 @@ function getTomorrowStartUtcIso(from: Date): string {
   return tomorrow.toISOString();
 }
 
+async function listRecentAuthUsers(supabase: ReturnType<typeof createAdminClient>, createdAfterIso: string) {
+  const users: { created_at?: string }[] = [];
+  let page = 1;
+  const perPage = 200;
+
+  while (true) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      return { data: null, error };
+    }
+
+    const batch = data.users ?? [];
+    users.push(...batch);
+
+    if (batch.length < perPage) {
+      break;
+    }
+
+    const oldestBatchCreatedAt = batch
+      .map((user) => user.created_at)
+      .filter((value): value is string => Boolean(value))
+      .sort()[0];
+
+    if (oldestBatchCreatedAt && oldestBatchCreatedAt < createdAfterIso) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return { data: users, error: null };
+}
+
 export async function GET(req: NextRequest) {
   const providedSecret = req.headers.get("x-analytics-secret");
   const analyticsUserId = req.headers.get("x-analytics-user-id");
@@ -149,7 +182,7 @@ export async function GET(req: NextRequest) {
 
   const LIBRARY_URL = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
 
-  const [audiobookRes, podcastRes, showsRes, profilesRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
+  const [audiobookRes, podcastRes, showsRes, authUsersRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
     supabase
       .from("listening_sessions")
       .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
@@ -163,10 +196,7 @@ export async function GET(req: NextRequest) {
     supabase
       .from("shows")
       .select("id, image_url"),
-    supabase
-      .from("profiles")
-      .select("created_at")
-      .gte("created_at", trailingDailyPeriods[0]),
+    listRecentAuthUsers(supabase, `${trailingDailyPeriods[0]}T00:00:00.000Z`),
     fetch(LIBRARY_URL).then((r) => r.ok ? r.json() : []).catch(() => []),
     analyticsUserId
       ? supabase
@@ -186,10 +216,10 @@ export async function GET(req: NextRequest) {
       : Promise.resolve({ data: [] as ListeningTimeAggRow[], error: null }),
   ]);
 
-  if (audiobookRes.error || podcastRes.error || personalAggRes.error || personalAggSeriesRes.error) {
+  if (audiobookRes.error || podcastRes.error || authUsersRes.error || personalAggRes.error || personalAggSeriesRes.error) {
     console.error(
       "Analytics query error:",
-      audiobookRes.error || podcastRes.error || personalAggRes.error || personalAggSeriesRes.error
+      audiobookRes.error || podcastRes.error || authUsersRes.error || personalAggRes.error || personalAggSeriesRes.error
     );
     return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
   }
@@ -384,8 +414,9 @@ export async function GET(req: NextRequest) {
   }
 
   const signupsByDay = new Map<string, number>();
-  for (const profile of profilesRes.data ?? []) {
-    const dayStart = getPeriodStart(new Date(profile.created_at), "daily");
+  for (const user of authUsersRes.data ?? []) {
+    if (!user.created_at) continue;
+    const dayStart = getPeriodStart(new Date(user.created_at), "daily");
     signupsByDay.set(dayStart, (signupsByDay.get(dayStart) ?? 0) + 1);
   }
 
