@@ -21,10 +21,14 @@ interface ActivitySeriesPoint {
   label: string;
   unique_listeners: number;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   users: {
     device_id: string;
     label: string;
     total_seconds: number;
+    wall_clock_seconds: number;
+    content_seconds: number;
   }[];
 }
 
@@ -35,12 +39,16 @@ interface ListeningTimeAggRow {
   content_id: string;
   user_id: string;
   total_seconds: number;
+  wall_clock_seconds?: number | null;
+  content_seconds?: number | null;
   event_count: number;
 }
 
 interface SessionRow {
   started_at: string;
-  seconds_listened: number;
+  seconds_listened?: number | null;
+  wall_clock_seconds?: number | null;
+  content_seconds?: number | null;
   device_id: string;
   user_id: string | null;
 }
@@ -60,6 +68,22 @@ interface ResolvedListenerIdentity {
 
 function getListenerKey(session: Pick<SessionRow, "device_id" | "user_id">): string {
   return session.user_id ?? `device:${session.device_id}`;
+}
+
+function getWallClockSeconds(session: Pick<SessionRow, "wall_clock_seconds" | "seconds_listened">): number {
+  return session.wall_clock_seconds ?? session.seconds_listened ?? 0;
+}
+
+function getContentSeconds(session: Pick<SessionRow, "content_seconds" | "seconds_listened">): number {
+  return session.content_seconds ?? session.seconds_listened ?? 0;
+}
+
+function getAggWallClockSeconds(row: Pick<ListeningTimeAggRow, "wall_clock_seconds" | "total_seconds">): number {
+  return row.wall_clock_seconds ?? row.total_seconds;
+}
+
+function getAggContentSeconds(row: Pick<ListeningTimeAggRow, "content_seconds" | "total_seconds">): number {
+  return row.content_seconds ?? row.total_seconds;
 }
 
 function shiftPeriodStart(periodStart: string, period: PeriodType, direction: number): string {
@@ -185,12 +209,12 @@ export async function GET(req: NextRequest) {
   const [audiobookRes, podcastRes, showsRes, authUsersRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
     supabase
       .from("listening_sessions")
-      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
+      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
       .from("podcast_listening_sessions")
-      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id")
+      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
@@ -201,7 +225,7 @@ export async function GET(req: NextRequest) {
     analyticsUserId
       ? supabase
           .from("listening_time_agg")
-          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, event_count")
+          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, wall_clock_seconds, content_seconds, event_count")
           .eq("user_id", analyticsUserId)
           .eq("period_type", period)
           .eq("period_start", targetPeriod)
@@ -209,7 +233,7 @@ export async function GET(req: NextRequest) {
     analyticsUserId
       ? supabase
           .from("listening_time_agg")
-          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, event_count")
+          .select("period_type, period_start, content_type, content_id, user_id, total_seconds, wall_clock_seconds, content_seconds, event_count")
           .eq("user_id", analyticsUserId)
           .eq("period_type", period)
           .in("period_start", periodOptions)
@@ -254,15 +278,28 @@ export async function GET(req: NextRequest) {
   const knownAudiobookTitles = new Set(libraryBooks.map((b: { title: string }) => b.title));
 
   // Aggregate audiobooks by period (only include titles that exist in library.json)
-  const audiobookMap = new Map<string, { id: string; title: string; author: string; image_url: string | null; total_seconds: number; listeners: Set<string> }>();
+  const audiobookMap = new Map<string, {
+    id: string;
+    title: string;
+    author: string;
+    image_url: string | null;
+    total_seconds: number;
+    wall_clock_seconds: number;
+    content_seconds: number;
+    listeners: Set<string>;
+  }>();
   for (const s of audiobookRes.data ?? []) {
     if (!knownAudiobookTitles.has(s.audiobook_title)) continue;
     const ps = getPeriodStart(new Date(s.started_at), period);
     const listenerKey = getListenerKey(s);
     const key = `${ps}|${s.audiobook_id}`;
+    const wallClockSeconds = getWallClockSeconds(s);
+    const contentSeconds = getContentSeconds(s);
     const existing = audiobookMap.get(key);
     if (existing) {
-      existing.total_seconds += s.seconds_listened;
+      existing.total_seconds += contentSeconds;
+      existing.wall_clock_seconds += wallClockSeconds;
+      existing.content_seconds += contentSeconds;
       existing.listeners.add(listenerKey);
     } else {
       audiobookMap.set(key, {
@@ -270,7 +307,9 @@ export async function GET(req: NextRequest) {
         title: s.audiobook_title,
         author: s.audiobook_author,
         image_url: audiobookImageMap.get(s.audiobook_title) ?? null,
-        total_seconds: s.seconds_listened,
+        total_seconds: contentSeconds,
+        wall_clock_seconds: wallClockSeconds,
+        content_seconds: contentSeconds,
         listeners: new Set([listenerKey]),
       });
     }
@@ -283,26 +322,43 @@ export async function GET(req: NextRequest) {
     show_author: string;
     image_url: string | null;
     total_seconds: number;
+    wall_clock_seconds: number;
+    content_seconds: number;
     listeners: Set<string>;
-    episodes: Map<string, { episode_id: string; episode_title: string; total_seconds: number; listeners: Set<string> }>;
+    episodes: Map<string, {
+      episode_id: string;
+      episode_title: string;
+      total_seconds: number;
+      wall_clock_seconds: number;
+      content_seconds: number;
+      listeners: Set<string>;
+    }>;
   }>();
   for (const s of podcastRes.data ?? []) {
     const ps = getPeriodStart(new Date(s.started_at), period);
     const listenerKey = getListenerKey(s);
     const showKey = `${ps}|${s.show_id}`;
+    const wallClockSeconds = getWallClockSeconds(s);
+    const contentSeconds = getContentSeconds(s);
     const existing = showMap.get(showKey);
     if (existing) {
-      existing.total_seconds += s.seconds_listened;
+      existing.total_seconds += contentSeconds;
+      existing.wall_clock_seconds += wallClockSeconds;
+      existing.content_seconds += contentSeconds;
       existing.listeners.add(listenerKey);
       const ep = existing.episodes.get(s.episode_id);
       if (ep) {
-        ep.total_seconds += s.seconds_listened;
+        ep.total_seconds += contentSeconds;
+        ep.wall_clock_seconds += wallClockSeconds;
+        ep.content_seconds += contentSeconds;
         ep.listeners.add(listenerKey);
       } else {
         existing.episodes.set(s.episode_id, {
           episode_id: s.episode_id,
           episode_title: s.episode_title,
-          total_seconds: s.seconds_listened,
+          total_seconds: contentSeconds,
+          wall_clock_seconds: wallClockSeconds,
+          content_seconds: contentSeconds,
           listeners: new Set([listenerKey]),
         });
       }
@@ -311,7 +367,9 @@ export async function GET(req: NextRequest) {
       episodes.set(s.episode_id, {
         episode_id: s.episode_id,
         episode_title: s.episode_title,
-        total_seconds: s.seconds_listened,
+        total_seconds: contentSeconds,
+        wall_clock_seconds: wallClockSeconds,
+        content_seconds: contentSeconds,
         listeners: new Set([listenerKey]),
       });
       showMap.set(showKey, {
@@ -319,7 +377,9 @@ export async function GET(req: NextRequest) {
         show_title: s.show_title,
         show_author: s.show_author,
         image_url: showImageMap.get(s.show_id) ?? null,
-        total_seconds: s.seconds_listened,
+        total_seconds: contentSeconds,
+        wall_clock_seconds: wallClockSeconds,
+        content_seconds: contentSeconds,
         listeners: new Set([listenerKey]),
         episodes,
       });
@@ -356,12 +416,16 @@ export async function GET(req: NextRequest) {
     ...(audiobookRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
     })),
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
     })),
@@ -370,6 +434,8 @@ export async function GET(req: NextRequest) {
     ...(audiobookRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
       source: "audiobook" as const,
@@ -380,6 +446,8 @@ export async function GET(req: NextRequest) {
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
       source: "podcast" as const,
@@ -421,33 +489,43 @@ export async function GET(req: NextRequest) {
   }
 
   const activityBuckets = {
-    daily: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
-    weekly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
-    monthly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>(),
-  } satisfies Record<PeriodType, Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number }>; total_seconds: number }>>;
+    daily: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number; wall_clock_seconds: number; content_seconds: number }>; total_seconds: number; wall_clock_seconds: number; content_seconds: number }>(),
+    weekly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number; wall_clock_seconds: number; content_seconds: number }>; total_seconds: number; wall_clock_seconds: number; content_seconds: number }>(),
+    monthly: new Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number; wall_clock_seconds: number; content_seconds: number }>; total_seconds: number; wall_clock_seconds: number; content_seconds: number }>(),
+  } satisfies Record<PeriodType, Map<string, { listeners: Set<string>; listenerTotals: Map<string, ResolvedListenerIdentity & { total_seconds: number; wall_clock_seconds: number; content_seconds: number }>; total_seconds: number; wall_clock_seconds: number; content_seconds: number }>>;
 
   for (const session of combinedSessions) {
+    const wallClockSeconds = getWallClockSeconds(session);
+    const contentSeconds = getContentSeconds(session);
     for (const bucketPeriod of ["daily", "weekly", "monthly"] as PeriodType[]) {
       const bucketStart = getPeriodStart(new Date(session.started_at), bucketPeriod);
       const listenerKey = getListenerKey(session);
       const bucket = activityBuckets[bucketPeriod].get(bucketStart) ?? {
         listeners: new Set<string>(),
-        listenerTotals: new Map<string, ResolvedListenerIdentity & { total_seconds: number }>(),
+        listenerTotals: new Map<string, ResolvedListenerIdentity & { total_seconds: number; wall_clock_seconds: number; content_seconds: number }>(),
         total_seconds: 0,
+        wall_clock_seconds: 0,
+        content_seconds: 0,
       };
       bucket.listeners.add(listenerKey);
       const existing = bucket.listenerTotals.get(listenerKey);
       if (existing) {
-        existing.total_seconds += session.seconds_listened;
+        existing.total_seconds += contentSeconds;
+        existing.wall_clock_seconds += wallClockSeconds;
+        existing.content_seconds += contentSeconds;
       } else {
         bucket.listenerTotals.set(listenerKey, {
           key: listenerKey,
           device_id: session.device_id,
           user_id: session.user_id,
-          total_seconds: session.seconds_listened,
+          total_seconds: contentSeconds,
+          wall_clock_seconds: wallClockSeconds,
+          content_seconds: contentSeconds,
         });
       }
-      bucket.total_seconds += session.seconds_listened;
+      bucket.total_seconds += contentSeconds;
+      bucket.wall_clock_seconds += wallClockSeconds;
+      bucket.content_seconds += contentSeconds;
       activityBuckets[bucketPeriod].set(bucketStart, bucket);
     }
   }
@@ -462,21 +540,27 @@ export async function GET(req: NextRequest) {
               device_id: listener.device_id,
               label: labelForListener(listener),
               total_seconds: listener.total_seconds,
+              wall_clock_seconds: listener.wall_clock_seconds,
+              content_seconds: listener.content_seconds,
             }))
         : [];
 
       const primaryUsers = rankedUsers.slice(0, 6);
       const otherSeconds = rankedUsers.slice(6).reduce((sum, user) => sum + user.total_seconds, 0);
+      const otherWallClockSeconds = rankedUsers.slice(6).reduce((sum, user) => sum + user.wall_clock_seconds, 0);
+      const otherContentSeconds = rankedUsers.slice(6).reduce((sum, user) => sum + user.content_seconds, 0);
 
       return {
         period_start: bucketStart,
         label: formatShortPeriodLabel(bucketStart, chartPeriod),
         unique_listeners: bucket?.listeners.size ?? 0,
         total_seconds: bucket?.total_seconds ?? 0,
+        wall_clock_seconds: bucket?.wall_clock_seconds ?? 0,
+        content_seconds: bucket?.content_seconds ?? 0,
         users: otherSeconds > 0
           ? [
               ...primaryUsers,
-              { device_id: "other", label: "Other", total_seconds: otherSeconds },
+              { device_id: "other", label: "Other", total_seconds: otherSeconds, wall_clock_seconds: otherWallClockSeconds, content_seconds: otherContentSeconds },
             ]
           : primaryUsers,
       };
@@ -510,25 +594,25 @@ export async function GET(req: NextRequest) {
       currentListenerDeviceIds.length > 0
         ? supabase
             .from("listening_sessions")
-            .select("started_at, seconds_listened, device_id, user_id")
+            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
             .in("device_id", currentListenerDeviceIds)
         : emptyResult,
       currentListenerDeviceIds.length > 0
         ? supabase
             .from("podcast_listening_sessions")
-            .select("started_at, seconds_listened, device_id, user_id")
+            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
             .in("device_id", currentListenerDeviceIds)
         : emptyResult,
       currentListenerUserIds.length > 0
         ? supabase
             .from("listening_sessions")
-            .select("started_at, seconds_listened, device_id, user_id")
+            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
             .in("user_id", currentListenerUserIds)
         : emptyResult,
       currentListenerUserIds.length > 0
         ? supabase
             .from("podcast_listening_sessions")
-            .select("started_at, seconds_listened, device_id, user_id")
+            .select("started_at, seconds_listened, wall_clock_seconds, content_seconds, device_id, user_id")
             .in("user_id", currentListenerUserIds)
         : emptyResult,
     ]);
@@ -617,36 +701,46 @@ export async function GET(req: NextRequest) {
       device_id: string;
       user_id: string | null;
       total_seconds: number;
+      wall_clock_seconds: number;
+      content_seconds: number;
       audiobook_seconds: number;
       podcast_seconds: number;
       session_count: number;
       last_started_at: string;
-      content: Map<string, { type: "audiobook" | "podcast"; title: string; parent_title: string | null; total_seconds: number; session_count: number }>;
+      content: Map<string, { type: "audiobook" | "podcast"; title: string; parent_title: string | null; total_seconds: number; wall_clock_seconds: number; content_seconds: number; session_count: number }>;
     }
   >();
 
   for (const session of currentPeriodDetailedSessions) {
     const listenerKey = getListenerKey(session);
+    const wallClockSeconds = getWallClockSeconds(session);
+    const contentSeconds = getContentSeconds(session);
     const existing = activeListenerMap.get(listenerKey);
     if (existing) {
-      existing.total_seconds += session.seconds_listened;
+      existing.total_seconds += contentSeconds;
+      existing.wall_clock_seconds += wallClockSeconds;
+      existing.content_seconds += contentSeconds;
       existing.session_count += 1;
       if (session.source === "audiobook") {
-        existing.audiobook_seconds += session.seconds_listened;
+        existing.audiobook_seconds += contentSeconds;
       } else {
-        existing.podcast_seconds += session.seconds_listened;
+        existing.podcast_seconds += contentSeconds;
       }
       const contentKey = `${session.source}:${session.content_id}`;
       const existingContent = existing.content.get(contentKey);
       if (existingContent) {
-        existingContent.total_seconds += session.seconds_listened;
+        existingContent.total_seconds += contentSeconds;
+        existingContent.wall_clock_seconds += wallClockSeconds;
+        existingContent.content_seconds += contentSeconds;
         existingContent.session_count += 1;
       } else {
         existing.content.set(contentKey, {
           type: session.source,
           title: session.content_title,
           parent_title: session.parent_title,
-          total_seconds: session.seconds_listened,
+          total_seconds: contentSeconds,
+          wall_clock_seconds: wallClockSeconds,
+          content_seconds: contentSeconds,
           session_count: 1,
         });
       }
@@ -658,9 +752,11 @@ export async function GET(req: NextRequest) {
         key: listenerKey,
         device_id: session.device_id,
         user_id: session.user_id,
-        total_seconds: session.seconds_listened,
-        audiobook_seconds: session.source === "audiobook" ? session.seconds_listened : 0,
-        podcast_seconds: session.source === "podcast" ? session.seconds_listened : 0,
+        total_seconds: contentSeconds,
+        wall_clock_seconds: wallClockSeconds,
+        content_seconds: contentSeconds,
+        audiobook_seconds: session.source === "audiobook" ? contentSeconds : 0,
+        podcast_seconds: session.source === "podcast" ? contentSeconds : 0,
         session_count: 1,
         last_started_at: session.started_at,
         content: new Map([
@@ -668,7 +764,9 @@ export async function GET(req: NextRequest) {
             type: session.source,
             title: session.content_title,
             parent_title: session.parent_title,
-            total_seconds: session.seconds_listened,
+            total_seconds: contentSeconds,
+            wall_clock_seconds: wallClockSeconds,
+            content_seconds: contentSeconds,
             session_count: 1,
           }],
         ]),
@@ -702,6 +800,8 @@ export async function GET(req: NextRequest) {
         email,
         label: getListenerLabel(listener),
         total_seconds: listener.total_seconds,
+        wall_clock_seconds: listener.wall_clock_seconds,
+        content_seconds: listener.content_seconds,
         audiobook_seconds: listener.audiobook_seconds,
         podcast_seconds: listener.podcast_seconds,
         session_count: listener.session_count,
@@ -725,6 +825,8 @@ export async function GET(req: NextRequest) {
       author: v.author,
       image_url: v.image_url,
       total_seconds: v.total_seconds,
+      wall_clock_seconds: v.wall_clock_seconds,
+      content_seconds: v.content_seconds,
       unique_listeners: v.listeners.size,
     }))
     .sort((a, b) => b.total_seconds - a.total_seconds);
@@ -737,12 +839,16 @@ export async function GET(req: NextRequest) {
       show_author: v.show_author,
       image_url: v.image_url,
       total_seconds: v.total_seconds,
+      wall_clock_seconds: v.wall_clock_seconds,
+      content_seconds: v.content_seconds,
       unique_listeners: v.listeners.size,
       episodes: [...v.episodes.values()]
         .map((ep) => ({
           episode_id: ep.episode_id,
           episode_title: ep.episode_title,
           total_seconds: ep.total_seconds,
+          wall_clock_seconds: ep.wall_clock_seconds,
+          content_seconds: ep.content_seconds,
           unique_listeners: ep.listeners.size,
         }))
         .sort((a, b) => b.total_seconds - a.total_seconds),
@@ -752,8 +858,13 @@ export async function GET(req: NextRequest) {
   const totalPlatformSeconds =
     filteredAudiobooks.reduce((s, a) => s + a.total_seconds, 0) +
     filteredPodcasts.reduce((s, p) => s + p.total_seconds, 0);
+  const totalPlatformWallClockSeconds =
+    filteredAudiobooks.reduce((s, a) => s + a.wall_clock_seconds, 0) +
+    filteredPodcasts.reduce((s, p) => s + p.wall_clock_seconds, 0);
   const averageListenSecondsPerListener =
     currentPeriodListeners.size > 0 ? totalPlatformSeconds / currentPeriodListeners.size : 0;
+  const averageWallClockSecondsPerListener =
+    currentPeriodListeners.size > 0 ? totalPlatformWallClockSeconds / currentPeriodListeners.size : 0;
 
   // --- Revenue & Payout Calculation ---
   // For daily/weekly views, fetch the full month's revenue and prorate
@@ -861,11 +972,13 @@ export async function GET(req: NextRequest) {
 
   const personalRows = (personalAggRes.data ?? []) as ListeningTimeAggRow[];
   const personalSeriesRows = (personalAggSeriesRes.data ?? []) as ListeningTimeAggRow[];
-  const personalBuckets = new Map<string, { total_seconds: number; event_count: number }>();
+  const personalBuckets = new Map<string, { total_seconds: number; wall_clock_seconds: number; content_seconds: number; event_count: number }>();
 
   for (const row of personalSeriesRows) {
-    const bucket = personalBuckets.get(row.period_start) ?? { total_seconds: 0, event_count: 0 };
-    bucket.total_seconds += row.total_seconds;
+    const bucket = personalBuckets.get(row.period_start) ?? { total_seconds: 0, wall_clock_seconds: 0, content_seconds: 0, event_count: 0 };
+    bucket.total_seconds += getAggContentSeconds(row);
+    bucket.wall_clock_seconds += getAggWallClockSeconds(row);
+    bucket.content_seconds += getAggContentSeconds(row);
     bucket.event_count += row.event_count;
     personalBuckets.set(row.period_start, bucket);
   }
@@ -885,7 +998,9 @@ export async function GET(req: NextRequest) {
       content_type: row.content_type,
       content_id: row.content_id,
       label: getPersonalContentLabel(row),
-      total_seconds: row.total_seconds,
+      total_seconds: getAggContentSeconds(row),
+      wall_clock_seconds: getAggWallClockSeconds(row),
+      content_seconds: getAggContentSeconds(row),
       event_count: row.event_count,
       period_start: row.period_start,
     }))
@@ -896,7 +1011,7 @@ export async function GET(req: NextRequest) {
     return {
       period_start: bucketStart,
       label: formatShortPeriodLabel(bucketStart, period),
-      value: bucket?.total_seconds ?? 0,
+      value: bucket?.content_seconds ?? 0,
     };
   });
 
@@ -919,6 +1034,7 @@ export async function GET(req: NextRequest) {
       retention_rate: retentionRate,
       total_sessions_in_period: totalSessionCount,
       average_listen_seconds_per_listener: averageListenSecondsPerListener,
+      average_wall_clock_seconds_per_listener: averageWallClockSecondsPerListener,
       previous_period: previousPeriod,
       target_period: targetPeriod,
       active_listeners: activeListeners,
@@ -935,6 +1051,8 @@ export async function GET(req: NextRequest) {
           period_type: period,
           target_period: targetPeriod,
           total_seconds: personalContent.reduce((sum, row) => sum + row.total_seconds, 0),
+          wall_clock_seconds: personalContent.reduce((sum, row) => sum + row.wall_clock_seconds, 0),
+          content_seconds: personalContent.reduce((sum, row) => sum + row.content_seconds, 0),
           event_count: personalContent.reduce((sum, row) => sum + row.event_count, 0),
           content: personalContent,
           timeseries: personalTimeSeries,

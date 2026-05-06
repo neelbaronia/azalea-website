@@ -13,6 +13,8 @@ interface AudiobookRow {
   author: string;
   image_url: string | null;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   unique_listeners: number;
   payout: number;
 }
@@ -21,6 +23,8 @@ interface EpisodeRow {
   episode_id: string;
   episode_title: string;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   unique_listeners: number;
   payout: number;
 }
@@ -31,6 +35,8 @@ interface PodcastShow {
   show_author: string;
   image_url: string | null;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   unique_listeners: number;
   payout: number;
   episodes: EpisodeRow[];
@@ -53,10 +59,14 @@ interface ActivitySeriesPoint {
   label: string;
   unique_listeners: number;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   users: {
     device_id: string;
     label: string;
     total_seconds: number;
+    wall_clock_seconds: number;
+    content_seconds: number;
   }[];
 }
 
@@ -72,6 +82,8 @@ interface PersonalUsageContentRow {
   content_id: string;
   label: string;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   event_count: number;
   period_start: string;
 }
@@ -81,6 +93,8 @@ interface PersonalUsage {
   period_type: PeriodType;
   target_period: string;
   total_seconds: number;
+  wall_clock_seconds: number;
+  content_seconds: number;
   event_count: number;
   content: PersonalUsageContentRow[];
   timeseries: TimeSeriesPoint[];
@@ -102,6 +116,7 @@ interface AdminMetrics {
   retention_rate: number | null;
   total_sessions_in_period: number;
   average_listen_seconds_per_listener: number;
+  average_wall_clock_seconds_per_listener: number;
   previous_period: string | null;
   target_period: string | null;
   active_listeners: {
@@ -109,6 +124,8 @@ interface AdminMetrics {
     email: string | null;
     label: string;
     total_seconds: number;
+    wall_clock_seconds: number;
+    content_seconds: number;
     audiobook_seconds: number;
     podcast_seconds: number;
     session_count: number;
@@ -118,6 +135,8 @@ interface AdminMetrics {
       title: string;
       parent_title: string | null;
       total_seconds: number;
+      wall_clock_seconds: number;
+      content_seconds: number;
       session_count: number;
     }[];
     is_new: boolean;
@@ -154,6 +173,27 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
+}
+
+function MetricDurationPair({
+  contentSeconds,
+  wallClockSeconds,
+  align = "right",
+}: {
+  contentSeconds: number;
+  wallClockSeconds: number;
+  align?: "left" | "right";
+}) {
+  const alignment = align === "right" ? "text-right" : "text-left";
+
+  return (
+    <div className={`${alignment} shrink-0`}>
+      <div className="text-sm font-medium tabular-nums">{formatDuration(contentSeconds)}</div>
+      <div className="text-[11px] text-gray-400 tabular-nums">Consumed</div>
+      <div className="text-xs text-gray-500 tabular-nums mt-1">{formatDuration(wallClockSeconds)}</div>
+      <div className="text-[11px] text-gray-400 tabular-nums">Elapsed</div>
+    </div>
+  );
 }
 
 function formatCurrency(amount: number): string {
@@ -292,8 +332,10 @@ function StackedActivityChart({
         <div className="text-right shrink-0">
           <div className="text-xl font-semibold tabular-nums">{latest?.unique_listeners ?? 0}</div>
           <div className="text-[11px] text-gray-400">unique</div>
-          <div className="text-sm font-medium tabular-nums mt-2">{formatDuration(latest?.total_seconds ?? 0)}</div>
-          <div className="text-[11px] text-gray-400">listen time</div>
+          <div className="text-sm font-medium tabular-nums mt-2">{formatDuration(latest?.content_seconds ?? 0)}</div>
+          <div className="text-[11px] text-gray-400">content consumed</div>
+          <div className="text-xs text-gray-500 tabular-nums mt-1">{formatDuration(latest?.wall_clock_seconds ?? 0)}</div>
+          <div className="text-[11px] text-gray-400">elapsed time</div>
           <div className="mt-3 inline-flex rounded-md border border-gray-200 p-0.5 bg-gray-50">
             <button
               type="button"
@@ -311,7 +353,7 @@ function StackedActivityChart({
                 mode === "time" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-black"
               }`}
             >
-              Time
+              Consumed
             </button>
           </div>
         </div>
@@ -332,8 +374,9 @@ function StackedActivityChart({
               const titleText = [
                 `${point.label}`,
                 `${point.unique_listeners} unique users`,
-                `${formatDuration(point.total_seconds)} total listened`,
-                ...point.users.map((user) => `${user.label}: ${formatDuration(user.total_seconds)}`),
+                `${formatDuration(point.content_seconds)} content consumed`,
+                `${formatDuration(point.wall_clock_seconds)} elapsed time`,
+                ...point.users.map((user) => `${user.label}: ${formatDuration(user.content_seconds)} consumed / ${formatDuration(user.wall_clock_seconds)} elapsed`),
               ].join("\n");
 
               return (
@@ -343,7 +386,7 @@ function StackedActivityChart({
                   title={titleText}
                 >
                   <div className="text-[10px] text-gray-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {mode === "count" ? point.unique_listeners : formatDuration(point.total_seconds)}
+                    {mode === "count" ? point.unique_listeners : formatDuration(point.content_seconds)}
                   </div>
                   <div className="w-full h-full flex items-end">
                     {mode === "count" ? (
@@ -360,7 +403,7 @@ function StackedActivityChart({
                           <div
                             key={`${point.period_start}-${user.device_id}`}
                             style={{
-                              height: point.total_seconds > 0 ? `${(user.total_seconds / point.total_seconds) * 100}%` : "0%",
+                              height: point.content_seconds > 0 ? `${(user.content_seconds / point.content_seconds) * 100}%` : "0%",
                               backgroundColor: colorForUser(user.device_id),
                             }}
                           />
@@ -431,6 +474,7 @@ export default function AnalyticsPage() {
     retention_rate: null,
     total_sessions_in_period: 0,
     average_listen_seconds_per_listener: 0,
+    average_wall_clock_seconds_per_listener: 0,
     previous_period: null,
     target_period: null,
     active_listeners: [],
@@ -525,6 +569,7 @@ export default function AnalyticsPage() {
         retention_rate: null,
         total_sessions_in_period: 0,
         average_listen_seconds_per_listener: 0,
+        average_wall_clock_seconds_per_listener: 0,
         previous_period: null,
         target_period: null,
         active_listeners: [],
@@ -628,6 +673,9 @@ export default function AnalyticsPage() {
   const totalSeconds = tab === "podcasts"
     ? podcasts.reduce((sum, s) => sum + s.total_seconds, 0)
     : audiobooks.reduce((sum, a) => sum + a.total_seconds, 0);
+  const totalWallClockSeconds = tab === "podcasts"
+    ? podcasts.reduce((sum, s) => sum + s.wall_clock_seconds, 0)
+    : audiobooks.reduce((sum, a) => sum + a.wall_clock_seconds, 0);
   const totalPlatformSeconds =
     podcasts.reduce((sum, s) => sum + s.total_seconds, 0) +
     audiobooks.reduce((sum, a) => sum + a.total_seconds, 0);
@@ -639,6 +687,7 @@ export default function AnalyticsPage() {
   const usingPersonalContent = Boolean(personal);
   const currentPersonalData = tab === "podcasts" ? personalPodcastRows : personalAudiobookRows;
   const personalTotalSeconds = currentPersonalData.reduce((sum, row) => sum + row.total_seconds, 0);
+  const personalTotalWallClockSeconds = currentPersonalData.reduce((sum, row) => sum + row.wall_clock_seconds, 0);
   const personalTotalEvents = currentPersonalData.reduce((sum, row) => sum + row.event_count, 0);
   const maxActiveListenerSeconds = admin.active_listeners.reduce(
     (max, listener) => Math.max(max, listener.total_seconds),
@@ -658,10 +707,10 @@ export default function AnalyticsPage() {
         : "Monthly Active Users";
   const activeSeriesSubtitle =
     activeSeriesPeriod === "daily"
-      ? "Unique listeners and total time per day."
+      ? "Unique listeners plus content consumed and elapsed time per day."
       : activeSeriesPeriod === "weekly"
-        ? "Unique listeners and total time per week."
-        : "Unique listeners and total time per month.";
+        ? "Unique listeners plus content consumed and elapsed time per week."
+        : "Unique listeners plus content consumed and elapsed time per month.";
   const personalTopContent = personal?.content.slice(0, 8) ?? [];
 
   return (
@@ -699,8 +748,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] gap-4">
                 <MiniBarChart
-                  title="Personal Listen Time"
-                  subtitle={`Rolled up from listening_time_agg for your ${period === "daily" ? "daily" : period === "weekly" ? "weekly" : "monthly"} periods.`}
+                  title="Personal Content Consumed"
+                  subtitle={`Primary metric is content consumed. Rolled up from listening_time_agg for your ${period === "daily" ? "daily" : period === "weekly" ? "weekly" : "monthly"} periods.`}
                   data={personal.timeseries}
                   tone="gray"
                 />
@@ -711,10 +760,15 @@ export default function AnalyticsPage() {
                       <p className="text-xs text-gray-400 mt-1">
                         Filtered by your signed-in user id, not the global `user_id=&quot;*&quot;` rows.
                       </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Content consumed is the primary metric. Elapsed time is shown alongside it.
+                      </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-xl font-semibold tabular-nums">{formatDuration(personal.total_seconds)}</div>
-                      <div className="text-[11px] text-gray-400">total time</div>
+                      <div className="text-xl font-semibold tabular-nums">{formatDuration(personal.content_seconds)}</div>
+                      <div className="text-[11px] text-gray-400">content consumed</div>
+                      <div className="text-sm font-medium tabular-nums mt-2">{formatDuration(personal.wall_clock_seconds)}</div>
+                      <div className="text-[11px] text-gray-400">elapsed time</div>
                       <div className="text-sm font-medium tabular-nums mt-2">{personal.event_count}</div>
                       <div className="text-[11px] text-gray-400">events</div>
                     </div>
@@ -731,8 +785,8 @@ export default function AnalyticsPage() {
                               {row.content_type} • {row.content_id}
                             </div>
                           </div>
+                          <MetricDurationPair contentSeconds={row.content_seconds} wallClockSeconds={row.wall_clock_seconds} />
                           <div className="text-right shrink-0">
-                            <div className="text-sm font-medium tabular-nums">{formatDuration(row.total_seconds)}</div>
                             <div className="text-xs text-gray-400 tabular-nums">{row.event_count} events</div>
                           </div>
                         </div>
@@ -797,10 +851,11 @@ export default function AnalyticsPage() {
                 <div className="text-xs text-gray-400 mb-3">Engagement</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="text-xs text-gray-400">Avg Listen / Listener</div>
+                    <div className="text-xs text-gray-400">Avg Content / Listener</div>
                     <div className="text-lg font-semibold">
                       {formatDuration(admin.average_listen_seconds_per_listener)}
                     </div>
+                    <div className="text-xs text-gray-400 mt-1">Elapsed {formatDuration(admin.average_wall_clock_seconds_per_listener)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Retention</div>
@@ -829,10 +884,10 @@ export default function AnalyticsPage() {
                 <div>
                   <h3 className="text-sm font-medium text-black">Active Listeners</h3>
                   <p className="text-xs text-gray-400 mt-1">
-                    Ranked by total listen time for this {period === "daily" ? "day" : period === "weekly" ? "week" : "month"}.
+                    Ranked by content consumed for this {period === "daily" ? "day" : period === "weekly" ? "week" : "month"}.
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Expand a listener to see the specific titles and episodes they played.
+                    Expand a listener to see the specific titles and episodes they played, with consumed and elapsed time.
                   </p>
                 </div>
                 <div className="text-xs text-gray-400">
@@ -887,8 +942,11 @@ export default function AnalyticsPage() {
                               <span>{isExpanded ? "Hide" : "Show"} listening</span>
                               <span aria-hidden="true">{isExpanded ? "▲" : "▼"}</span>
                             </button>
-                            <div>
-                              <div className="text-sm font-medium tabular-nums">{formatDuration(listener.total_seconds)}</div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium tabular-nums">{formatDuration(listener.content_seconds)}</div>
+                              <div className="text-[11px] text-gray-400">Consumed</div>
+                              <div className="text-xs text-gray-500 tabular-nums mt-1">{formatDuration(listener.wall_clock_seconds)}</div>
+                              <div className="text-[11px] text-gray-400">Elapsed</div>
                               <div className="text-xs text-gray-400">
                                 {new Date(listener.last_started_at).toLocaleDateString("en-US", {
                                   month: "short",
@@ -932,8 +990,8 @@ export default function AnalyticsPage() {
                                       {item.parent_title ? ` • ${item.parent_title}` : ""}
                                     </div>
                                   </div>
+                                  <MetricDurationPair contentSeconds={item.content_seconds} wallClockSeconds={item.wall_clock_seconds} />
                                   <div className="text-right shrink-0">
-                                    <div className="text-sm font-medium tabular-nums">{formatDuration(item.total_seconds)}</div>
                                     <div className="text-xs text-gray-400 tabular-nums">{item.session_count} sessions</div>
                                   </div>
                                 </div>
@@ -950,7 +1008,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-4 mt-4 items-start">
               <MiniBarChart
                 title="New Signups"
-                subtitle="Profiles created per day over the last 30 days."
+                subtitle="Auth users created per day over the last 30 days."
                 data={timeseries.signups_daily}
               />
               <StackedActivityChart
@@ -1044,29 +1102,32 @@ export default function AnalyticsPage() {
           <p className="text-gray-400 text-sm">No personal listening data for this period.</p>
         ) : (
           <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-            <div className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm text-gray-500 bg-gray-50">
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_120px_96px] gap-4 px-4 py-3 text-sm text-gray-500 bg-gray-50">
               <span className="font-medium">{tab === "podcasts" ? "Podcast" : "Audiobook"}</span>
-              <span className="font-medium text-right">Time</span>
+              <span className="font-medium text-right">Consumed</span>
+              <span className="font-medium text-right">Elapsed</span>
               <span className="font-medium text-right">Events</span>
             </div>
             <div>
               {currentPersonalData.map((row) => (
                 <div
                   key={`${row.content_type}:${row.content_id}`}
-                  className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm border-t border-gray-100 first:border-t-0"
+                  className="grid grid-cols-[minmax(0,1fr)_120px_120px_96px] gap-4 px-4 py-3 text-sm border-t border-gray-100 first:border-t-0"
                 >
                   <div className="min-w-0">
                     <div className="font-medium truncate">{row.label}</div>
                     <div className="text-xs text-gray-400 truncate">{row.content_id}</div>
                   </div>
-                  <div className="text-right tabular-nums whitespace-nowrap">{formatDuration(row.total_seconds)}</div>
+                  <div className="text-right tabular-nums whitespace-nowrap">{formatDuration(row.content_seconds)}</div>
+                  <div className="text-right tabular-nums whitespace-nowrap text-gray-500">{formatDuration(row.wall_clock_seconds)}</div>
                   <div className="text-right tabular-nums">{row.event_count}</div>
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-[minmax(0,1fr)_120px_96px] gap-4 px-4 py-3 text-sm font-medium border-t border-gray-200 bg-gray-50">
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_120px_96px] gap-4 px-4 py-3 text-sm font-medium border-t border-gray-200 bg-gray-50">
               <span>Total</span>
               <span className="text-right tabular-nums whitespace-nowrap">{formatDuration(personalTotalSeconds)}</span>
+              <span className="text-right tabular-nums whitespace-nowrap text-gray-600">{formatDuration(personalTotalWallClockSeconds)}</span>
               <span className="text-right tabular-nums">{personalTotalEvents}</span>
             </div>
           </div>
@@ -1078,7 +1139,8 @@ export default function AnalyticsPage() {
               <thead>
                 <tr className="bg-gray-50 text-left text-gray-500">
                   <th className="px-4 py-3 font-medium">Title</th>
-                  <th className="px-4 py-3 font-medium text-right">Time</th>
+                  <th className="px-4 py-3 font-medium text-right">Consumed</th>
+                  <th className="px-4 py-3 font-medium text-right">Elapsed</th>
                   <th className="px-4 py-3 font-medium text-right">Listeners</th>
                   <th className="px-4 py-3 font-medium text-right">Est. Payout</th>
                   <th className="px-4 py-3 font-medium text-right">% Pool</th>
@@ -1100,7 +1162,8 @@ export default function AnalyticsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(book.total_seconds)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(book.content_seconds)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-500">{formatDuration(book.wall_clock_seconds)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{book.unique_listeners}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(book.payout)}</td>
                     <td className="px-4 py-3 text-right tabular-nums text-gray-400">{totalPlatformSeconds > 0 ? ((book.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</td>
@@ -1111,6 +1174,7 @@ export default function AnalyticsPage() {
                 <tr className="border-t border-gray-200 bg-gray-50 font-medium">
                   <td className="px-4 py-3">Total</td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{formatDuration(totalSeconds)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600">{formatDuration(totalWallClockSeconds)}</td>
                   <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(totalPayout)}</td>
                   <td className="px-4 py-3"></td>
@@ -1123,7 +1187,8 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between px-4 py-2 text-sm text-gray-500">
               <span className="font-medium">Show</span>
               <div className="flex items-center gap-6 shrink-0 ml-4">
-                <span className="font-medium">Time</span>
+                <span className="font-medium">Consumed</span>
+                <span className="font-medium">Elapsed</span>
                 <span className="font-medium w-8 text-right">Listeners</span>
                 <span className="font-medium w-16 text-right">Payout</span>
                 <span className="font-medium w-12 text-right">% Pool</span>
@@ -1148,7 +1213,8 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-6 text-sm tabular-nums shrink-0 ml-4">
-                    <span className="whitespace-nowrap">{formatDuration(show.total_seconds)}</span>
+                    <span className="whitespace-nowrap">{formatDuration(show.content_seconds)}</span>
+                    <span className="whitespace-nowrap text-gray-500">{formatDuration(show.wall_clock_seconds)}</span>
                     <span className="text-gray-400 w-8 text-right">{show.unique_listeners}</span>
                     <span className="w-16 text-right">{formatCurrency(show.payout)}</span>
                     <span className="w-12 text-right text-gray-400">{totalPlatformSeconds > 0 ? ((show.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</span>
@@ -1164,7 +1230,8 @@ export default function AnalyticsPage() {
                       >
                         <span className="text-gray-600 truncate flex-1 min-w-0 pr-4">{ep.episode_title}</span>
                         <div className="flex items-center gap-6 tabular-nums shrink-0">
-                          <span className="text-gray-500 whitespace-nowrap">{formatDuration(ep.total_seconds)}</span>
+                          <span className="text-gray-500 whitespace-nowrap">{formatDuration(ep.content_seconds)}</span>
+                          <span className="text-gray-400 whitespace-nowrap">{formatDuration(ep.wall_clock_seconds)}</span>
                           <span className="text-gray-400 w-8 text-right">{ep.unique_listeners}</span>
                           <span className="text-gray-400 w-16 text-right">{formatCurrency(ep.payout)}</span>
                           <span className="text-gray-400 w-12 text-right">{totalPlatformSeconds > 0 ? ((ep.total_seconds / totalPlatformSeconds) * 100).toFixed(1) + "%" : "—"}</span>
@@ -1180,6 +1247,7 @@ export default function AnalyticsPage() {
               <span>Total</span>
               <div className="flex items-center gap-6 shrink-0 ml-4">
                 <span className="whitespace-nowrap">{formatDuration(totalSeconds)}</span>
+                <span className="whitespace-nowrap text-gray-600">{formatDuration(totalWallClockSeconds)}</span>
                 <span className="w-8"></span>
                 <span className="w-16 text-right">{formatCurrency(totalPayout)}</span>
                 <span className="w-12"></span>
