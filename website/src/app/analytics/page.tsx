@@ -196,6 +196,27 @@ function MetricDurationPair({
   );
 }
 
+function MetricDurationColumns({
+  contentSeconds,
+  wallClockSeconds,
+}: {
+  contentSeconds: number;
+  wallClockSeconds: number;
+}) {
+  return (
+    <>
+      <div className="text-right shrink-0">
+        <div className="text-sm font-medium tabular-nums">{formatDuration(contentSeconds)}</div>
+        <div className="text-[11px] text-gray-400 tabular-nums">Consumed</div>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-sm font-medium tabular-nums">{formatDuration(wallClockSeconds)}</div>
+        <div className="text-[11px] text-gray-400 tabular-nums">Elapsed</div>
+      </div>
+    </>
+  );
+}
+
 function formatCurrency(amount: number): string {
   return `$${amount.toFixed(2)}`;
 }
@@ -975,7 +996,10 @@ export default function AnalyticsPage() {
                               <p className="text-xs text-gray-400">No item-level breakdown available.</p>
                             ) : (
                               listener.top_content.map((item) => (
-                                <div key={`${listenerKey}-${item.type}-${item.title}`} className="flex items-start justify-between gap-4">
+                                <div
+                                  key={`${listenerKey}-${item.type}-${item.title}`}
+                                  className="grid grid-cols-[minmax(0,1fr)_96px_96px_84px] gap-4 items-start"
+                                >
                                   <div className="min-w-0">
                                     <div className="text-sm font-medium text-black truncate">{item.title}</div>
                                     <div className="text-xs text-gray-400 truncate">
@@ -983,7 +1007,7 @@ export default function AnalyticsPage() {
                                       {item.parent_title ? ` • ${item.parent_title}` : ""}
                                     </div>
                                   </div>
-                                  <MetricDurationPair contentSeconds={item.content_seconds} wallClockSeconds={item.wall_clock_seconds} />
+                                  <MetricDurationColumns contentSeconds={item.content_seconds} wallClockSeconds={item.wall_clock_seconds} />
                                   <div className="text-right shrink-0">
                                     <div className="text-xs text-gray-400 tabular-nums">{item.session_count} sessions</div>
                                   </div>
