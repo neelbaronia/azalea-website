@@ -53,6 +53,10 @@ interface BookWithDescription extends Book {
   description?: string;
 }
 
+function isAzaleaOriginal(book: Book): boolean {
+  return !book.id.startsWith("librivox-");
+}
+
 export default function PublicationsPage() {
   const [books, setBooks] = useState<BookWithDescription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,8 +65,9 @@ export default function PublicationsPage() {
     fetch("/api/books")
       .then((r) => r.json())
       .then(async (data: Book[]) => {
+        const originals = data.filter(isAzaleaOriginal);
         const enriched: BookWithDescription[] = await Promise.all(
-          data.map(async (book) => {
+          originals.map(async (book) => {
             try {
               const res = await fetch(`${book.remoteBaseURL}/metadata.json`);
               if (!res.ok) return book;
@@ -91,7 +96,7 @@ export default function PublicationsPage() {
             Our Publications
           </h1>
           <p className="text-base md:text-lg text-white font-black mt-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-            Browse the complete Azalea Labs audiobook catalog.
+            Browse Azalea Labs original productions hosted in our R2 catalog.
           </p>
         </div>
 
