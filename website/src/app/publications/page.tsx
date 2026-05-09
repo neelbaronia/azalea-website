@@ -96,7 +96,7 @@ export default function PublicationsPage() {
             Our Publications
           </h1>
           <p className="text-base md:text-lg text-white font-black mt-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-            Browse Azalea Labs original productions hosted in our R2 catalog.
+            Browse Azalea Labs original productions from our catalog.
           </p>
         </div>
 
