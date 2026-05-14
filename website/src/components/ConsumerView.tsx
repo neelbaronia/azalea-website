@@ -255,18 +255,6 @@ function FloatingIcons({ containerRef, books }: { containerRef: React.RefObject<
   );
 }
 
-type FormState = "idle" | "loading" | "success" | "duplicate" | "error";
-
-async function submitWaitlist(email: string): Promise<FormState> {
-  const res = await fetch("/api/waitlist", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  if (res.ok) return "success";
-  if (res.status === 409) return "duplicate";
-  return "error";
-}
 
 export default function ConsumerView() {
   const heroRef = useRef<HTMLElement>(null);
@@ -276,8 +264,6 @@ export default function ConsumerView() {
   const [phoneOffsetY, setPhoneOffsetY] = useState(10000);
   const [heroBackground, setHeroBackground] = useState<string | null>(null);
 
-  const [footerEmail, setFooterEmail] = useState("");
-  const [formState, setFormState] = useState<FormState>("idle");
 
   useEffect(() => {
     fetch("/api/books")
@@ -328,12 +314,6 @@ export default function ConsumerView() {
     return () => container.removeEventListener("scroll", onScroll);
   }, []);
 
-  async function handleFooterSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (formState === "loading") return;
-    setFormState("loading");
-    setFormState(await submitWaitlist(footerEmail));
-  }
 
   return (
     <div ref={scrollContainerRef} className="h-screen overflow-y-auto snap-y snap-mandatory bg-[#f5f0e8] text-black relative">
@@ -543,29 +523,29 @@ export default function ConsumerView() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            {formState === "success" ? (
-              <p className="text-white/90 font-semibold text-lg">You&apos;re on the list. We&apos;ll be in touch.</p>
-            ) : (
-              <form onSubmit={handleFooterSubmit} className="flex flex-col md:flex-row items-stretch w-full max-w-lg mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.3)] gap-2 md:gap-0">
-                <input
-                  type="email"
-                  placeholder="you@email.com"
-                  value={footerEmail}
-                  onChange={(e) => setFooterEmail(e.target.value)}
-                  required
-                  className="min-w-0 w-full px-8 py-5 bg-white/10 backdrop-blur-md text-white text-sm font-light outline-none placeholder:text-white/40 rounded-xl md:rounded-l-xl md:rounded-r-none border border-white/20 md:border-r-0"
-                />
-                <button
-                  type="submit"
-                  disabled={formState === "loading"}
-                  className="w-full md:w-auto shrink-0 px-10 py-5 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] hover:bg-white/90 transition-all whitespace-nowrap rounded-xl md:rounded-r-xl md:rounded-l-none disabled:opacity-60"
-                >
-                  {formState === "loading" ? "..." : "Get Early Access"}
-                </button>
-              </form>
-            )}
-            {formState === "duplicate" && <p className="text-white/70 text-xs mt-2">You&apos;re already on the list!</p>}
-            {formState === "error" && <p className="text-red-300 text-xs mt-2">Something went wrong. Please try again.</p>}
+            <a
+              href={IOS_APP_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download on the App Store"
+              className="inline-flex items-center gap-4 px-7 py-4 bg-white text-black hover:bg-white/90 transition-all rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-8 w-8 shrink-0 fill-current"
+              >
+                <path d="M16.7 12.6c0-2 1.6-3 1.7-3.1-1-1.4-2.6-1.6-3.1-1.6-1.3-.1-2.6.8-3.2.8-.7 0-1.7-.8-2.8-.8-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.6 2.1 2.8 2.1 1.1 0 1.5-.7 2.9-.7 1.3 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.1.8-1.2 1.1-2.3 1.1-2.3-.1 0-2.6-1-2.6-3.6ZM14.5 6.5c.6-.8 1.1-1.9 1-3-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.8-1 2.9 1 .1 2-.5 2.6-1.2Z" />
+              </svg>
+              <span className="flex flex-col items-start leading-none">
+                <span className="text-[0.65rem] font-medium uppercase tracking-[0.22em] text-black/60">
+                  Download on the
+                </span>
+                <span className="text-xl font-semibold tracking-[0.04em]">
+                  App Store
+                </span>
+              </span>
+            </a>
           </motion.div>
         </div>
       </section>
