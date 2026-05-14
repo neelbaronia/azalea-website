@@ -255,7 +255,7 @@ export default function SamplesPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f0] relative">
       {/* Background image */}
-      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.png')" }} />
+      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.webp')" }} />
       <div className="relative z-10">
       {/* Navbar */}
       <SamplesNavbar />

@@ -24,9 +24,9 @@ interface Ball {
 
 const COVER_SIZES_BASE = [132, 115, 142, 120, 144, 126, 113, 134, 122, 138];
 const HERO_BACKGROUNDS = [
-  "/hero-alt-1.png",
-  "/hero-alt-2.png",
-  "/hero-alt-3.png",
+  "/hero-alt-1.webp",
+  "/hero-alt-2.webp",
+  "/hero-alt-3.webp",
 ];
 const IOS_APP_URL = "https://apps.apple.com/us/app/azalea-audio/id6761150322";
 

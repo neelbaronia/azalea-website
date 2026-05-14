@@ -86,7 +86,7 @@ export default function PublicationsPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f0] relative">
-      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.png')" }} />
+      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.webp')" }} />
       <div className="relative z-10 flex flex-col min-h-screen">
         <PublicationsNavbar />
 
