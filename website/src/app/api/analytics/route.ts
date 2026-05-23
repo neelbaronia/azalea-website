@@ -209,12 +209,12 @@ export async function GET(req: NextRequest) {
   const [audiobookRes, podcastRes, showsRes, authUsersRes, libraryRes, personalAggRes, personalAggSeriesRes] = await Promise.all([
     supabase
       .from("listening_sessions")
-      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, started_at, device_id, user_id")
+      .select("audiobook_id, audiobook_title, audiobook_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
       .from("podcast_listening_sessions")
-      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, started_at, device_id, user_id")
+      .select("episode_id, episode_title, show_id, show_title, show_author, seconds_listened, wall_clock_seconds, content_seconds, started_at, device_id, user_id")
       .gte("started_at", analyticsWindowStart)
       .lt("started_at", analyticsWindowEnd),
     supabase
@@ -416,16 +416,16 @@ export async function GET(req: NextRequest) {
     ...(audiobookRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
-      wall_clock_seconds: null,
-      content_seconds: null,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
     })),
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
-      wall_clock_seconds: null,
-      content_seconds: null,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
     })),
@@ -434,8 +434,8 @@ export async function GET(req: NextRequest) {
     ...(audiobookRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
-      wall_clock_seconds: null,
-      content_seconds: null,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
       source: "audiobook" as const,
@@ -446,8 +446,8 @@ export async function GET(req: NextRequest) {
     ...(podcastRes.data ?? []).map((s) => ({
       started_at: s.started_at,
       seconds_listened: s.seconds_listened,
-      wall_clock_seconds: null,
-      content_seconds: null,
+      wall_clock_seconds: s.wall_clock_seconds,
+      content_seconds: s.content_seconds,
       device_id: s.device_id,
       user_id: s.user_id,
       source: "podcast" as const,
