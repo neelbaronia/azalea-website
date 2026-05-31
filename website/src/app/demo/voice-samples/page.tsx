@@ -24,28 +24,34 @@ const COVER_URL = `${R2_BASE}/cover.png`;
 
 const VOICES: Voice[] = [
   {
+    id: "hank",
+    label: "Hank",
+    audioUrl: "/demo-data/voice-samples/voice-sample-hank.mp3",
+    syncmapUrl: "/demo-data/voice-samples/hank-syncmap.json",
+  },
+  {
+    id: "chuck",
+    label: "Chuck",
+    audioUrl: "/demo-data/voice-samples/voice-sample-chuck.mp3",
+    syncmapUrl: "/demo-data/voice-samples/chuck-syncmap.json",
+  },
+  {
     id: "brian",
     label: "Brian",
     audioUrl: "/demo-data/voice-samples/voice-sample-brian.mp3",
     syncmapUrl: "/demo-data/voice-samples/brian-syncmap.json",
   },
   {
-    id: "puck",
-    label: "Puck",
-    audioUrl: "/demo-data/voice-samples/voice-sample-puck.mp3",
-    syncmapUrl: "/demo-data/voice-samples/puck-syncmap.json",
+    id: "david",
+    label: "David",
+    audioUrl: "/demo-data/voice-samples/voice-sample-david.mp3",
+    syncmapUrl: "/demo-data/voice-samples/david-syncmap.json",
   },
   {
-    id: "tyler",
-    label: "Tyler",
-    audioUrl: "/demo-data/voice-samples/voice-sample-tyler.mp3",
-    syncmapUrl: "/demo-data/voice-samples/tyler-syncmap.json",
-  },
-  {
-    id: "umbriel",
-    label: "Umbriel",
-    audioUrl: "/demo-data/voice-samples/voice-sample-umbriel.mp3",
-    syncmapUrl: "/demo-data/voice-samples/umbriel-syncmap.json",
+    id: "jay",
+    label: "Jay",
+    audioUrl: "/demo-data/voice-samples/voice-sample-jay.mp3",
+    syncmapUrl: "/demo-data/voice-samples/jay-syncmap.json",
   },
 ];
 
