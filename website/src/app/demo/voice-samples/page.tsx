@@ -30,6 +30,12 @@ const VOICES: Voice[] = [
     syncmapUrl: "/demo-data/voice-samples/hank-syncmap.json",
   },
   {
+    id: "mark",
+    label: "Mark",
+    audioUrl: "/demo-data/voice-samples/voice-sample-mark.mp3",
+    syncmapUrl: "/demo-data/voice-samples/mark-syncmap.json",
+  },
+  {
     id: "ash",
     label: "Ash",
     audioUrl: "/demo-data/voice-samples/voice-sample-ash.mp3",
@@ -52,12 +58,6 @@ const VOICES: Voice[] = [
     label: "David",
     audioUrl: "/demo-data/voice-samples/voice-sample-david-2.mp3",
     syncmapUrl: "/demo-data/voice-samples/david-2-syncmap.json",
-  },
-  {
-    id: "mark",
-    label: "Mark",
-    audioUrl: "/demo-data/voice-samples/voice-sample-mark.mp3",
-    syncmapUrl: "/demo-data/voice-samples/mark-syncmap.json",
   },
   {
     id: "jay",
