@@ -43,7 +43,7 @@ const VOICES: Voice[] = [
   },
   {
     id: "brian-2",
-    label: "Brian 2",
+    label: "Steven",
     audioUrl: "/demo-data/voice-samples/voice-sample-brian-2.mp3",
     syncmapUrl: "/demo-data/voice-samples/brian-2-syncmap.json",
   },
