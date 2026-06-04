@@ -29,59 +29,20 @@ const VOICES: Voice[] = [
     audioUrl: "/demo-data/voice-samples/voice-sample-hank.mp3",
     syncmapUrl: "/demo-data/voice-samples/hank-syncmap.json",
   },
-  {
-    id: "mark",
-    label: "Mark",
-    audioUrl: "/demo-data/voice-samples/voice-sample-mark.mp3",
-    syncmapUrl: "/demo-data/voice-samples/mark-syncmap.json",
-  },
-  {
-    id: "ash",
-    label: "Ash",
-    audioUrl: "/demo-data/voice-samples/voice-sample-ash.mp3",
-    syncmapUrl: "/demo-data/voice-samples/ash-syncmap.json",
-  },
-  {
-    id: "brian",
-    label: "Brian",
-    audioUrl: "/demo-data/voice-samples/voice-sample-brian.mp3",
-    syncmapUrl: "/demo-data/voice-samples/brian-syncmap.json",
-  },
-  {
-    id: "brian-2",
-    label: "Steven",
-    audioUrl: "/demo-data/voice-samples/voice-sample-brian-2.mp3",
-    syncmapUrl: "/demo-data/voice-samples/brian-2-syncmap.json",
-  },
-  {
-    id: "david-2",
-    label: "David",
-    audioUrl: "/demo-data/voice-samples/voice-sample-david-2.mp3",
-    syncmapUrl: "/demo-data/voice-samples/david-2-syncmap.json",
-  },
-  {
-    id: "jay",
-    label: "Jay",
-    audioUrl: "/demo-data/voice-samples/voice-sample-jay.mp3",
-    syncmapUrl: "/demo-data/voice-samples/jay-syncmap.json",
-  },
 ];
 
-// Fallback text if syncmap hasn't been generated yet — split into paragraphs
+// Fallback text if syncmap hasn't loaded yet.
 const SAMPLE_TEXT: string[][] = [
   [
-    "Tally's Corner and the Black Man of the City.",
-    "Charles Lemert.",
+    "CONCLUSION",
   ],
   [
-    "Since it first appeared in 1967, Elliot Liebow's Tally's Corner has been read continuously by scholars, teachers, and students, among many others — by, that is, those concerned with the suffering of the urban poor.",
-    "In the social and human sciences, only a handful of books have sold more than a million copies as this one has.",
-    "A good many Americans (and not a few others around the world), including some without benefit of a college reading list, know what they know about the plight of the economically marginalized Black man in urban America through this one book.",
-    "Some have heard the book's story even when they may never have heard (or have heard and forgotten) the names of the author or the book.",
+    "This study has been primarily concerned with the inside world of the street corner Negro man, the world of daily, face to face relationships with wives, children, friends, lovers, kinsmen and neighbors.",
+    "An attempt was made to see the man as he sees himself, to compare what he says with what he does, and to explain his behavior as a direct response to the conditions of lower class Negro life rather than as mute compliance with historical or cultural imperatives.",
   ],
   [
-    "The influence of Tally's Corner on the thinking of some generations of policymakers, social activists, and coffee shop philosophers flows on the subterranean streams whereby public lessons drift without acknowledgment in the mist of sermons, newspaper essays, public speeches of all kinds, television talk shows, neighborhood grousings, and the myriad ways that public opinion is shaped.",
-    "Whenever and wherever people come out of the dark to face the shadow of America's befuddled relation to the Black man of the city, Tally's Corner is somewhere in the penumbra of consciousness, serving as a lifeline against the currents of ill-informed racist blather about urban poverty.",
+    "This inside world does not appear as a self-contained, self-generating, self-sustaining system or even subsystem with clear boundaries marking it off from the larger world around it.",
+    "It is in continuous, intimate contact with the larger society-indeed, integral part of it-and is no more impervious to the values, sentiments and beliefs of the larger society than it is to the blue welfare checks or to the agents of the larger society, such as the policeman, the police informer, the case worker, the landlord, the dope pusher, the Tupperware demonstrator, the numbers backer or the anthropologist.",
   ],
 ];
 
@@ -123,23 +84,26 @@ export default function VoiceSamplesDemo() {
 
   // Load sync map when voice changes
   useEffect(() => {
-    setLoading(true);
-    setFragments([]);
-    setSyncmapAvailable(false);
+    let cancelled = false;
     fetch(selectedVoice.syncmapUrl)
       .then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.json();
       })
       .then((data: Fragment[]) => {
+        if (cancelled) return;
         setFragments(data);
         setSyncmapAvailable(true);
         setLoading(false);
       })
       .catch(() => {
+        if (cancelled) return;
         setSyncmapAvailable(false);
         setLoading(false);
       });
+    return () => {
+      cancelled = true;
+    };
   }, [selectedVoice]);
 
   // Reset player state when voice changes
@@ -153,6 +117,9 @@ export default function VoiceSamplesDemo() {
     setCurrentTime(0);
     setDuration(0);
     setActiveIndex(-1);
+    setFragments([]);
+    setSyncmapAvailable(false);
+    setLoading(true);
     setSelectedVoice(voice);
   };
 
@@ -322,7 +289,7 @@ export default function VoiceSamplesDemo() {
             </h1>
             <p className="text-white/60 text-sm mt-1">by Elliot Liebow</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
-              Voice Sample Comparison
+              Conclusion Chapter Sample
             </p>
           </div>
         </div>
@@ -355,7 +322,7 @@ export default function VoiceSamplesDemo() {
               <p className="text-white/50 text-xs truncate">
                 Elliot Liebow &middot;{" "}
                 <span className="italic font-[family-name:var(--font-garamond)]">
-                  Voice Sample Comparison
+                  Conclusion Chapter Sample
                 </span>
               </p>
             </div>
@@ -446,7 +413,7 @@ export default function VoiceSamplesDemo() {
       {/* Text area */}
       <main className="max-w-2xl mx-auto px-6 py-10">
         <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10">
-          Sample
+          Conclusion
         </h2>
         {loading ? (
           <p className="text-[#2c1810]/30 text-sm uppercase tracking-widest text-center">
