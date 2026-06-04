@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 
 interface Fragment {
@@ -69,6 +69,10 @@ const SAMPLE_TEXT: string[][] = [
     "Thus the men talked of themselves as exploiters and users of women. But talk is cheap.",
   ],
 ];
+
+const NARRATOR_PARAGRAPHS = new Set([
+  8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 22, 24, 26, 44, 47, 49, 52, 61,
+]);
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -274,6 +278,17 @@ export default function VoiceSamplesDemo() {
   const syncmapDuration = fragments.at(-1)?.end ?? 0;
   const visibleDuration = duration || syncmapDuration;
   const progress = visibleDuration ? (currentTime / visibleDuration) * 100 : 0;
+  const narratorRanges = useMemo(() => {
+    if (!visibleDuration) return [];
+    return fragments
+      .filter((fragment) => NARRATOR_PARAGRAPHS.has(fragment.paragraph))
+      .map((fragment) => ({
+        id: fragment.id,
+        left: (fragment.begin / visibleDuration) * 100,
+        width: ((fragment.end - fragment.begin) / visibleDuration) * 100,
+      }))
+      .filter((range) => range.width > 0);
+  }, [fragments, visibleDuration]);
 
   // Group fragments by paragraph
   const paragraphs: Fragment[][] = [];
@@ -397,12 +412,22 @@ export default function VoiceSamplesDemo() {
           >
             <div className="w-full h-2 bg-white/15 rounded-full relative">
               <div
-                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none"
+                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none z-10"
                 style={{
                   width: `${progress}%`,
                   transition: dragging ? "none" : "width 0.1s",
                 }}
               />
+              {narratorRanges.map((range) => (
+                <div
+                  key={range.id}
+                  className="absolute inset-y-0 bg-[#7fb7ad] pointer-events-none z-20"
+                  style={{
+                    left: `${range.left}%`,
+                    width: `${range.width}%`,
+                  }}
+                />
+              ))}
             </div>
             <div
               className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
