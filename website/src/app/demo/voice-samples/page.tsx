@@ -34,15 +34,15 @@ const VOICES: Voice[] = [
 // Fallback text if syncmap hasn't loaded yet.
 const SAMPLE_TEXT: string[][] = [
   [
-    "CONCLUSION",
+    "LOVERS AND EXPLOITERS",
   ],
   [
-    "This study has been primarily concerned with the inside world of the street corner Negro man, the world of daily, face to face relationships with wives, children, friends, lovers, kinsmen and neighbors.",
-    "An attempt was made to see the man as he sees himself, to compare what he says with what he does, and to explain his behavior as a direct response to the conditions of lower class Negro life rather than as mute compliance with historical or cultural imperatives.",
+    "Men and women talk of themselves and others as cynical, self serving marauders, ceaselessly exploiting one another as use objects or objects of income.",
+    "But more often, the men prefer to see themselves as the exploiters, the women as the exploited.",
   ],
   [
-    "This inside world does not appear as a self-contained, self-generating, self-sustaining system or even subsystem with clear boundaries marking it off from the larger world around it.",
-    "It is in continuous, intimate contact with the larger society-indeed, integral part of it-and is no more impervious to the values, sentiments and beliefs of the larger society than it is to the blue welfare checks or to the agents of the larger society, such as the policeman, the police informer, the case worker, the landlord, the dope pusher, the Tupperware demonstrator, the numbers backer or the anthropologist.",
+    "Men saw themselves as users of women as sex objects as well as objects of income.",
+    "Thus the men talked of themselves as exploiters and users of women. But talk is cheap.",
   ],
 ];
 
@@ -155,8 +155,16 @@ export default function VoiceSamplesDemo() {
 
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
-      setDuration(audioRef.current.duration);
+      if (Number.isFinite(audioRef.current.duration)) {
+        setDuration(audioRef.current.duration);
+      }
       audioRef.current.playbackRate = playbackRate;
+    }
+  };
+
+  const handleDurationChange = () => {
+    if (audioRef.current && Number.isFinite(audioRef.current.duration)) {
+      setDuration(audioRef.current.duration);
     }
   };
 
@@ -239,7 +247,9 @@ export default function VoiceSamplesDemo() {
     }
   }, [activeIndex]);
 
-  const progress = duration ? (currentTime / duration) * 100 : 0;
+  const syncmapDuration = fragments.at(-1)?.end ?? 0;
+  const visibleDuration = duration || syncmapDuration;
+  const progress = visibleDuration ? (currentTime / visibleDuration) * 100 : 0;
 
   // Group fragments by paragraph
   const paragraphs: Fragment[][] = [];
@@ -266,6 +276,7 @@ export default function VoiceSamplesDemo() {
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onDurationChange={handleDurationChange}
         onEnded={handleEnded}
       />
 
@@ -289,7 +300,7 @@ export default function VoiceSamplesDemo() {
             </h1>
             <p className="text-white/60 text-sm mt-1">by Elliot Liebow</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
-              Conclusion Chapter Sample
+              Lovers and Exploiters Sample
             </p>
           </div>
         </div>
@@ -322,7 +333,7 @@ export default function VoiceSamplesDemo() {
               <p className="text-white/50 text-xs truncate">
                 Elliot Liebow &middot;{" "}
                 <span className="italic font-[family-name:var(--font-garamond)]">
-                  Conclusion Chapter Sample
+                  Lovers and Exploiters Sample
                 </span>
               </p>
             </div>
@@ -375,7 +386,7 @@ export default function VoiceSamplesDemo() {
             />
           </div>
           <span className="text-xs text-white/50 tabular-nums w-10 flex-shrink-0">
-            {formatTime(duration)}
+            {formatTime(visibleDuration)}
           </span>
 
           {/* Playback speed */}
@@ -413,7 +424,7 @@ export default function VoiceSamplesDemo() {
       {/* Text area */}
       <main className="max-w-2xl mx-auto px-6 py-10">
         <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10">
-          Conclusion
+          Lovers and Exploiters
         </h2>
         {loading ? (
           <p className="text-[#2c1810]/30 text-sm uppercase tracking-widest text-center">
