@@ -29,6 +29,30 @@ const VOICES: Voice[] = [
     audioUrl: "/demo-data/voice-samples/voice-sample-hank.mp3",
     syncmapUrl: "/demo-data/voice-samples/hank-syncmap.json",
   },
+  {
+    id: "mark",
+    label: "Mark",
+    audioUrl: "/demo-data/voice-samples/voice-sample-mark.mp3",
+    syncmapUrl: "/demo-data/voice-samples/mark-syncmap.json",
+  },
+  {
+    id: "ash",
+    label: "Ash",
+    audioUrl: "/demo-data/voice-samples/voice-sample-ash.mp3",
+    syncmapUrl: "/demo-data/voice-samples/ash-syncmap.json",
+  },
+  {
+    id: "brian",
+    label: "Brian",
+    audioUrl: "/demo-data/voice-samples/voice-sample-brian.mp3",
+    syncmapUrl: "/demo-data/voice-samples/brian-syncmap.json",
+  },
+  {
+    id: "roger",
+    label: "Roger",
+    audioUrl: "/demo-data/voice-samples/voice-sample-roger.mp3",
+    syncmapUrl: "/demo-data/voice-samples/roger-syncmap.json",
+  },
 ];
 
 // Fallback text if syncmap hasn't loaded yet.
