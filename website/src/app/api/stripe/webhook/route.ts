@@ -42,11 +42,30 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case "checkout.session.expired": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.mode === "subscription" && session.customer) {
+        const customerId =
+          typeof session.customer === "string"
+            ? session.customer
+            : session.customer.id;
+        await deletePendingUserForCustomer(admin, customerId);
+      }
+      break;
+    }
+
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription;
       await upsertSubscription(admin, subscription);
+      if (subscription.status === "incomplete_expired") {
+        const customerId =
+          typeof subscription.customer === "string"
+            ? subscription.customer
+            : subscription.customer.id;
+        await deletePendingUserForCustomer(admin, customerId);
+      }
       break;
     }
   }
@@ -96,5 +115,46 @@ async function upsertSubscription(
 
   if (error) {
     console.error("Error upserting subscription:", error);
+  }
+
+  if (subscription.status === "active" || subscription.status === "trialing") {
+    const { data: authUser } = await admin.auth.admin.getUserById(profile.id);
+    await admin.auth.admin.updateUserById(profile.id, {
+      user_metadata: {
+        ...(authUser.user?.user_metadata ?? {}),
+        pending_payment: false,
+      },
+    });
+  }
+}
+
+async function deletePendingUserForCustomer(
+  admin: ReturnType<typeof createAdminClient>,
+  customerId: string
+) {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("stripe_customer_id", customerId)
+    .single();
+
+  if (!profile) return;
+
+  const { data: activeSubscription } = await admin
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", profile.id)
+    .in("status", ["active", "trialing"])
+    .single();
+
+  if (activeSubscription) return;
+
+  const { data: authUser } = await admin.auth.admin.getUserById(profile.id);
+
+  if (authUser.user?.user_metadata?.pending_payment === true) {
+    const { error } = await admin.auth.admin.deleteUser(profile.id);
+    if (error) {
+      console.error("Error deleting pending unpaid user:", error);
+    }
   }
 }

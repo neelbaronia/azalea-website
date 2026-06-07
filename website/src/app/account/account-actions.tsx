@@ -40,7 +40,7 @@ export default function AccountActions({
         <button
           onClick={handleManageSubscription}
           disabled={loading}
-          className="w-full py-3 bg-black text-white rounded-lg text-sm font-semibold font-[family-name:var(--font-geist-sans)] hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="h-[56px] w-full rounded-xl bg-black px-5 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(0,0,0,0.14)] transition-colors hover:bg-gray-800 disabled:opacity-50 font-[family-name:var(--font-geist-sans)]"
         >
           {loading ? "Loading..." : "Manage Subscription"}
         </button>
@@ -49,7 +49,7 @@ export default function AccountActions({
       {!isActive && (
         <Link
           href="/subscribe"
-          className="block w-full py-3 bg-black text-white rounded-lg text-sm font-semibold text-center font-[family-name:var(--font-geist-sans)] hover:bg-gray-800 transition-colors"
+          className="flex h-[56px] w-full items-center justify-center rounded-xl bg-[#1f6b4e] px-5 text-center text-sm font-semibold text-white shadow-[0_16px_42px_rgba(31,107,78,0.18)] transition-colors hover:bg-[#184f3a] font-[family-name:var(--font-geist-sans)]"
         >
           Subscribe Now
         </Link>
@@ -57,7 +57,7 @@ export default function AccountActions({
 
       <button
         onClick={handleSignOut}
-        className="w-full py-3 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 font-[family-name:var(--font-geist-sans)] hover:bg-gray-50 transition-colors"
+        className="h-[56px] w-full rounded-xl border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 font-[family-name:var(--font-geist-sans)]"
       >
         Sign Out
       </button>
