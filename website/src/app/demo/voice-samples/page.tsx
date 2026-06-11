@@ -11,49 +11,11 @@ interface Fragment {
   paragraph: number;
 }
 
-interface Voice {
-  id: string;
-  label: string;
-  audioUrl: string;
-  syncmapUrl: string;
-}
-
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
 const COVER_URL = `${R2_BASE}/cover.png`;
-
-const VOICES: Voice[] = [
-  {
-    id: "hank",
-    label: "Hank",
-    audioUrl: "/demo-data/voice-samples/voice-sample-hank.mp3",
-    syncmapUrl: "/demo-data/voice-samples/hank-syncmap.json",
-  },
-  {
-    id: "mark",
-    label: "Mark",
-    audioUrl: "/demo-data/voice-samples/voice-sample-mark.mp3",
-    syncmapUrl: "/demo-data/voice-samples/mark-syncmap.json",
-  },
-  {
-    id: "ash",
-    label: "Ash",
-    audioUrl: "/demo-data/voice-samples/voice-sample-ash.mp3",
-    syncmapUrl: "/demo-data/voice-samples/ash-syncmap.json",
-  },
-  {
-    id: "brian",
-    label: "Brian",
-    audioUrl: "/demo-data/voice-samples/voice-sample-brian.mp3",
-    syncmapUrl: "/demo-data/voice-samples/brian-syncmap.json",
-  },
-  {
-    id: "roger",
-    label: "Roger",
-    audioUrl: "/demo-data/voice-samples/voice-sample-roger.mp3",
-    syncmapUrl: "/demo-data/voice-samples/roger-syncmap.json",
-  },
-];
+const ASH_AUDIO_URL = "/demo-data/voice-samples/voice-sample-ash.mp3";
+const ASH_SYNCMAP_URL = "/demo-data/voice-samples/ash-syncmap.json";
 
 // Fallback text if syncmap hasn't loaded yet.
 const SAMPLE_TEXT: string[][] = [
@@ -85,7 +47,6 @@ export default function VoiceSamplesDemo() {
   const activeRef = useRef<HTMLSpanElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);
 
-  const [selectedVoice, setSelectedVoice] = useState<Voice>(VOICES[0]);
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -113,7 +74,7 @@ export default function VoiceSamplesDemo() {
   // Load sync map when voice changes
   useEffect(() => {
     let cancelled = false;
-    fetch(selectedVoice.syncmapUrl)
+    fetch(ASH_SYNCMAP_URL)
       .then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.json();
@@ -132,24 +93,7 @@ export default function VoiceSamplesDemo() {
     return () => {
       cancelled = true;
     };
-  }, [selectedVoice]);
-
-  // Reset player state when voice changes
-  const handleVoiceChange = (voiceId: string) => {
-    const voice = VOICES.find((v) => v.id === voiceId);
-    if (!voice) return;
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setPlaying(false);
-    setCurrentTime(0);
-    setDuration(0);
-    setActiveIndex(-1);
-    setFragments([]);
-    setSyncmapAvailable(false);
-    setLoading(true);
-    setSelectedVoice(voice);
-  };
+  }, []);
 
   // Find active fragment via binary search
   const findActiveIndex = useCallback(
@@ -310,8 +254,7 @@ export default function VoiceSamplesDemo() {
     <div className="min-h-screen bg-[#faf8f1]">
       <audio
         ref={audioRef}
-        key={selectedVoice.id}
-        src={selectedVoice.audioUrl}
+        src={ASH_AUDIO_URL}
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -340,6 +283,9 @@ export default function VoiceSamplesDemo() {
             <p className="text-white/60 text-sm mt-1">by Elliot Liebow</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
               Lovers and Exploiters Sample
+            </p>
+            <p className="text-amber-300/80 text-xs font-bold uppercase tracking-[0.18em] mt-3">
+              Narrated by ASH
             </p>
           </div>
         </div>
@@ -375,11 +321,14 @@ export default function VoiceSamplesDemo() {
                   Lovers and Exploiters Sample
                 </span>
               </p>
+              <p className="text-amber-300/70 text-[10px] font-bold uppercase tracking-[0.15em] mt-1">
+                ASH
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Voice selector + player controls */}
+        {/* Player controls */}
         <div className="max-w-2xl mx-auto px-6 py-3 flex items-center gap-4">
           {/* Play/pause */}
           <button
@@ -446,28 +395,6 @@ export default function VoiceSamplesDemo() {
             {playbackRate}x
           </button>
         </div>
-
-        {/* Voice dropdown */}
-        {VOICES.length > 1 && (
-          <div className="max-w-2xl mx-auto px-6 pb-3">
-            <div className="flex items-center gap-3">
-              <label className="text-white/50 text-xs font-bold uppercase tracking-wider">
-                Voice
-              </label>
-              <select
-                value={selectedVoice.id}
-                onChange={(e) => handleVoiceChange(e.target.value)}
-                className="bg-white/10 text-white text-sm rounded-lg px-3 py-1.5 border border-white/20 focus:outline-none focus:border-amber-400/50 cursor-pointer"
-              >
-                {VOICES.map((voice) => (
-                  <option key={voice.id} value={voice.id} className="bg-[#2c1810] text-white">
-                    {voice.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Text area */}
