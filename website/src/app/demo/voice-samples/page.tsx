@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
 interface Fragment {
@@ -31,10 +31,6 @@ const SAMPLE_TEXT: string[][] = [
     "Thus the men talked of themselves as exploiters and users of women. But talk is cheap.",
   ],
 ];
-
-const NARRATOR_PARAGRAPHS = new Set([
-  8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 22, 24, 26, 44, 47, 49, 52, 61,
-]);
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -222,17 +218,6 @@ export default function VoiceSamplesDemo() {
   const syncmapDuration = fragments.at(-1)?.end ?? 0;
   const visibleDuration = duration || syncmapDuration;
   const progress = visibleDuration ? (currentTime / visibleDuration) * 100 : 0;
-  const narratorRanges = useMemo(() => {
-    if (!visibleDuration) return [];
-    return fragments
-      .filter((fragment) => NARRATOR_PARAGRAPHS.has(fragment.paragraph))
-      .map((fragment) => ({
-        id: fragment.id,
-        left: (fragment.begin / visibleDuration) * 100,
-        width: ((fragment.end - fragment.begin) / visibleDuration) * 100,
-      }))
-      .filter((range) => range.width > 0);
-  }, [fragments, visibleDuration]);
 
   // Group fragments by paragraph
   const paragraphs: Fragment[][] = [];
@@ -367,16 +352,6 @@ export default function VoiceSamplesDemo() {
                   transition: dragging ? "none" : "width 0.1s",
                 }}
               />
-              {narratorRanges.map((range) => (
-                <div
-                  key={range.id}
-                  className="absolute inset-y-0 bg-[#7fb7ad] pointer-events-none z-20"
-                  style={{
-                    left: `${range.left}%`,
-                    width: `${range.width}%`,
-                  }}
-                />
-              ))}
             </div>
             <div
               className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
@@ -399,9 +374,6 @@ export default function VoiceSamplesDemo() {
 
       {/* Text area */}
       <main className="max-w-2xl mx-auto px-6 py-10">
-        <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10">
-          Lovers and Exploiters
-        </h2>
         {loading ? (
           <p className="text-[#2c1810]/30 text-sm uppercase tracking-widest text-center">
             Loading...
@@ -411,7 +383,11 @@ export default function VoiceSamplesDemo() {
             {paragraphs.map((para, pIdx) => (
               <p
                 key={pIdx}
-                className="text-lg md:text-xl leading-relaxed font-[family-name:var(--font-garamond)] text-[#2c1810]/70"
+                className={
+                  pIdx === 0
+                    ? "text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10"
+                    : "text-lg md:text-xl leading-relaxed font-[family-name:var(--font-garamond)] text-[#2c1810]/70"
+                }
               >
                 {para.map((frag) => {
                   const isActive = frag.id === activeIndex;
@@ -439,7 +415,11 @@ export default function VoiceSamplesDemo() {
             {SAMPLE_TEXT.map((para, pIdx) => (
               <p
                 key={pIdx}
-                className="text-lg md:text-xl leading-relaxed font-[family-name:var(--font-garamond)] text-[#2c1810]/70"
+                className={
+                  pIdx === 0
+                    ? "text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10"
+                    : "text-lg md:text-xl leading-relaxed font-[family-name:var(--font-garamond)] text-[#2c1810]/70"
+                }
               >
                 {para.map((sentence, sIdx) => (
                   <span key={sIdx}>{sentence} </span>
