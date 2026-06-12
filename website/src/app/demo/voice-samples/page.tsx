@@ -14,8 +14,9 @@ interface Fragment {
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
 const COVER_URL = `${R2_BASE}/cover.png`;
-const ASH_AUDIO_URL = "/demo-data/voice-samples/voice-sample-ash-20260611-v7-ash.mp3";
-const ASH_SYNCMAP_URL = "/demo-data/voice-samples/ash-20260611-v7-syncmap.json";
+const ASH_AUDIO_URL = "/demo-data/voice-samples/voice-sample-ash-20260612-v8-ash.mp3";
+const ASH_SYNCMAP_URL = "/demo-data/voice-samples/ash-20260612-v8-syncmap.json";
+const DEFAULT_PLAYBACK_RATE = 1.25;
 const AAVE_MALE_DIALOGUE_PARAGRAPHS = new Set([
   8, 10, 12, 13, 15, 17, 19, 22, 24, 26, 44, 47, 49, 52, 61,
 ]);
@@ -55,7 +56,7 @@ export default function VoiceSamplesDemo() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [syncmapAvailable, setSyncmapAvailable] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [playbackRate, setPlaybackRate] = useState(DEFAULT_PLAYBACK_RATE);
   const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
