@@ -127,12 +127,25 @@ export default function VoiceSamplesDemo() {
   };
 
   const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      if (Number.isFinite(audioRef.current.duration)) {
-        setDuration(audioRef.current.duration);
-      }
-      audioRef.current.playbackRate = playbackRate;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.playbackRate = playbackRate;
+    if (Number.isFinite(audio.duration)) {
+      setDuration(audio.duration);
+      return;
     }
+    // Chrome reports Infinity for some streamed MP3s (e.g. concat-encoded files
+    // whose header lacks a seek table) until fully buffered. Nudge currentTime
+    // to the end to force the real duration to resolve, then snap back to 0.
+    const resolve = () => {
+      if (Number.isFinite(audio.duration)) {
+        audio.removeEventListener("durationchange", resolve);
+        setDuration(audio.duration);
+        audio.currentTime = 0;
+      }
+    };
+    audio.addEventListener("durationchange", resolve);
+    audio.currentTime = 1e101;
   };
 
   const handleDurationChange = () => {
@@ -168,10 +181,13 @@ export default function VoiceSamplesDemo() {
   // Seek bar
   const seekFromClientX = (clientX: number) => {
     const bar = seekBarRef.current;
-    if (!bar || !audioRef.current || !duration) return;
+    // Fall back to the syncmap's end time so scrubbing works even while the
+    // audio element still reports an unresolved (Infinity) duration.
+    const seekDuration = duration || (fragments.at(-1)?.end ?? 0);
+    if (!bar || !audioRef.current || !seekDuration) return;
     const rect = bar.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    audioRef.current.currentTime = pct * duration;
+    audioRef.current.currentTime = pct * seekDuration;
   };
 
   const handleSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
