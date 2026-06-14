@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ASH Voice Sample — Tally's Corner | Azalea Labs Demo",
+  title: "Voice Samples — Tally's Corner | Azalea Labs Demo",
   description:
-    "Listen to ASH narrate Lovers and Exploiters from Tally's Corner with synchronized text highlighting.",
+    "Compare narration voices for Lovers and Exploiters from Tally's Corner with synchronized text highlighting.",
 };
 
 export default function VoiceSamplesLayout({
