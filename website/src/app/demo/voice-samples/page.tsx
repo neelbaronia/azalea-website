@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 
 interface Fragment {
@@ -21,7 +21,13 @@ interface Voice {
 const R2_BASE =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
 const COVER_URL = `${R2_BASE}/cover.png`;
-const DEFAULT_PLAYBACK_RATE = 1.0;
+const DEFAULT_PLAYBACK_RATE = 1.25;
+// Dialogue paragraphs are the same across every voice's sync map (same text),
+// so these markers line up regardless of which voice is selected.
+const AAVE_MALE_DIALOGUE_PARAGRAPHS = new Set([
+  8, 10, 12, 13, 15, 17, 19, 22, 24, 26, 44, 47, 49, 52, 61,
+]);
+const AAVE_FEMALE_DIALOGUE_PARAGRAPHS = new Set([9, 11, 16, 18]);
 
 // All voices narrate the same "Lovers and Exploiters" passage, so the
 // comparison is apples-to-apples.
@@ -293,6 +299,27 @@ export default function VoiceSamplesDemo() {
   const syncmapDuration = fragments.at(-1)?.end ?? 0;
   const visibleDuration = duration || syncmapDuration;
   const progress = visibleDuration ? (currentTime / visibleDuration) * 100 : 0;
+  const dialogueRanges = useMemo(() => {
+    if (!visibleDuration) return [];
+    return fragments
+      .map((fragment) => {
+        const type = AAVE_MALE_DIALOGUE_PARAGRAPHS.has(fragment.paragraph)
+          ? "male"
+          : AAVE_FEMALE_DIALOGUE_PARAGRAPHS.has(fragment.paragraph)
+            ? "female"
+            : null;
+        if (!type) return null;
+        return {
+          id: fragment.id,
+          type,
+          left: (fragment.begin / visibleDuration) * 100,
+          width: ((fragment.end - fragment.begin) / visibleDuration) * 100,
+        };
+      })
+      .filter((range): range is { id: number; type: "male" | "female"; left: number; width: number } => {
+        return !!range && range.width > 0;
+      });
+  }, [fragments, visibleDuration]);
 
   // Group fragments by paragraph
   const paragraphs: Fragment[][] = [];
@@ -422,12 +449,23 @@ export default function VoiceSamplesDemo() {
           >
             <div className="w-full h-2 bg-white/15 rounded-full relative">
               <div
-                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none"
+                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none z-10"
                 style={{
                   width: `${progress}%`,
                   transition: dragging ? "none" : "width 0.1s",
                 }}
               />
+              {dialogueRanges.map((range) => (
+                <div
+                  key={range.id}
+                  className="absolute inset-y-0 pointer-events-none z-20"
+                  style={{
+                    left: `${range.left}%`,
+                    width: `${range.width}%`,
+                    backgroundColor: range.type === "male" ? "#7fb7ad" : "#d99078",
+                  }}
+                />
+              ))}
             </div>
             <div
               className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
