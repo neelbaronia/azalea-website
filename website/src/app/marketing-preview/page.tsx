@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 
 const MARKETING_BASE =
@@ -175,18 +175,6 @@ function DesktopFrame({ p }: { p: Platform }) {
 }
 
 export default function MarketingPreview() {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  const copyCaption = async (p: Platform) => {
-    try {
-      await navigator.clipboard.writeText(p.caption);
-      setCopiedId(p.id);
-      setTimeout(() => setCopiedId((c) => (c === p.id ? null : c)), 1800);
-    } catch {
-      /* clipboard unavailable — no-op */
-    }
-  };
-
   const phones = PLATFORMS.filter((p) => p.device === "phone");
   const desktops = PLATFORMS.filter((p) => p.device === "desktop");
 
@@ -195,21 +183,6 @@ export default function MarketingPreview() {
       <p className="text-[#2c1810]/75 text-sm leading-relaxed whitespace-pre-line">
         {p.caption}
       </p>
-      <div className="mt-auto flex items-center gap-3 pt-1">
-        <button
-          onClick={() => copyCaption(p)}
-          className="px-3 py-1.5 rounded-lg bg-[#2c1810] text-white text-xs font-bold hover:bg-[#2c1810]/85 transition-colors"
-        >
-          {copiedId === p.id ? "Copied ✓" : "Copy caption"}
-        </button>
-        <a
-          href={clipUrl(p.id)}
-          download
-          className="px-3 py-1.5 rounded-lg bg-[#2c1810]/5 text-[#2c1810]/70 text-xs font-bold hover:bg-[#2c1810]/10 transition-colors"
-        >
-          Download clip
-        </a>
-      </div>
     </div>
   );
 
@@ -244,7 +217,7 @@ export default function MarketingPreview() {
             </h1>
             <p className="text-white/60 text-sm mt-1">by Jonathan Green</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
-              Promo clips &amp; captions, previewed in-device per platform
+              Demo-only preview of platform placements, shown in-device
             </p>
             <a
               href={SPOTIFY_URL}
@@ -264,11 +237,11 @@ export default function MarketingPreview() {
         <h2 className="text-[#2c1810]/50 text-xs font-bold uppercase tracking-[0.2em] mb-5">
           Mobile
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
+        <div className="grid gap-6 items-start xl:grid-cols-4">
           {phones.map((p) => (
             <article
               key={p.id}
-              className="bg-white rounded-2xl shadow-sm border border-[#2c1810]/10 overflow-hidden flex flex-col"
+              className="bg-white rounded-2xl shadow-sm border border-[#2c1810]/10 overflow-hidden flex flex-col min-w-0"
             >
               <CardHeader p={p} />
               <div className="px-5 py-4 bg-[#faf8f1]/60">
@@ -302,8 +275,7 @@ export default function MarketingPreview() {
       {/* Footer */}
       <footer className="bg-[#2c1810] text-white/40 text-center py-8 text-xs">
         <p>
-          &copy; {new Date().getFullYear()} Azalea Labs &middot; Marketing preview
-          for internal review
+          &copy; {new Date().getFullYear()} Azalea Labs &middot; Demo preview only
         </p>
       </footer>
     </div>
