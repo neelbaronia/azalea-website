@@ -22,6 +22,9 @@ const dashboardItems = [
   { title: "Project Hail Mary", stat: "6,200 hrs" },
   { title: "Dune", stat: "4,100 hrs" },
 ];
+const ELEVENLABS_GRANTS_URL = "https://elevenlabs.io/startup-grants";
+const ELEVENLABS_GRANTS_LOGO_URL =
+  "https://eleven-public-cdn.elevenlabs.io/payloadcms/cy7rxce8uki-IIElevenLabsGrants%201.webp";
 
 function WaveformVisual() {
   return (
@@ -706,6 +709,26 @@ export default function PublisherView() {
           <div className="space-y-2">
             <p className="text-white font-bold text-sm uppercase tracking-[0.3em]">Azalea Labs</p>
             <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Azalea Labs. All rights reserved.</p>
+            <div className="pt-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/35">
+                Supported by ElevenLabs Grants
+              </p>
+              <a
+                href={ELEVENLABS_GRANTS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex opacity-85 transition-opacity hover:opacity-100"
+                aria-label="Supported by ElevenLabs Grants"
+              >
+                <Image
+                  src={ELEVENLABS_GRANTS_LOGO_URL}
+                  alt="ElevenLabs Grants"
+                  width={250}
+                  height={48}
+                  className="h-auto w-[170px] md:w-[190px]"
+                />
+              </a>
+            </div>
           </div>
           <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
             <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
