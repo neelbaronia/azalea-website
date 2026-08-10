@@ -1,6 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [
+            {
+              type: "host",
+              value: "publishing.azalea-labs.com",
+            },
+          ],
+          destination: "/publishing",
+        },
+      ],
+    };
+  },
   images: {
     remotePatterns: [
       {
