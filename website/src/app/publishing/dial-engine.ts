@@ -13,21 +13,21 @@ const PALETTE = [
 ] as const;
 
 const LANGUAGES = [
-  { label: "AZALEA LABS", colour: 0, ink: "#ffffff" },
-  { label: "LABORATORIOS AZALEA", colour: 2, ink: "#ffffff" },
-  { label: "阿泽利亚实验室", colour: 3, ink: "#10100f" },
-  { label: "مختبرات أزاليا", colour: 5, ink: "#ffffff" },
-  { label: "अज़ेलिया लैब्स", colour: 9, ink: "#10100f" },
-  { label: "LABORATOIRES AZALEA", colour: 1, ink: "#10100f" },
-  { label: "アザレア・ラボ", colour: 4, ink: "#ffffff" },
-  { label: "아잘레아 랩스", colour: 6, ink: "#10100f" },
-  { label: "ЛАБОРАТОРИЯ АЗАЛИЯ", colour: 8, ink: "#ffffff" },
-  { label: "LABORATÓRIOS AZALEA", colour: 7, ink: "#10100f" },
-  { label: "ΕΡΓΑΣΤΗΡΙΑ ΑΖΑΛΕΑ", colour: 10, ink: "#10100f" },
-  { label: "מעבדות אזליה", colour: 2, ink: "#ffffff" },
-  { label: "LABORATORI AZALEA", colour: 3, ink: "#10100f" },
-  { label: "আজালিয়া ল্যাবস", colour: 5, ink: "#ffffff" },
-  { label: "AZALEA LABORE", colour: 1, ink: "#10100f" },
+  { label: "AZALEA LABS", colour: 0, ink: "#ffffff", logoSide: "left" },
+  { label: "LABORATORIOS AZALEA", colour: 2, ink: "#ffffff", logoSide: "left" },
+  { label: "阿泽利亚实验室", colour: 3, ink: "#10100f", logoSide: "left" },
+  { label: "مختبرات أزاليا", colour: 5, ink: "#ffffff", logoSide: "right" },
+  { label: "अज़ेलिया लैब्स", colour: 9, ink: "#10100f", logoSide: "left" },
+  { label: "LABORATOIRES AZALEA", colour: 1, ink: "#10100f", logoSide: "left" },
+  { label: "アザレア・ラボ", colour: 4, ink: "#ffffff", logoSide: "left" },
+  { label: "아잘레아 랩스", colour: 6, ink: "#10100f", logoSide: "left" },
+  { label: "ЛАБОРАТОРИЯ АЗАЛИЯ", colour: 8, ink: "#ffffff", logoSide: "left" },
+  { label: "LABORATÓRIOS AZALEA", colour: 7, ink: "#10100f", logoSide: "left" },
+  { label: "ΕΡΓΑΣΤΗΡΙΑ ΑΖΑΛΕΑ", colour: 10, ink: "#10100f", logoSide: "left" },
+  { label: "מעבדות אזליה", colour: 2, ink: "#ffffff", logoSide: "left" },
+  { label: "LABORATORI AZALEA", colour: 3, ink: "#10100f", logoSide: "left" },
+  { label: "আজালিয়া ল্যাবস", colour: 5, ink: "#ffffff", logoSide: "left" },
+  { label: "AZALEA LABORE", colour: 1, ink: "#10100f", logoSide: "left" },
 ] as const;
 
 export type DialSettings = {
@@ -216,6 +216,7 @@ export class Datamosh {
   private drawLabel(
     label: string,
     ink: string,
+    logoSide: "left" | "right",
     left: number,
     width: number,
     top: number,
@@ -251,7 +252,8 @@ export class Datamosh {
     ctx.rect(left, top, width, height);
     ctx.clip();
     ctx.fillStyle = ink;
-    ctx.textAlign = "left";
+    ctx.textAlign = logoSide === "right" ? "right" : "left";
+    ctx.direction = logoSide === "right" ? "rtl" : "ltr";
     ctx.textBaseline = "middle";
     ctx.font = `800 ${baseSize}px ${family}`;
 
@@ -259,8 +261,18 @@ export class Datamosh {
     const rightInset = this.width * 0.06;
     const logoSize = baseSize * 0.82;
     const logoGap = baseSize * 0.3;
-    const textLeft = lockupLeft + logoSize + logoGap;
-    const maxTextWidth = this.width - textLeft - rightInset;
+    const logoLeft =
+      logoSide === "right"
+        ? this.width - rightInset - logoSize
+        : lockupLeft;
+    const textEdge =
+      logoSide === "right"
+        ? logoLeft - logoGap
+        : logoLeft + logoSize + logoGap;
+    const maxTextWidth =
+      logoSide === "right"
+        ? textEdge - lockupLeft
+        : this.width - textEdge - rightInset;
     let fontSize = baseSize;
     const textWidth = ctx.measureText(label).width;
     if (textWidth > maxTextWidth) {
@@ -276,7 +288,7 @@ export class Datamosh {
       if (mask) {
         ctx.drawImage(
           mask,
-          lockupLeft,
+          logoLeft,
           -logoSize / 2,
           logoSize,
           logoSize,
@@ -284,7 +296,7 @@ export class Datamosh {
       }
     }
 
-    ctx.fillText(label, textLeft, 0);
+    ctx.fillText(label, textEdge, 0);
     ctx.restore();
   }
 
@@ -325,6 +337,7 @@ export class Datamosh {
         this.drawLabel(
           language.label,
           language.ink,
+          language.logoSide,
           left,
           columnWidth,
           top,
