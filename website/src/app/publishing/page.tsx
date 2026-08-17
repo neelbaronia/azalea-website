@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import DialHero from "./DialHero";
 import WorldMap from "./WorldMap";
 import styles from "./publishing.module.css";
@@ -14,46 +12,18 @@ export const metadata: Metadata = {
 export default function PublishingPage() {
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link
-          className={styles.wordmark}
-          href="/publishing"
-          aria-label="Azalea Publishing home"
-        >
-          <span className={styles.logo}>
-            <Image
-              src="/azalea-icon.webp"
-              alt=""
-              width={44}
-              height={44}
-              priority
-              unoptimized
-            />
-          </span>
-          <span>
-            Azalea
-            <br />
-            Publishing
-          </span>
-        </Link>
-
-        <span className={styles.headerLabel}>Print · Ebook · Translation</span>
-
-        <a className={styles.contactButton} href="mailto:neel@azalea-labs.com">
-          Get in touch
-        </a>
-      </header>
-
       <section
         className={styles.dialIntro}
         data-dial-stage
         aria-label="Azalea Publishing in languages from around the world"
       >
         <div className={styles.dialViewport}>
-          <DialHero />
-          <div className={styles.dialCaption} aria-hidden="true">
-            <span>Publishing across languages, formats, and borders</span>
-            <span>Scroll to explore ↓</span>
+          <div className={styles.dialFrame}>
+            <DialHero />
+            <div className={styles.dialCaption} aria-hidden="true">
+              <span>Publishing across languages, formats, and borders</span>
+              <span>Scroll to explore ↓</span>
+            </div>
           </div>
         </div>
       </section>
