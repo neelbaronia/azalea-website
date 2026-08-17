@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import DialHero from "./DialHero";
+import Image from "next/image";
+import Link from "next/link";
 import WorldMap from "./WorldMap";
 import styles from "./publishing.module.css";
 
@@ -12,56 +13,68 @@ export const metadata: Metadata = {
 export default function PublishingPage() {
   return (
     <main className={styles.page}>
-      <section
-        className={styles.dialIntro}
-        data-dial-stage
-        aria-label="Azalea Publishing in languages from around the world"
-      >
-        <div className={styles.dialViewport}>
-          <div className={styles.dialFrame}>
-            <DialHero />
-            <div className={styles.dialCaption} aria-hidden="true">
-              <span>Publishing across languages, formats, and borders</span>
-              <span>Scroll to explore ↓</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <header className={styles.header}>
+        <Link
+          className={styles.wordmark}
+          href="/publishing"
+          aria-label="Azalea Publishing home"
+        >
+          <span className={styles.logo}>
+            <Image
+              src="/azalea-icon.webp"
+              alt=""
+              width={44}
+              height={44}
+              priority
+              unoptimized
+            />
+          </span>
+          <span>
+            Azalea
+            <br />
+            Publishing
+          </span>
+        </Link>
 
-      <section className={styles.story} aria-labelledby="publishing-title">
-        <div className={styles.hero}>
-          <div className={styles.heroTitle}>
-            <p>Full-stack publishing</p>
-            <h1 id="publishing-title">
-              Books from
+        <span className={styles.headerLabel}>Print · Ebook · Translation</span>
+
+        <a className={styles.contactButton} href="mailto:neel@azalea-labs.com">
+          Get in touch
+        </a>
+      </header>
+
+      <section className={styles.hero}>
+        <div className={styles.heroTitle}>
+          <p>Full-stack publishing</p>
+          <h1>
+            Books from
+            <br />
+            <em>
+              around the
               <br />
-              <em>
-                around the
-                <br />
-                world.
-              </em>
-            </h1>
-          </div>
+              world.
+            </em>
+          </h1>
+        </div>
 
-          <WorldMap />
+        <WorldMap />
 
-          <div className={styles.heroSummary}>
-            <p>
-              We produce, translate, and distribute bestselling books across
-              formats, languages, and borders.
-            </p>
-            <a
-              href="mailto:neel@azalea-labs.com?subject=Publishing%20with%20Azalea"
-            >
-              Get in touch <span aria-hidden="true">↗</span>
-            </a>
-          </div>
+        <div className={styles.heroSummary}>
+          <p>
+            We produce, translate, and distribute bestselling books across
+            formats, languages, and borders.
+          </p>
+          <a
+            href="mailto:neel@azalea-labs.com?subject=Publishing%20with%20Azalea"
+          >
+            Get in touch <span aria-hidden="true">↗</span>
+          </a>
+        </div>
 
-          <div className={styles.heroFooter}>
-            <a href="https://www.azalea-labs.com/">
-              Azalea Publishing is a division of Azalea Labs
-            </a>
-          </div>
+        <div className={styles.heroFooter}>
+          <a href="https://www.azalea-labs.com/">
+            Azalea Publishing is a division of Azalea Labs
+          </a>
         </div>
       </section>
     </main>
