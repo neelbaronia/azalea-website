@@ -48,7 +48,6 @@ export default function PublishingPage() {
       >
         <div className={styles.storyGrid}>
           <div className={styles.titleBlock}>
-            <p>Full-stack publishing</p>
             <h1 id="publishing-title">
               Books from
               <br />
