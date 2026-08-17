@@ -358,19 +358,6 @@
   border-radius: 50%;
 }
 
-.marketLegend {
-  padding-top: 14px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .summary > p {
   max-width: 410px;
   margin: 0;
@@ -564,12 +551,6 @@
 @media (max-width: 520px) {
   .dialTuner {
     max-height: calc(100svh - 108px);
-  }
-
-  .marketLegend {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 6px;
   }
 
   .footerIdentity {

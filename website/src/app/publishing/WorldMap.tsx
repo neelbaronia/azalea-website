@@ -215,10 +215,6 @@ export default function WorldMap() {
         ) : null}
       </div>
 
-      <div className={styles.marketLegend}>
-        <span>Current markets</span>
-        <span>{MARKET_COLORS.size} countries and growing</span>
-      </div>
     </div>
   );
 }
