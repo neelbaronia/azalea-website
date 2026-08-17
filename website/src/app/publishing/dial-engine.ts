@@ -27,6 +27,8 @@ const LANGUAGES = [
   { label: "מעבדות אזליה", colour: 2, ink: "#ffffff", logoSide: "left" },
   { label: "LABORATORI AZALEA", colour: 3, ink: "#10100f", logoSide: "left" },
   { label: "আজালিয়া ল্যাবস", colour: 5, ink: "#ffffff", logoSide: "left" },
+  { label: "அசேலியா லேப்ஸ்", colour: 7, ink: "#10100f", logoSide: "left" },
+  { label: "อาซาเลีย แล็บส์", colour: 8, ink: "#ffffff", logoSide: "left" },
   { label: "AZALEA LABORE", colour: 1, ink: "#10100f", logoSide: "left" },
 ] as const;
 
