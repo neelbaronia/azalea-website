@@ -190,7 +190,10 @@ export default function DialHero() {
         }
       }
 
-      const headerRaw = Math.max(0, Math.min(1, (stageProgress - 0.9) / 0.1));
+      const headerRaw = Math.max(
+        0,
+        Math.min(1, (collapseRaw - 0.72) / 0.28),
+      );
       const headerProgress = reducedMotion
         ? Number(headerRaw >= 1)
         : headerRaw * headerRaw * (3 - 2 * headerRaw);
@@ -201,6 +204,10 @@ export default function DialHero() {
       resolvedHeader?.style.setProperty(
         "--resolved-header-shift",
         `${-12 * (1 - headerProgress)}px`,
+      );
+      frame?.style.setProperty(
+        "--dial-canvas-opacity",
+        `${1 - headerProgress}`,
       );
     };
 
@@ -275,7 +282,7 @@ export default function DialHero() {
         ref={hostRef}
         className={styles.datamosh}
         role="img"
-        aria-label="The Azalea Labs logo and multilingual versions of the name roll through fixed columns in a weighted left-to-right wave, briefly align as a clean line in the centre, then continue onward before resolving in English."
+        aria-label="The Azalea Labs logo and multilingual versions of the name roll upward through fixed columns in a weighted left-to-right wave, briefly align as a clean line in the centre, then continue onward before resolving in English and moving up into the page header."
       />
 
       {showTuner &&

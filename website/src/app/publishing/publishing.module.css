@@ -78,6 +78,11 @@
   height: 100%;
 }
 
+.dialStage {
+  opacity: var(--dial-canvas-opacity, 1);
+  will-change: opacity;
+}
+
 .datamosh {
   min-height: 0;
   overflow: hidden;

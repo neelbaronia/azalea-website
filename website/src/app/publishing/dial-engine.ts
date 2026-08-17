@@ -189,7 +189,7 @@ export class Datamosh {
     const movementDuration = Math.max(0.08, 1 - CYCLE_HOLD * 2 - totalLag);
     const localProgress = (phase - CYCLE_HOLD - columnLag) / movementDuration;
 
-    return cycle - 0.5 + inertialStep(localProgress);
+    return 0.5 - cycle - inertialStep(localProgress);
   }
 
   private chooseTargetFlow() {
@@ -350,7 +350,7 @@ export class Datamosh {
       ? Math.min(0.05, (now - this.lastTime) / 1000)
       : 0;
     this.lastTime = now;
-    this.elapsed += delta;
+    if (this.resolve === 0) this.elapsed += delta;
     this.draw();
     this.raf = requestAnimationFrame(this.tick);
   };
