@@ -29,6 +29,7 @@ const LANGUAGES = [
   { label: "আজালিয়া ল্যাবস", colour: 5, ink: "#ffffff", logoSide: "left" },
   { label: "அசேலியா லேப்ஸ்", colour: 7, ink: "#10100f", logoSide: "left" },
   { label: "อาซาเลีย แล็บส์", colour: 8, ink: "#ffffff", logoSide: "left" },
+  { label: "✌︎☪︎✌︎☹︎☜︎✌︎ ☹︎✌︎👌︎💧︎", colour: 10, ink: "#10100f", logoSide: "left" },
   { label: "AZALEA LABORE", colour: 1, ink: "#10100f", logoSide: "left" },
 ] as const;
 
