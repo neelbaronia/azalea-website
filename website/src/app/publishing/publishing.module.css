@@ -254,9 +254,8 @@
 
 .storyGrid {
   width: min(100%, 1500px);
-  min-height: calc(100svh - 76px);
   margin: 0 auto;
-  padding: clamp(80px, 6vw, 96px) 0 60px;
+  padding: clamp(112px, 8vw, 128px) 0 32px;
   display: grid;
   grid-template-columns: minmax(230px, 0.78fr) minmax(500px, 1.55fr) minmax(
       240px,
@@ -509,7 +508,7 @@
 
   .storyGrid {
     min-height: 0;
-    padding: 64px 0 60px;
+    padding: 88px 0 36px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
