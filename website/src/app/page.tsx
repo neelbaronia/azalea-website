@@ -1,1 +1,1 @@
-export { default } from "./publishing/page";
+export { default } from "@/components/publishing/FullPublishingExperience";
