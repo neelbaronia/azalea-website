@@ -5,6 +5,8 @@
   position: relative;
   width: 100%;
   height: 100%;
+  opacity: var(--dial-canvas-opacity, 1);
+  will-change: opacity;
 }
 
 .datamosh {
@@ -28,6 +30,7 @@
   right: clamp(16px, 2vw, 30px);
   bottom: clamp(50px, 5vw, 72px);
   z-index: 40;
+  opacity: var(--dial-controls-opacity, 1);
 }
 
 .dialTuner {

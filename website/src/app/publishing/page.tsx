@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import DialHero from "@/components/dial/DialHero";
 import WorldMap from "./WorldMap";
 import styles from "./publishing.module.css";
 
@@ -12,70 +12,80 @@ export const metadata: Metadata = {
 
 export default function PublishingPage() {
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <Link
-          className={styles.wordmark}
-          href="/publishing"
-          aria-label="Azalea Publishing home"
-        >
-          <span className={styles.logo}>
-            <Image
-              src="/azalea-icon.webp"
-              alt=""
-              width={44}
-              height={44}
-              priority
-              unoptimized
-            />
-          </span>
-          <span>
-            Azalea
-            <br />
-            Publishing
-          </span>
-        </Link>
+    <main className={styles.page} id="top">
+      <div
+        className={styles.resolvedHeader}
+        data-resolved-header
+        aria-hidden="true"
+      >
+        <Image
+          src="/azalea-icon.webp"
+          alt=""
+          width={30}
+          height={30}
+          priority
+          unoptimized
+        />
+        <span>Azalea Labs</span>
+      </div>
 
-        <span className={styles.headerLabel}>Print · Ebook · Translation</span>
+      <section
+        className={styles.dialIntro}
+        data-dial-stage
+        aria-label="Azalea Publishing in languages from around the world"
+      >
+        <div className={styles.heroVisual}>
+          <div className={styles.dialFrame} data-dial-frame>
+            <DialHero />
+          </div>
+        </div>
+      </section>
 
-        <a className={styles.contactButton} href="mailto:neel@azalea-labs.com">
-          Get in touch
-        </a>
-      </header>
-
-      <section className={styles.hero}>
-        <div className={styles.heroTitle}>
-          <p>Full-stack publishing</p>
-          <h1>
-            Books from
-            <br />
-            <em>
-              around the
+      <section
+        className={styles.story}
+        data-publishing-story
+        id="publishing"
+        aria-labelledby="publishing-title"
+      >
+        <div className={styles.storyGrid}>
+          <div className={styles.titleBlock}>
+            <h1 id="publishing-title">
+              Books from
               <br />
-              world.
-            </em>
-          </h1>
+              <em>
+                around the
+                <br />
+                world.
+              </em>
+            </h1>
+          </div>
+
+          <WorldMap />
+
+          <div className={styles.summary}>
+            <p>
+              We produce, translate, and distribute bestselling books across
+              formats, languages, and borders.
+            </p>
+            <a href="mailto:neel@azalea-labs.com?subject=Publishing%20with%20Azalea">
+              Get in touch <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
 
-        <WorldMap />
-
-        <div className={styles.heroSummary}>
-          <p>
-            We produce, translate, and distribute bestselling books across
-            formats, languages, and borders.
-          </p>
-          <a
-            href="mailto:neel@azalea-labs.com?subject=Publishing%20with%20Azalea"
-          >
-            Get in touch <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-
-        <div className={styles.heroFooter}>
-          <a href="https://www.azalea-labs.com/">
-            Azalea Publishing is a division of Azalea Labs
-          </a>
-        </div>
+        <footer className={styles.footer}>
+          <div className={styles.footerIdentity}>
+            <a href="https://www.azalea-labs.com/">
+              Azalea Publishing is a division of Azalea Labs
+            </a>
+            <span>© 2026 Azalea Labs. All rights reserved.</span>
+          </div>
+          <div className={styles.footerLinks}>
+            <span>San Francisco · New York City</span>
+            <a href="https://www.azalea-labs.com/privacy">Privacy</a>
+            <a href="mailto:neel@azalea-labs.com">Contact</a>
+          </div>
+        </footer>
       </section>
     </main>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
@@ -11,30 +11,26 @@ import styles from "./publishing.module.css";
 const WIDTH = 960;
 const HEIGHT = 500;
 
-const MARKET_NAMES = [
-  "United States",
-  "United Kingdom",
-  "Canada",
-  "Australia",
-  "Netherlands",
-  "Ireland",
-  "Germany",
-  "New Zealand",
-  "Finland",
-  "Sweden",
-  "Belgium",
-  "France",
-] as const;
-
-const ACTIVE_COUNTRIES = new Set([
-  "United States of America",
-  ...MARKET_NAMES.slice(1),
+const MARKET_COLORS: ReadonlyMap<string, string> = new Map([
+  ["United States of America", "#5d5df5"],
+  ["United Kingdom", "#ec4978"],
+  ["Canada", "#ff9900"],
+  ["Australia", "#00dd33"],
+  ["Netherlands", "#3566ff"],
+  ["Ireland", "#00ef82"],
+  ["Germany", "#d62036"],
+  ["New Zealand", "#ffcf00"],
+  ["Finland", "#192aff"],
+  ["Sweden", "#00b870"],
+  ["Belgium", "#f06b2f"],
+  ["France", "#9b5de5"],
 ]);
 
 type CountryProperties = { name: string };
 type CountryFeature = Feature<Geometry, CountryProperties>;
 
 type MapCountry = {
+  color: string | null;
   isActive: boolean;
   label: string;
   path: string;
@@ -43,6 +39,7 @@ type MapCountry = {
 };
 
 type Tooltip = {
+  color: string;
   label: string;
   left: number;
   top: number;
@@ -75,24 +72,37 @@ export default function WorldMap() {
     );
     const makePath = geoPath(projection);
 
-    return visibleCountries
-      .map((country) => {
-        const path = makePath(country);
-        if (!path) return null;
+    return visibleCountries.flatMap((country): MapCountry[] => {
+      const path = makePath(country);
+      if (!path) return [];
 
-        const name = country.properties.name;
-        const [x, y] = makePath.centroid(country);
+      const name = country.properties.name;
+      const color = MARKET_COLORS.get(name) ?? null;
+      const [x, y] = makePath.centroid(country);
 
-        return {
-          isActive: ACTIVE_COUNTRIES.has(name),
+      return [
+        {
+          color,
+          isActive: color !== null,
           label: name === "United States of America" ? "United States" : name,
           path,
           x,
           y,
-        };
-      })
-      .filter((country): country is MapCountry => country !== null);
+        },
+      ];
+    });
   }, []);
+
+  function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
+    return {
+      color: country.color ?? "#14101f",
+      label: country.isActive
+        ? country.label
+        : `${country.label} · Coming soon`,
+      left,
+      top,
+    };
+  }
 
   function showFromPointer(
     country: MapCountry,
@@ -103,27 +113,27 @@ export default function WorldMap() {
     if (!element) return;
 
     const bounds = element.getBoundingClientRect();
-    setTooltip({
-      label: country.isActive
-        ? country.label
-        : `${country.label} · Coming soon`,
-      left: ((clientX - bounds.left) / bounds.width) * 100,
-      top: ((clientY - bounds.top) / bounds.height) * 100,
-    });
+    setTooltip(
+      tooltipFor(
+        country,
+        ((clientX - bounds.left) / bounds.width) * 100,
+        ((clientY - bounds.top) / bounds.height) * 100,
+      ),
+    );
   }
 
   function showFromCentroid(country: MapCountry) {
-    setTooltip({
-      label: country.isActive
-        ? country.label
-        : `${country.label} · Coming soon`,
-      left: (country.x / WIDTH) * 100,
-      top: (country.y / HEIGHT) * 100,
-    });
+    setTooltip(
+      tooltipFor(
+        country,
+        (country.x / WIDTH) * 100,
+        (country.y / HEIGHT) * 100,
+      ),
+    );
   }
 
   return (
-    <div className={styles.mapShell}>
+    <div className={styles.mapBlock}>
       <div id="publishing-world-map" className={styles.mapCanvas}>
         <svg
           className={styles.mapSvg}
@@ -164,6 +174,11 @@ export default function WorldMap() {
                 className={
                   country.isActive ? styles.mapCountryActive : styles.mapCountry
                 }
+                style={
+                  country.color
+                    ? ({ "--market-color": country.color } as CSSProperties)
+                    : undefined
+                }
                 tabIndex={country.isActive ? 0 : undefined}
                 role={country.isActive ? "img" : undefined}
                 aria-label={
@@ -188,16 +203,16 @@ export default function WorldMap() {
           </g>
         </svg>
 
-        {tooltip && (
+        {tooltip ? (
           <div
             className={styles.mapTooltip}
             style={{ left: `${tooltip.left}%`, top: `${tooltip.top}%` }}
             role="status"
           >
-            <span />
+            <span style={{ background: tooltip.color }} />
             {tooltip.label}
           </div>
-        )}
+        ) : null}
       </div>
 
     </div>
