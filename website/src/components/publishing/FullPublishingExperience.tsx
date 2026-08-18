@@ -1,5 +1,6 @@
 import Image from "next/image";
 import DialHero from "@/components/dial/DialHero";
+import SiteFooter from "@/components/SiteFooter";
 import FullWorldMap from "./FullWorldMap";
 import styles from "./full-publishing.module.css";
 
@@ -65,21 +66,9 @@ export default function FullPublishingExperience() {
             </a>
           </div>
         </div>
-
-        <footer className={styles.footer}>
-          <div className={styles.footerIdentity}>
-            <a href="https://www.azalea-labs.com/">
-              Azalea Publishing is a division of Azalea Labs
-            </a>
-            <span>© 2026 Azalea Labs. All rights reserved.</span>
-          </div>
-          <div className={styles.footerLinks}>
-            <span>San Francisco · New York City</span>
-            <a href="https://www.azalea-labs.com/privacy">Privacy</a>
-            <a href="mailto:neel@azalea-labs.com">Contact</a>
-          </div>
-        </footer>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }
