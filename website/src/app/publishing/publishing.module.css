@@ -233,9 +233,11 @@
   --story-offset: var(--story-lift);
   position: relative;
   z-index: 12;
-  min-height: 100svh;
+  min-height: calc(100svh - 72px);
   margin-top: calc(0px - var(--story-lift));
   padding: 0 24px;
+  display: flex;
+  flex-direction: column;
   background: var(--paper);
   transform: translate3d(0, var(--story-offset), 0);
   will-change: transform;
@@ -255,14 +257,15 @@
 .storyGrid {
   width: min(100%, 1500px);
   margin: 0 auto;
-  padding: clamp(112px, 8vw, 128px) 0 32px;
+  padding: clamp(58px, 4.5vw, 72px) 0;
   display: grid;
-  grid-template-columns: minmax(230px, 0.78fr) minmax(500px, 1.55fr) minmax(
+  grid-template-columns: minmax(230px, 0.72fr) minmax(560px, 1.8fr) minmax(
       240px,
-      0.72fr
+      0.7fr
     );
-  align-content: start;
-  align-items: start;
+  flex: 1 0 auto;
+  align-content: center;
+  align-items: center;
   gap: 0 clamp(28px, 3.4vw, 64px);
 }
 
@@ -411,6 +414,7 @@
   min-height: 94px;
   margin: 0 auto;
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: 30px;
@@ -503,6 +507,7 @@
 
   .story {
     --story-lift: calc(100svh - 64px);
+    min-height: calc(100svh - 64px);
     padding: 0 16px;
   }
 
