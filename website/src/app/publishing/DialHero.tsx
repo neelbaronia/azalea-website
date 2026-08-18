@@ -166,12 +166,14 @@ export default function DialHero() {
         ? window.innerHeight * 0.82
         : Math.min(window.innerHeight * 0.76, 760);
       const endHeight = compact ? 64 : 72;
-      const frameHeight =
+      const visibleHeight =
         startHeight + (endHeight - startHeight) * collapseProgress;
+      const frameInset = Math.max(0, (startHeight - visibleHeight) / 2);
       const finalShift = -(window.innerHeight - endHeight) / 2;
 
       if (frame) {
-        frame.style.setProperty("--dial-frame-height", `${frameHeight}px`);
+        frame.style.setProperty("--dial-frame-height", `${startHeight}px`);
+        frame.style.setProperty("--dial-frame-clip", `${frameInset}px`);
         frame.style.setProperty(
           "--dial-frame-shift",
           `${finalShift * collapseProgress}px`,

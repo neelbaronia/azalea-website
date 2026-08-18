@@ -66,9 +66,10 @@
   height: var(--dial-frame-height, min(76svh, 760px));
   overflow: hidden;
   background: #14101f;
+  clip-path: inset(var(--dial-frame-clip, 0px) 0);
   transform: translate3d(0, var(--dial-frame-shift, 0), 0);
   transform-origin: 50% 50%;
-  will-change: height, transform;
+  will-change: clip-path, transform;
 }
 
 .dialStage,
