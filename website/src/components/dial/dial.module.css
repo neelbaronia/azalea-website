@@ -1,0 +1,168 @@
+.dialStage {
+  --paper: #f5f5f0;
+  --ink: #080808;
+  --line: rgba(8, 8, 8, 0.14);
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.datamosh {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #14101f;
+}
+
+.datamosh canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dialTuner,
+.tunerOpen {
+  position: fixed;
+  right: clamp(16px, 2vw, 30px);
+  bottom: clamp(50px, 5vw, 72px);
+  z-index: 40;
+}
+
+.dialTuner {
+  width: min(330px, calc(100vw - 32px));
+  max-height: calc(100svh - 120px);
+  padding: 16px;
+  overflow: auto;
+  color: var(--ink);
+  background: rgba(245, 245, 240, 0.96);
+  border: 1px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+  backdrop-filter: blur(10px);
+}
+
+.tunerHeading {
+  padding-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tunerHeading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tunerHeading strong {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tunerHeading span {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tunerHeading button,
+.tunerReset,
+.tunerOpen {
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  cursor: pointer;
+  font:
+    700 0.61rem/1 Arial,
+    sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tunerHeading button {
+  height: 28px;
+  padding: 0 10px;
+}
+
+.tunerControls {
+  padding: 18px 0;
+  display: grid;
+  gap: 15px;
+}
+
+.tunerControl {
+  display: grid;
+  gap: 7px;
+}
+
+.controlLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.controlLabel > span {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.controlLabel small {
+  font-size: 0.52rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  opacity: 0.62;
+}
+
+.controlLabel output {
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.tunerControl input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: ew-resize;
+}
+
+.tunerReset {
+  width: 100%;
+  height: 34px;
+}
+
+.tunerOpen {
+  height: 36px;
+  padding: 0 13px;
+}
+
+.tunerHeading button:hover,
+.tunerReset:hover,
+.tunerOpen:hover {
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.tunerHeading button:focus-visible,
+.tunerReset:focus-visible,
+.tunerOpen:focus-visible,
+.tunerControl input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .dialTuner {
+    max-height: calc(100svh - 108px);
+  }
+}

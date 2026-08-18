@@ -1,21 +1,20 @@
-"use client";
-
-import { useState } from "react";
-import ConsumerView from "@/components/ConsumerView";
-import PublisherView from "@/components/PublisherView";
-import Navbar from "@/components/Navbar";
+import DialHero from "@/components/dial/DialHero";
+import SiteFooter from "@/components/SiteFooter";
+import styles from "./home.module.css";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"listen" | "create">("listen");
-
   return (
-    <main className="relative min-h-screen">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-      {activeTab === "listen" ? (
-        <ConsumerView key="listen" />
-      ) : (
-        <PublisherView key="create" />
-      )}
+    <main className={styles.page}>
+      <section
+        className={styles.dialHero}
+        aria-label="Azalea Labs in languages from around the world"
+      >
+        <div className={styles.dialFrame}>
+          <DialHero />
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }

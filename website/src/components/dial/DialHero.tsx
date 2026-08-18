@@ -6,7 +6,7 @@ import {
   DEFAULT_DIAL_SETTINGS,
   type DialSettings,
 } from "./dial-engine";
-import styles from "./publishing.module.css";
+import styles from "./dial.module.css";
 
 const STORAGE_KEY = "azalea-dial-settings";
 
@@ -126,14 +126,6 @@ export default function DialHero() {
     const host = hostRef.current;
     if (!host) return;
 
-    const stage = host.closest<HTMLElement>("[data-dial-stage]");
-    const frame = host.closest<HTMLElement>("[data-dial-frame]");
-    const resolvedHeader = document.querySelector<HTMLElement>(
-      "[data-resolved-header]",
-    );
-    const story = document.querySelector<HTMLElement>(
-      "[data-publishing-story]",
-    );
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -142,89 +134,6 @@ export default function DialHero() {
     engineRef.current = engine;
 
     let onScreen = false;
-    let scrollFrame = 0;
-
-    const updateResolve = () => {
-      scrollFrame = 0;
-      if (!stage) return;
-
-      const bounds = stage.getBoundingClientRect();
-      const distance = Math.max(1, bounds.height - window.innerHeight);
-      const stageProgress = Math.max(0, Math.min(1, -bounds.top / distance));
-      const resolveProgress = Math.max(
-        0,
-        Math.min(1, (stageProgress - 0.42) / 0.3),
-      );
-      engine.setResolve(resolveProgress);
-
-      const collapseRaw = Math.max(
-        0,
-        Math.min(1, (stageProgress - 0.76) / 0.22),
-      );
-      const collapseProgress = reducedMotion
-        ? Number(collapseRaw >= 1)
-        : collapseRaw * collapseRaw * (3 - 2 * collapseRaw);
-      const compact = window.innerWidth <= 760;
-      const startHeight = compact
-        ? window.innerHeight * 0.82
-        : Math.min(window.innerHeight * 0.76, 760);
-      const endHeight = compact ? 64 : 72;
-      const visibleHeight =
-        startHeight + (endHeight - startHeight) * collapseProgress;
-      const frameInset = Math.max(0, (startHeight - visibleHeight) / 2);
-      const finalShift = -(window.innerHeight - endHeight) / 2;
-      const storyLift = Math.max(0, window.innerHeight - endHeight);
-
-      if (frame) {
-        frame.style.setProperty("--dial-frame-height", `${startHeight}px`);
-        frame.style.setProperty("--dial-frame-clip", `${frameInset}px`);
-        frame.style.setProperty(
-          "--dial-frame-shift",
-          `${finalShift * collapseProgress}px`,
-        );
-        frame.style.setProperty(
-          "--dial-controls-opacity",
-          `${1 - collapseProgress}`,
-        );
-
-        const controls = frame.querySelector<HTMLElement>(
-          "[data-dial-controls]",
-        );
-        if (controls) {
-          controls.style.pointerEvents =
-            collapseProgress > 0.08 ? "none" : "auto";
-        }
-      }
-
-      const headerRaw = Math.max(
-        0,
-        Math.min(1, (collapseRaw - 0.72) / 0.28),
-      );
-      const headerProgress = reducedMotion
-        ? Number(headerRaw >= 1)
-        : headerRaw * headerRaw * (3 - 2 * headerRaw);
-      resolvedHeader?.style.setProperty(
-        "--resolved-header-progress",
-        `${headerProgress}`,
-      );
-      resolvedHeader?.style.setProperty(
-        "--resolved-header-shift",
-        `${-12 * (1 - headerProgress)}px`,
-      );
-      frame?.style.setProperty(
-        "--dial-canvas-opacity",
-        `${1 - headerProgress}`,
-      );
-      story?.style.setProperty("--story-lift", `${storyLift}px`);
-      story?.style.setProperty(
-        "--story-offset",
-        `${storyLift * (1 - collapseProgress)}px`,
-      );
-    };
-
-    const onScroll = () => {
-      if (!scrollFrame) scrollFrame = requestAnimationFrame(updateResolve);
-    };
 
     const sync = () => {
       if (reducedMotion) {
@@ -245,18 +154,12 @@ export default function DialHero() {
     );
 
     observer.observe(host);
-    updateResolve();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
     document.addEventListener("visibilitychange", sync);
 
     return () => {
       engineRef.current = null;
       observer.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
       document.removeEventListener("visibilitychange", sync);
-      if (scrollFrame) cancelAnimationFrame(scrollFrame);
       engine.destroy();
     };
   }, []);
@@ -293,7 +196,7 @@ export default function DialHero() {
         ref={hostRef}
         className={styles.datamosh}
         role="img"
-        aria-label="The Azalea Labs logo and multilingual versions of the name roll upward through fixed columns in a weighted left-to-right wave, briefly align as a clean line in the centre, then continue onward before resolving in English and moving up into the page header."
+        aria-label="The Azalea Labs logo and multilingual versions of the name roll upward through fixed columns in a weighted left-to-right wave."
       />
 
       {showTuner &&
