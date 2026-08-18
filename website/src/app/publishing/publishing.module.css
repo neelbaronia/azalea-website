@@ -229,11 +229,16 @@
 }
 
 .story {
+  --story-lift: calc(100svh - 72px);
+  --story-offset: var(--story-lift);
   position: relative;
   z-index: 12;
   min-height: 100svh;
+  margin-top: calc(0px - var(--story-lift));
   padding: 0 24px;
   background: var(--paper);
+  transform: translate3d(0, var(--story-offset), 0);
+  will-change: transform;
 }
 
 .story::before {
@@ -497,6 +502,7 @@
   }
 
   .story {
+    --story-lift: calc(100svh - 64px);
     padding: 0 16px;
   }
 

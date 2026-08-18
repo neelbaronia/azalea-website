@@ -131,6 +131,9 @@ export default function DialHero() {
     const resolvedHeader = document.querySelector<HTMLElement>(
       "[data-resolved-header]",
     );
+    const story = document.querySelector<HTMLElement>(
+      "[data-publishing-story]",
+    );
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -170,6 +173,7 @@ export default function DialHero() {
         startHeight + (endHeight - startHeight) * collapseProgress;
       const frameInset = Math.max(0, (startHeight - visibleHeight) / 2);
       const finalShift = -(window.innerHeight - endHeight) / 2;
+      const storyLift = Math.max(0, window.innerHeight - endHeight);
 
       if (frame) {
         frame.style.setProperty("--dial-frame-height", `${startHeight}px`);
@@ -210,6 +214,11 @@ export default function DialHero() {
       frame?.style.setProperty(
         "--dial-canvas-opacity",
         `${1 - headerProgress}`,
+      );
+      story?.style.setProperty("--story-lift", `${storyLift}px`);
+      story?.style.setProperty(
+        "--story-offset",
+        `${storyLift * (1 - collapseProgress)}px`,
       );
     };
 

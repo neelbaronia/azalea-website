@@ -43,6 +43,7 @@ export default function PublishingPage() {
 
       <section
         className={styles.story}
+        data-publishing-story
         id="publishing"
         aria-labelledby="publishing-title"
       >
