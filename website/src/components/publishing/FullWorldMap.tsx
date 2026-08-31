@@ -1,11 +1,8 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
-import { geoNaturalEarth1, geoPath } from "d3-geo";
-import { feature } from "topojson-client";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
-import worldData from "world-atlas/countries-110m.json";
 import styles from "./full-publishing.module.css";
 
 const WIDTH = 960;
@@ -46,51 +43,93 @@ type Tooltip = {
 };
 
 export default function FullWorldMap() {
+  const blockRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
+  const [countries, setCountries] = useState<MapCountry[] | null>(null);
 
-  const countries = useMemo<MapCountry[]>(() => {
-    const topology = worldData as unknown as Topology<{
-      countries: GeometryCollection<CountryProperties>;
-    }>;
-    const collection = feature(
-      topology,
-      topology.objects.countries,
-    ) as unknown as FeatureCollection<Geometry, CountryProperties>;
-    const visibleCountries = collection.features.filter(
-      (country) => country.properties.name !== "Antarctica",
-    ) as CountryFeature[];
+  useEffect(() => {
+    const block = blockRef.current;
+    if (!block) return;
 
-    const projection = geoNaturalEarth1().fitExtent(
-      [
-        [10, 12],
-        [WIDTH - 10, HEIGHT - 12],
-      ],
-      {
-        type: "FeatureCollection",
-        features: visibleCountries,
-      },
-    );
-    const makePath = geoPath(projection);
+    let cancelled = false;
+    const loadMap = async () => {
+      const [{ geoNaturalEarth1, geoPath }, { feature }, worldModule] =
+        await Promise.all([
+          import("d3-geo"),
+          import("topojson-client"),
+          import("world-atlas/countries-110m.json"),
+        ]);
+      if (cancelled) return;
 
-    return visibleCountries.flatMap((country): MapCountry[] => {
-      const path = makePath(country);
-      if (!path) return [];
+      const topology = worldModule.default as unknown as Topology<{
+        countries: GeometryCollection<CountryProperties>;
+      }>;
+      const collection = feature(
+        topology,
+        topology.objects.countries,
+      ) as unknown as FeatureCollection<Geometry, CountryProperties>;
+      const visibleCountries = collection.features.filter(
+        (country) => country.properties.name !== "Antarctica",
+      ) as CountryFeature[];
 
-      const name = country.properties.name;
-      const color = MARKET_COLORS.get(name) ?? null;
-      const [x, y] = makePath.centroid(country);
-
-      return [
+      const projection = geoNaturalEarth1().fitExtent(
+        [
+          [10, 12],
+          [WIDTH - 10, HEIGHT - 12],
+        ],
         {
-          color,
-          isActive: color !== null,
-          label: name === "United States of America" ? "United States" : name,
-          path,
-          x,
-          y,
+          type: "FeatureCollection",
+          features: visibleCountries,
         },
-      ];
-    });
+      );
+      const makePath = geoPath(projection);
+      const nextCountries = visibleCountries.flatMap(
+        (country): MapCountry[] => {
+          const path = makePath(country);
+          if (!path) return [];
+
+          const name = country.properties.name;
+          const color = MARKET_COLORS.get(name) ?? null;
+          const [x, y] = makePath.centroid(country);
+
+          return [
+            {
+              color,
+              isActive: color !== null,
+              label:
+                name === "United States of America" ? "United States" : name,
+              path,
+              x,
+              y,
+            },
+          ];
+        },
+      );
+
+      if (!cancelled) setCountries(nextCountries);
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      void loadMap();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        void loadMap();
+      },
+      { rootMargin: "800px 0px" },
+    );
+    observer.observe(block);
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
   }, []);
 
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
@@ -133,7 +172,7 @@ export default function FullWorldMap() {
   }
 
   return (
-    <div className={styles.mapBlock}>
+    <div ref={blockRef} className={styles.mapBlock}>
       <div id="publishing-world-map" className={styles.mapCanvas}>
         <svg
           className={styles.mapSvg}
@@ -167,7 +206,7 @@ export default function FullWorldMap() {
           </defs>
 
           <g className={styles.mapCountries}>
-            {countries.map((country) => (
+            {countries?.map((country) => (
               <path
                 key={country.label}
                 d={country.path}

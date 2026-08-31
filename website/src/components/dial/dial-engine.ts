@@ -59,6 +59,9 @@ const BLEED = 0.012;
 const CYCLE_HOLD = 0.1;
 const MAX_WAVE_LAG = 0.36;
 const ACCELERATION_PHASE = 0.38;
+const MAX_DEVICE_PIXEL_RATIO = 1.5;
+const MAX_CANVAS_PIXELS = 1_800_000;
+const FRAME_INTERVAL = 1000 / 45;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.max(minimum, Math.min(maximum, value));
@@ -107,6 +110,7 @@ export class Datamosh {
   private logo: HTMLImageElement;
   private logoReady = false;
   private logoMasks = new Map<string, HTMLCanvasElement>();
+  private labelWidths = new Map<string, number>();
   private settings: DialSettings = { ...DEFAULT_DIAL_SETTINGS };
 
   constructor(host: HTMLElement) {
@@ -127,25 +131,50 @@ export class Datamosh {
     this.ctx = context;
     this.ctx.imageSmoothingEnabled = false;
     this.ok = true;
-    this.measure();
+    this.measure(true);
 
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver(() => {
-        this.measure();
-        if (!this.running) this.draw();
+        if (this.measure() && !this.running) this.draw();
       });
       this.resizeObserver.observe(host);
     }
   }
 
-  private measure() {
+  private measure(force = false) {
     const bounds = this.host.getBoundingClientRect();
-    this.dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.width = Math.max(1, Math.round(bounds.width * this.dpr));
-    this.height = Math.max(1, Math.round(bounds.height * this.dpr));
+    const cssWidth = Math.max(1, bounds.width);
+    const cssHeight = Math.max(1, bounds.height);
+    const pixelBudgetRatio = Math.sqrt(
+      MAX_CANVAS_PIXELS / (cssWidth * cssHeight),
+    );
+    const nextDpr = Math.max(
+      1,
+      Math.min(
+        MAX_DEVICE_PIXEL_RATIO,
+        window.devicePixelRatio || 1,
+        pixelBudgetRatio,
+      ),
+    );
+    const nextWidth = Math.max(1, Math.round(cssWidth * nextDpr));
+    const nextHeight = Math.max(1, Math.round(cssHeight * nextDpr));
+
+    if (
+      !force &&
+      nextWidth === this.width &&
+      nextHeight === this.height &&
+      nextDpr === this.dpr
+    ) {
+      return false;
+    }
+
+    this.dpr = nextDpr;
+    this.width = nextWidth;
+    this.height = nextHeight;
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.ctx.imageSmoothingEnabled = false;
+    this.labelWidths.clear();
 
     const columns = this.columnCount();
     this.edges = [];
@@ -156,6 +185,8 @@ export class Datamosh {
         ),
       );
     }
+
+    return true;
   }
 
   private columnCount() {
@@ -276,7 +307,12 @@ export class Datamosh {
         ? textEdge - lockupLeft
         : this.width - textEdge - rightInset;
     let fontSize = baseSize;
-    const textWidth = ctx.measureText(label).width;
+    const widthKey = `${label}:${baseSize}`;
+    let textWidth = this.labelWidths.get(widthKey);
+    if (textWidth === undefined) {
+      textWidth = ctx.measureText(label).width;
+      this.labelWidths.set(widthKey, textWidth);
+    }
     if (textWidth > maxTextWidth) {
       fontSize *= maxTextWidth / textWidth;
     }
@@ -346,12 +382,13 @@ export class Datamosh {
   private tick = (now: number) => {
     if (!this.running) return;
 
-    const delta = this.lastTime
-      ? Math.min(0.05, (now - this.lastTime) / 1000)
-      : 0;
-    this.lastTime = now;
-    if (this.resolve === 0) this.elapsed += delta;
-    this.draw();
+    const elapsedSinceFrame = now - this.lastTime;
+    if (elapsedSinceFrame >= FRAME_INTERVAL) {
+      const delta = Math.min(0.05, elapsedSinceFrame / 1000);
+      this.lastTime = now - (elapsedSinceFrame % FRAME_INTERVAL);
+      if (this.resolve === 0) this.elapsed += delta;
+      this.draw();
+    }
     this.raf = requestAnimationFrame(this.tick);
   };
 
@@ -365,16 +402,21 @@ export class Datamosh {
   }
 
   setSettings(settings: DialSettings) {
+    const unchanged = Object.entries(settings).every(
+      ([key, value]) => this.settings[key as keyof DialSettings] === value,
+    );
+    if (unchanged) return;
+
     this.settings = { ...settings };
     this.targetFlow = this.resolve > 0 ? this.chooseTargetFlow() : null;
-    this.measure();
+    this.measure(true);
     if (!this.running) this.draw();
   }
 
   start() {
     if (this.running || !this.ok) return;
     this.running = true;
-    this.lastTime = 0;
+    this.lastTime = performance.now();
     this.raf = requestAnimationFrame(this.tick);
   }
 
@@ -397,6 +439,7 @@ export class Datamosh {
     this.resizeObserver = null;
     this.logo.onload = null;
     this.logoMasks.clear();
+    this.labelWidths.clear();
     this.canvas.remove();
   }
 }
