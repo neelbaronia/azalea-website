@@ -196,12 +196,19 @@ export default function DialHero() {
         }
       }
 
+      const canvasExitRaw = Math.max(
+        0,
+        Math.min(1, (collapseRaw - 0.6) / 0.22),
+      );
+      const canvasExitProgress = reducedMotion
+        ? Number(collapseRaw >= 1)
+        : canvasExitRaw * canvasExitRaw * (3 - 2 * canvasExitRaw);
       const headerRaw = Math.max(
         0,
-        Math.min(1, (collapseRaw - 0.72) / 0.28),
+        Math.min(1, (collapseRaw - 0.84) / 0.16),
       );
       const headerProgress = reducedMotion
-        ? Number(headerRaw >= 1)
+        ? Number(collapseRaw >= 1)
         : headerRaw * headerRaw * (3 - 2 * headerRaw);
       resolvedHeader?.style.setProperty(
         "--resolved-header-progress",
@@ -213,7 +220,7 @@ export default function DialHero() {
       );
       frame?.style.setProperty(
         "--dial-canvas-opacity",
-        `${1 - headerProgress}`,
+        `${1 - canvasExitProgress}`,
       );
       story?.style.setProperty("--story-lift", `${storyLift}px`);
       story?.style.setProperty(
