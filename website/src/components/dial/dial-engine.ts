@@ -61,7 +61,6 @@ const MAX_WAVE_LAG = 0.36;
 const ACCELERATION_PHASE = 0.38;
 const MAX_DEVICE_PIXEL_RATIO = 1.5;
 const MAX_CANVAS_PIXELS = 1_800_000;
-const FRAME_INTERVAL = 1000 / 45;
 
 function clamp(value: number, minimum = 0, maximum = 1) {
   return Math.max(minimum, Math.min(maximum, value));
@@ -382,13 +381,10 @@ export class Datamosh {
   private tick = (now: number) => {
     if (!this.running) return;
 
-    const elapsedSinceFrame = now - this.lastTime;
-    if (elapsedSinceFrame >= FRAME_INTERVAL) {
-      const delta = Math.min(0.05, elapsedSinceFrame / 1000);
-      this.lastTime = now - (elapsedSinceFrame % FRAME_INTERVAL);
-      if (this.resolve === 0) this.elapsed += delta;
-      this.draw();
-    }
+    const delta = Math.min(0.05, (now - this.lastTime) / 1000);
+    this.lastTime = now;
+    if (this.resolve === 0) this.elapsed += delta;
+    this.draw();
     this.raf = requestAnimationFrame(this.tick);
   };
 
