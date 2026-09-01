@@ -91,7 +91,7 @@ export default function PublicationsPage() {
         <PublicationsNavbar />
 
         {/* Header */}
-        <div className="max-w-5xl mx-auto px-6 pt-24 pb-8 w-full">
+        <div className="max-w-6xl mx-auto px-6 pt-24 pb-8 w-full">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
             Our Publications
           </h1>
@@ -101,19 +101,19 @@ export default function PublicationsPage() {
         </div>
 
         {/* Book grid */}
-        <div className="max-w-5xl mx-auto px-6 pb-20 w-full flex-1">
+        <div className="max-w-6xl mx-auto px-6 pb-20 w-full flex-1">
           {loading ? (
             <p className="text-sm text-white/50 uppercase tracking-widest">Loading...</p>
           ) : books.length === 0 ? (
             <p className="text-sm text-white/50">No publications available.</p>
           ) : (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               {books.map((book) => {
                 const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
                 return (
                   <div
                     key={book.id}
-                    className="flex gap-5 md:gap-6 p-4 md:p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-shadow"
+                    className="h-full flex gap-5 md:gap-6 p-4 md:p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-shadow"
                   >
                     <div className="flex-shrink-0">
                       <img
