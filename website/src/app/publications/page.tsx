@@ -95,9 +95,9 @@ export default async function PublicationsPage() {
                 return (
                   <div
                     key={book.id}
-                    className="h-full flex gap-5 md:gap-6 p-4 md:p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-shadow"
+                    className="h-full flex flex-col gap-5 p-4 md:p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-shadow"
                   >
-                    <div className="flex-shrink-0">
+                    <div className="self-center flex-shrink-0">
                       <img
                         src={coverUrl}
                         alt={book.title}
@@ -109,7 +109,7 @@ export default async function PublicationsPage() {
                         className="rounded-xl object-cover shadow-md w-[160px] h-[160px]"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="w-full flex-1 min-w-0">
                       <h3 className="text-xl md:text-2xl font-bold text-white">{book.title}</h3>
                       <p className="text-base md:text-lg text-white/60 mb-2">
                         {book.author} &middot; {formatDuration(book.duration)}
