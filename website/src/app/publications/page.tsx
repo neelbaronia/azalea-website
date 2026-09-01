@@ -1,8 +1,9 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+
+const LIBRARY_URL =
+  "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
+
+export const revalidate = 3600;
 
 interface Book {
   id: string;
@@ -11,6 +12,7 @@ interface Book {
   coverImageName: string;
   remoteBaseURL: string;
   duration: number;
+  description?: string;
 }
 
 function formatDuration(seconds: number): string {
@@ -21,7 +23,6 @@ function formatDuration(seconds: number): string {
 }
 
 function PublicationsNavbar() {
-  const router = useRouter();
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
       <a href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -32,57 +33,40 @@ function PublicationsNavbar() {
         </div>
       </a>
       <div className="flex gap-0.5 rounded-xl p-1 border backdrop-blur-md bg-white/10 border-white/10 flex-shrink min-w-0">
-        <button
-          onClick={() => router.push("/")}
+        <a
+          href="/"
           className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
         >
           Listen
-        </button>
-        <button
-          onClick={() => router.push("/")}
+        </a>
+        <a
+          href="/"
           className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
         >
           Create &amp; Distribute
-        </button>
+        </a>
       </div>
     </nav>
   );
-}
-
-interface BookWithDescription extends Book {
-  description?: string;
 }
 
 function isAzaleaOriginal(book: Book): boolean {
   return !book.id.startsWith("librivox-");
 }
 
-export default function PublicationsPage() {
-  const [books, setBooks] = useState<BookWithDescription[]>([]);
-  const [loading, setLoading] = useState(true);
+async function getPublications(): Promise<Book[]> {
+  try {
+    const response = await fetch(LIBRARY_URL, { next: { revalidate } });
+    if (!response.ok) return [];
+    const books = (await response.json()) as Book[];
+    return books.filter(isAzaleaOriginal);
+  } catch {
+    return [];
+  }
+}
 
-  useEffect(() => {
-    fetch("/api/books")
-      .then((r) => r.json())
-      .then(async (data: Book[]) => {
-        const originals = data.filter(isAzaleaOriginal);
-        const enriched: BookWithDescription[] = await Promise.all(
-          originals.map(async (book) => {
-            try {
-              const res = await fetch(`${book.remoteBaseURL}/metadata.json`);
-              if (!res.ok) return book;
-              const meta = await res.json();
-              return { ...book, description: meta.description || undefined };
-            } catch {
-              return book;
-            }
-          })
-        );
-        setBooks(enriched);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+export default async function PublicationsPage() {
+  const books = await getPublications();
 
   return (
     <div className="min-h-screen bg-[#f5f5f0] relative">
@@ -102,13 +86,11 @@ export default function PublicationsPage() {
 
         {/* Book grid */}
         <div className="max-w-6xl mx-auto px-6 pb-20 w-full flex-1">
-          {loading ? (
-            <p className="text-sm text-white/50 uppercase tracking-widest">Loading...</p>
-          ) : books.length === 0 ? (
+          {books.length === 0 ? (
             <p className="text-sm text-white/50">No publications available.</p>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              {books.map((book) => {
+              {books.map((book, index) => {
                 const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
                 return (
                   <div
@@ -119,6 +101,11 @@ export default function PublicationsPage() {
                       <img
                         src={coverUrl}
                         alt={book.title}
+                        width={160}
+                        height={160}
+                        loading={index < 4 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={index < 2 ? "high" : "auto"}
                         className="rounded-xl object-cover shadow-md w-[160px] h-[160px]"
                       />
                     </div>
