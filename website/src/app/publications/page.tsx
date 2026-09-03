@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { retailerLinksByBookId } from "./retailer-links";
+import { overdriveLinksByBookId, retailerLinksByBookId } from "./retailer-links";
 
 const LIBRARY_URL =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
@@ -125,6 +125,7 @@ export default async function PublicationsPage() {
               {books.map((book, index) => {
                 const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
                 const retailerLinks = retailerLinksByBookId[book.id];
+                const overdriveLink = overdriveLinksByBookId[book.id];
                 return (
                   <div
                     key={book.id}
@@ -180,6 +181,23 @@ export default async function PublicationsPage() {
                             >
                               <GooglePlayLogo />
                               Google Play
+                            </a>
+                          )}
+                          {overdriveLink && (
+                            <a
+                              href={overdriveLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Listen to ${book.title} on OverDrive`}
+                              className="inline-flex items-center px-3 md:px-4 py-2 bg-white hover:bg-white/90 rounded-full transition-colors"
+                            >
+                              <Image
+                                src="/overdrive-logo.png"
+                                alt="OverDrive"
+                                width={118}
+                                height={18}
+                                className="w-auto h-[18px]"
+                              />
                             </a>
                           )}
                         </div>
