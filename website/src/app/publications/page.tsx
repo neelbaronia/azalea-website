@@ -24,6 +24,36 @@ function formatDuration(seconds: number): string {
   return `${m}m`;
 }
 
+function AppleLogo() {
+  return (
+    <svg
+      width="14"
+      height="18"
+      viewBox="0 0 384 512"
+      fill="currentColor"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path d="M279.55 258.94c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-79.7-44.6-33.4-3.5-69.9 19.5-83.2 19.5-14 0-46.3-18.3-72.4-17.7-34.4.5-66 20-83.9 50.8-35.6 61.7-9.1 152.5 25.5 202.5 17.3 24.9 38 52.8 65.1 51.8 26.1-1 35.9-16.7 67.5-16.7 30.6 0 39.8 16.7 67.4 16.7 27.8 0 45.5-25.4 62.6-50.4 20.1-29.3 28.4-57.8 28.9-59.3-.6-.3-56-21.5-56.3-84.6zM228.74 94.7c14.3-16.9 23.8-40.4 21.4-63.7-20.7.8-45.7 13.8-60.2 30.7-13 15-24.4 38.9-21.5 61.6 23.1 1.8 46.6-11.7 60.3-28.6z" />
+    </svg>
+  );
+}
+
+function GooglePlayLogo() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 512 512"
+      fill="currentColor"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path d="M325.3 234.3 104.6 13l280.2 161.2-59.5 60.1zM47 0C34 6.8 25.3 19.6 25.3 35.2v441.6c0 15.6 8.7 28.4 21.7 35.2l242.2-256L47 0zm425.2 225.6-58.4-33.7-65.3 64.1 65.3 64.1 59.5-34.3c18.1-10.8 18.1-49.5-1.1-60.2zM104.6 499l280.2-161.2-59.5-60.1L104.6 499z" />
+    </svg>
+  );
+}
+
 function PublicationsNavbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
@@ -135,8 +165,9 @@ export default async function PublicationsPage() {
                               href={retailerLinks.appleBooks}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center px-3 md:px-4 py-2 bg-white hover:bg-white/90 text-black text-sm font-semibold rounded-full transition-colors"
+                              className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-black hover:bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 transition-colors"
                             >
+                              <AppleLogo />
                               Apple Books
                             </a>
                           )}
@@ -145,8 +176,9 @@ export default async function PublicationsPage() {
                               href={retailerLinks.googlePlay}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center px-3 md:px-4 py-2 bg-[#4285F4] hover:bg-[#5b95f5] text-white text-sm font-semibold rounded-full transition-colors"
+                              className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-[#4285F4] hover:bg-[#5b95f5] text-white text-sm font-semibold rounded-full transition-colors"
                             >
+                              <GooglePlayLogo />
                               Google Play
                             </a>
                           )}
