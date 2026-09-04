@@ -62,12 +62,6 @@ export default function SiteFooter() {
           >
             Our Publications
           </a>
-          <a href="#" className="hover:text-white transition-colors">
-            About
-          </a>
-          <a href="#" className="hover:text-white transition-colors">
-            Terms
-          </a>
           <a href="/privacy" className="hover:text-white transition-colors">
             Privacy
           </a>
