@@ -4,7 +4,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+
+  if (process.env.VERCEL_ENV === "production" && secretKey.startsWith("sk_test_")) {
+    throw new Error("Production checkout cannot use a Stripe test key");
+  }
+
+  return new Stripe(secretKey);
 }
 
 export async function POST() {
@@ -20,6 +30,33 @@ export async function POST() {
 
   // Get or create Stripe customer
   const admin = createAdminClient();
+  const { data: existingSubscription } = await admin
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", user.id)
+    .in("status", ["active", "trialing"])
+    .limit(1)
+    .maybeSingle();
+
+  if (existingSubscription) {
+    return NextResponse.json({
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/account`,
+    });
+  }
+
+  const priceId = process.env.STRIPE_PRICE_ID;
+  if (!priceId) {
+    throw new Error("STRIPE_PRICE_ID is not configured");
+  }
+
+  const price = await stripe.prices.retrieve(priceId);
+  if (!price.active || price.type !== "recurring") {
+    throw new Error("STRIPE_PRICE_ID must reference an active recurring price");
+  }
+  if (process.env.VERCEL_ENV === "production" && !price.livemode) {
+    throw new Error("Production checkout cannot use a Stripe test price");
+  }
+
   const { data: profile } = await admin
     .from("profiles")
     .select("stripe_customer_id")
@@ -43,8 +80,13 @@ export async function POST() {
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
-    line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+    client_reference_id: user.id,
+    payment_method_types: ["card"],
+    line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
+    subscription_data: {
+      metadata: { supabase_user_id: user.id },
+    },
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/account?success=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/subscribe?canceled=true`,
   });

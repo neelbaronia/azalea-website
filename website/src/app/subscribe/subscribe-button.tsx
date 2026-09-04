@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SubscribeButton() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const started = useRef(false);
 
   async function handleSubscribe() {
     setError("");
@@ -28,9 +27,33 @@ export default function SubscribeButton() {
   }
 
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    void handleSubscribe();
+    let canceled = false;
+
+    async function beginCheckout() {
+      try {
+        const res = await fetch("/api/stripe/checkout", { method: "POST" });
+        const data = await res.json();
+
+        if (canceled) return;
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setLoading(false);
+          setError("Could not start checkout. Please try again.");
+        }
+      } catch {
+        if (canceled) return;
+        setLoading(false);
+        setError("Could not start checkout. Please try again.");
+      }
+    }
+
+    void beginCheckout();
+
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   return (
