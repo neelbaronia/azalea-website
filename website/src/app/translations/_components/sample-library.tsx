@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { RightsNotice } from "./rights-notice";
-import { samples } from "./sample-catalog";
+import { getLanguageTheme, samples } from "./sample-catalog";
 
 const uniqueValues = (field: "language" | "originalTitle" | "translator") =>
   Array.from(new Set(samples.map((sample) => sample[field])));
@@ -90,8 +90,14 @@ export function SampleLibrary() {
 
           {visibleSamples.map((sample, index) => {
             const isReady = sample.pairs.length > 0;
+            const theme = getLanguageTheme(sample.languageCode);
+            const rowStyle = {
+              "--sample-accent": theme.accent,
+              "--sample-accent-soft": theme.accentSoft,
+              "--sample-accent-ink": theme.accentInk,
+            } as CSSProperties;
             return (
-              <Link className="sample-row" href={`/translations/${sample.id}`} key={sample.id}>
+              <Link className="sample-row" href={`/translations/${sample.id}`} key={sample.id} style={rowStyle}>
                 <span className="row-number">{String(index + 1).padStart(2, "0")}</span>
                 <span className="work-cell">
                   <strong>{sample.originalTitle}</strong>

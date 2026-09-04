@@ -15,6 +15,34 @@ export type TranslationSample = {
   pairs: SentencePair[];
 };
 
+export type LanguageTheme = {
+  accent: string;
+  accentSoft: string;
+  accentInk: string;
+  highlight: string;
+};
+
+const defaultLanguageTheme: LanguageTheme = {
+  accent: "#3566ff",
+  accentSoft: "#dfe7ff",
+  accentInk: "#1f49d8",
+  highlight: "rgba(53, 102, 255, 0.15)",
+};
+
+const languageThemes: Record<string, LanguageTheme> = {
+  de: defaultLanguageTheme,
+  it: {
+    accent: "#d93668",
+    accentSoft: "#ffe1ea",
+    accentInk: "#b22150",
+    highlight: "rgba(217, 54, 104, 0.15)",
+  },
+};
+
+export function getLanguageTheme(languageCode: string) {
+  return languageThemes[languageCode] ?? defaultLanguageTheme;
+}
+
 export const samples: TranslationSample[] = [
   {
     id: "ich-hoere-sie-lachen-anna-lynn-dolman",

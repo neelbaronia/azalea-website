@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink, Info, MousePointerClick } from "lucide-react";
-import { getSample, samples } from "./sample-catalog";
+import { getLanguageTheme, getSample, samples } from "./sample-catalog";
 import type { SentencePair } from "./text-sample";
 
 const TARGET_WORDS_PER_PAGE = 220;
@@ -49,6 +49,14 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   const [currentSpread, setCurrentSpread] = useState(0);
   const ticking = useRef(false);
   const activeSample = getSample(initialSampleId) ?? samples[0];
+  const languageTheme = getLanguageTheme(activeSample.languageCode);
+  const readerStyle = {
+    "--accent": languageTheme.accent,
+    "--accent-soft": languageTheme.accentSoft,
+    "--accent-ink": languageTheme.accentInk,
+    "--highlight": languageTheme.highlight,
+    "--highlight-edge": languageTheme.accent,
+  } as CSSProperties;
   const activePairs = activeSample.pairs;
   const spreads = useMemo(() => paginatePairs(activePairs), [activePairs]);
   const storySpreadCount = spreads.length;
@@ -142,7 +150,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   const visibleSpread = currentSpread > 0 ? spreads[storySpreadIndex] : undefined;
 
   return (
-    <main className="reader-shell">
+    <main className="reader-shell" style={readerStyle}>
       <header className="reader-bar">
         <Link className="brand" href="/translations" aria-label="Return to the Azalea translation sample library">
           <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
