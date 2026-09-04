@@ -1031,7 +1031,7 @@ button { font: inherit; }
   .page-label { display: none; }
   .sentence-pair { display: block; min-height: 0; padding: 20px 0; border-bottom: 1px solid rgba(42,58,62,0.1); }
   .sentence-pair::before, .sentence-pair::after { display: block; margin: 0 26px 6px; color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
-  .sentence-pair::before { content: "Original · Deutsch"; }
+  .sentence-pair::before { content: "Original"; }
   .sentence-pair::after { content: "Translation · English"; margin-top: 20px; }
   .sentence-pair p, .sentence-pair p:first-child, .sentence-pair p:last-child { padding: 8px 26px; grid-template-columns: 20px 1fr; font-size: 18px; }
   .sentence-pair p:last-child { grid-template-columns: 20px 1fr; }

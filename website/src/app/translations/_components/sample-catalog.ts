@@ -1,4 +1,9 @@
-import { sentencePairs, type SentencePair } from "./text-sample";
+import {
+  lailaMemoryOfAshesPairs,
+  lailaMonBordierPairs,
+  lynnHelferPairs,
+  type SentencePair,
+} from "./text-sample";
 
 export type TranslationSample = {
   id: string;
@@ -37,6 +42,12 @@ const languageThemes: Record<string, LanguageTheme> = {
     accentInk: "#b22150",
     highlight: "rgba(217, 54, 104, 0.15)",
   },
+  fr: {
+    accent: "#008a72",
+    accentSoft: "#ddf3ed",
+    accentInk: "#006a58",
+    highlight: "rgba(0, 138, 114, 0.15)",
+  },
 };
 
 export function getLanguageTheme(languageCode: string) {
@@ -56,7 +67,33 @@ export const samples: TranslationSample[] = [
     source: "VOLLTEXT 4/2024",
     sourceUrl: "https://volltext.net/wp-content/uploads/2025/08/Volltext_2024-04.pdf",
     sourceFolio: 48,
-    pairs: sentencePairs,
+    pairs: lynnHelferPairs,
+  },
+  {
+    id: "memoire-de-cendres-laila-riazi",
+    language: "French",
+    languageCode: "fr",
+    originalTitle: "Mémoire de cendres",
+    translatedTitle: "Memory of Ashes",
+    author: "Christian Malela",
+    translator: "Laila Riazi",
+    translatorBioUrl: "https://complit.berkeley.edu/people/laila-riazi",
+    source: "Short Édition",
+    sourceUrl: "https://short-edition.com/fr/oeuvre/memoire-de-cendres",
+    pairs: lailaMemoryOfAshesPairs,
+  },
+  {
+    id: "mon-bordier-et-ma-rose-laila-riazi",
+    language: "French",
+    languageCode: "fr",
+    originalTitle: "Mon bordièr et ma Rose",
+    translatedTitle: "My Farmer and My Rose",
+    author: "Nicolas Guardiola",
+    translator: "Laila Riazi",
+    translatorBioUrl: "https://complit.berkeley.edu/people/laila-riazi",
+    source: "Le Lecteur du Val, 2024",
+    sourceUrl: "https://www.lecteurduval.org/645-nouvelles_2024.html#bordier",
+    pairs: lailaMonBordierPairs,
   },
   {
     id: "la-giostra-sophia-barry-gordon",

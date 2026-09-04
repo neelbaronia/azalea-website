@@ -7,8 +7,8 @@ import { getLanguageTheme, getSample, samples } from "./sample-catalog";
 import type { SentencePair } from "./text-sample";
 
 const TARGET_WORDS_PER_PAGE = 220;
-const MIN_PAIRS_PER_SPREAD = 12;
-const MAX_PAIRS_PER_SPREAD = 24;
+const MIN_PAIRS_PER_SPREAD = 1;
+const MAX_PAIRS_PER_SPREAD = 16;
 
 type IndexedPair = {
   pair: SentencePair;
@@ -25,10 +25,12 @@ function paginatePairs(pairs: SentencePair[]): IndexedPair[][] {
   let wordCount = 0;
 
   pairs.forEach((pair, index) => {
-    const pairWordCount = countWords(pair.de);
+    const pairWordCount = countWords(pair.original);
     const pageIsFull =
       spread.length >= MAX_PAIRS_PER_SPREAD ||
-      (spread.length >= MIN_PAIRS_PER_SPREAD && wordCount + pairWordCount > TARGET_WORDS_PER_PAGE);
+      (spread.length >= MIN_PAIRS_PER_SPREAD
+        && Math.abs(TARGET_WORDS_PER_PAGE - wordCount)
+          <= Math.abs(TARGET_WORDS_PER_PAGE - (wordCount + pairWordCount)));
 
     if (pageIsFull) {
       spreads.push(spread);
@@ -249,30 +251,32 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
 
               <div className="sentence-list">
                 {visibleSpread.map(({ pair, index }) => {
-                  const hasQuotedDropCap = index === 0 && (pair.de.startsWith("„") || pair.de.startsWith("»"));
+                  const opening = index === 0
+                    ? pair.original.match(/^([„»«“"]\s*)(\p{L})/u)
+                    : null;
                   return (
                     <div
                       className={`sentence-pair ${activeIndex === index ? "is-active" : ""}`}
                       data-sentence-pair={index}
-                      key={`${pair.de}-${index}`}
+                      key={`${pair.original}-${index}`}
                       onPointerEnter={() => setActiveIndex(index)}
                     >
                       <p tabIndex={0} role="button" aria-label={`${activeSample.language} sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
                         <span className="sentence-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                         <span className="sentence-text" lang={activeSample.languageCode}>
-                          {hasQuotedDropCap ? (
+                          {opening ? (
                             <>
                               <span className="opening-cluster">
-                                <span className="opening-quote">{pair.de.slice(0, 1)}</span>
-                                <span className="drop-letter">{pair.de.slice(1, 2)}</span>
+                                <span className="opening-quote">{opening[1]}</span>
+                                <span className="drop-letter">{opening[2]}</span>
                               </span>
-                              {pair.de.slice(2)}
+                              {pair.original.slice(opening[0].length)}
                             </>
-                          ) : pair.de}
+                          ) : pair.original}
                         </span>
                       </p>
                       <p tabIndex={0} role="button" aria-label={`English sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
-                        <span className="sentence-text" lang="en">{pair.en}</span>
+                        <span className="sentence-text" lang="en">{pair.translation}</span>
                         <span className="sentence-number right-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                       </p>
                     </div>
@@ -281,8 +285,8 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
               </div>
 
               {storySpreadIndex === spreads.length - 1 && (
-                <div className="end-mark" aria-label="End of opening excerpt">
-                  <span>End of opening excerpt</span>
+                <div className="end-mark" aria-label="End of sample">
+                  <span>End of sample</span>
                   <strong>◆</strong>
                 </div>
               )}
