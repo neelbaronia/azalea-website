@@ -30,7 +30,6 @@ export function SampleLibrary() {
           <span>AZALEA</span>
         </a>
         <div className="library-identity">
-          <span>Private editorial library</span>
           <strong>Translation samples</strong>
         </div>
       </header>
@@ -40,10 +39,8 @@ export function SampleLibrary() {
 
         <div className="index-title-row">
           <div>
-            <span>Azalea Labs / Translation Desk</span>
             <h1>Sample library</h1>
           </div>
-          <p>{samples.length} commissioned samples across {uniqueValues("language").length} source languages</p>
         </div>
 
         <div className="library-filters" aria-label="Filter translation samples">
@@ -119,11 +116,6 @@ export function SampleLibrary() {
         </div>
       </section>
 
-      <footer>
-        <div><span className="brand-mark small"><img src="/azalea-icon.webp" alt="" /></span><strong>Azalea Labs</strong></div>
-        <p>Private translation samples for publisher evaluation.</p>
-        <p>Original works remain the property of their rights holders.</p>
-      </footer>
     </main>
   );
 }
