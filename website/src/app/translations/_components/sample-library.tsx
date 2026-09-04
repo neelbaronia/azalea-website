@@ -85,7 +85,6 @@ export function SampleLibrary() {
             <span>Language</span>
             <span>Translator</span>
             <span>Preview</span>
-            <span />
           </div>
 
           {visibleSamples.map((sample, index) => {
@@ -97,7 +96,7 @@ export function SampleLibrary() {
               "--sample-accent-ink": theme.accentInk,
             } as CSSProperties;
             return (
-              <Link className="sample-row" href={`/translations/${sample.id}`} key={sample.id} style={rowStyle}>
+              <div className="sample-row" key={sample.id} style={rowStyle}>
                 <span className="row-number">{String(index + 1).padStart(2, "0")}</span>
                 <span className="work-cell">
                   <strong>{sample.originalTitle}</strong>
@@ -106,10 +105,13 @@ export function SampleLibrary() {
                 <span className="language-cell" data-label="Language">{sample.language}</span>
                 <span className="translator-cell" data-label="Translator">{sample.translator}</span>
                 <span className={`status-cell ${isReady ? "is-ready" : "is-pending"}`} data-label="Preview">
-                  <i aria-hidden="true" />{isReady ? "Ready to read" : "Being prepared"}
+                  {isReady ? (
+                    <Link className="translation-link" href={`/translations/${sample.id}`}>
+                      Read translation<ArrowUpRight aria-hidden="true" />
+                    </Link>
+                  ) : "Being prepared"}
                 </span>
-                <span className="open-cell" aria-hidden="true"><ArrowUpRight /></span>
-              </Link>
+              </div>
             );
           })}
 

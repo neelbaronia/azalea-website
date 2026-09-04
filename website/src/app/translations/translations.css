@@ -526,7 +526,7 @@ button { font: inherit; }
 .sample-index-head,
 .sample-row {
   display: grid;
-  grid-template-columns: 40px minmax(300px, 1.8fr) minmax(110px, 0.62fr) minmax(180px, 0.94fr) minmax(135px, 0.7fr) 30px;
+  grid-template-columns: 40px minmax(300px, 1.8fr) minmax(110px, 0.62fr) minmax(180px, 0.94fr) minmax(160px, 0.78fr);
   align-items: center;
   gap: 18px;
 }
@@ -552,16 +552,6 @@ button { font: inherit; }
   background: linear-gradient(90deg, color-mix(in srgb, var(--sample-accent-soft) 42%, white), transparent 48%);
   border-bottom: 1px solid #d9d9d5;
   box-shadow: inset 3px 0 0 var(--sample-accent);
-  text-decoration: none;
-  transition: background 170ms ease, padding 170ms ease;
-}
-
-.sample-row:hover,
-.sample-row:focus-visible {
-  padding-right: 15px;
-  padding-left: 15px;
-  background: color-mix(in srgb, var(--sample-accent-soft) 58%, white);
-  outline: none;
 }
 
 .row-number {
@@ -613,41 +603,32 @@ button { font: inherit; }
 .status-cell {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   color: var(--muted);
 }
 
-.status-cell i {
-  width: 6px;
-  height: 6px;
-  flex: none;
-  background: #b8b8b4;
-  border-radius: 50%;
-}
-
-.status-cell.is-ready {
+.translation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--sample-accent-ink);
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.status-cell.is-ready i {
-  background: var(--sample-accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sample-accent) 12%, transparent);
+.translation-link:hover,
+.translation-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.open-cell {
-  display: grid;
-  place-items: center;
-  color: var(--sample-accent);
-}
-
-.open-cell svg {
-  width: 16px;
-  height: 16px;
+.translation-link svg {
+  width: 15px;
+  height: 15px;
   transition: transform 170ms ease;
 }
 
-.sample-row:hover .open-cell svg,
-.sample-row:focus-visible .open-cell svg {
+.translation-link:hover svg,
+.translation-link:focus-visible svg {
   transform: translate(2px, -2px);
 }
 
@@ -960,7 +941,7 @@ button { font: inherit; }
   .document-meta { grid-template-columns: minmax(160px, 1.25fr) minmax(130px, 0.9fr) 90px minmax(150px, 1fr) minmax(160px, 1.1fr); }
   .spread-actions { margin-top: 0; }
   .sample-index-head,
-  .sample-row { grid-template-columns: 34px minmax(250px, 1.5fr) 90px minmax(155px, 0.9fr) minmax(125px, 0.7fr) 24px; gap: 12px; }
+  .sample-row { grid-template-columns: 34px minmax(250px, 1.5fr) 90px minmax(155px, 0.9fr) minmax(145px, 0.75fr); gap: 12px; }
   .title-spread { min-height: 0; }
   .story-book, .story-spread { min-height: 0; }
   .title-lockup h2 { font-size: clamp(34px, 6vw, 52px); }
@@ -981,13 +962,10 @@ button { font: inherit; }
   .library-filters { grid-template-columns: 1fr; padding-top: 14px; }
   .library-filters .sample-filter:last-child { grid-column: auto; }
   .sample-index-head { display: none; }
-  .sample-row { min-height: 0; grid-template-columns: 24px minmax(0, 1fr) 24px; gap: 8px 10px; padding: 20px 4px; }
-  .sample-row:hover,
-  .sample-row:focus-visible { padding-right: 10px; padding-left: 10px; }
+  .sample-row { min-height: 0; grid-template-columns: 24px minmax(0, 1fr); gap: 8px 10px; padding: 20px 4px; }
   .row-number { grid-column: 1; grid-row: 1 / span 4; align-self: start; padding-top: 7px; }
   .work-cell { grid-column: 2; grid-row: 1; }
   .work-cell strong { white-space: normal; }
-  .open-cell { grid-column: 3; grid-row: 1; align-self: start; padding-top: 5px; }
   .language-cell,
   .translator-cell,
   .status-cell { grid-column: 2; display: flex; gap: 8px; align-items: baseline; }
@@ -995,7 +973,6 @@ button { font: inherit; }
   .translator-cell::before,
   .status-cell::before { content: attr(data-label); width: 66px; flex: none; color: #8a8a86; font-size: 7px; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; }
   .status-cell { align-items: center; }
-  .status-cell i { order: 2; }
   .reader-bar { min-height: 0; align-items: center; flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px; }
   .brand { font-size: 10px; }
   .reader-bar .brand { order: 1; margin-top: 0; }
