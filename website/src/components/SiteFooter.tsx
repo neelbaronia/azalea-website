@@ -51,6 +51,12 @@ export default function SiteFooter() {
             Samples
           </a>
           <a
+            href="/translations"
+            className="hover:text-white transition-colors"
+          >
+            Translation Samples
+          </a>
+          <a
             href="/publications"
             className="hover:text-white transition-colors"
           >
