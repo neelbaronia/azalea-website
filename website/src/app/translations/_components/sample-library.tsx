@@ -32,7 +32,7 @@ export function SampleLibrary() {
           <span>AZALEA</span>
         </a>
         <div className="library-identity">
-          <strong>Translation samples</strong>
+          <strong>Translation Samples</strong>
         </div>
       </header>
 
@@ -41,7 +41,7 @@ export function SampleLibrary() {
 
         <div className="index-title-row">
           <div>
-            <h1>Sample library</h1>
+            <h1>Translation Samples</h1>
           </div>
         </div>
 
