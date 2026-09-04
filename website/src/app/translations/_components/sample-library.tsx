@@ -15,10 +15,12 @@ export function SampleLibrary() {
   const [translator, setTranslator] = useState("");
 
   const visibleSamples = useMemo(
-    () => samples.filter((sample) =>
-      (!language || sample.language === language)
-      && (!title || sample.originalTitle === title)
-      && (!translator || sample.translator === translator)),
+    () => samples
+      .filter((sample) =>
+        (!language || sample.language === language)
+        && (!title || sample.originalTitle === title)
+        && (!translator || sample.translator === translator))
+      .sort((a, b) => Number(b.pairs.length > 0) - Number(a.pairs.length > 0)),
     [language, title, translator],
   );
 
@@ -82,6 +84,7 @@ export function SampleLibrary() {
           <div className="sample-index-head" aria-hidden="true">
             <span />
             <span>Original work</span>
+            <span>English</span>
             <span>Language</span>
             <span>Translator</span>
             <span>Preview</span>
@@ -101,6 +104,10 @@ export function SampleLibrary() {
                 <span className="work-cell">
                   <strong>{sample.originalTitle}</strong>
                   <small>{sample.author}</small>
+                </span>
+                <span className="english-cell" data-label="English">
+                  <strong>{sample.translatedTitle}</strong>
+                  <small>{sample.englishAuthor}</small>
                 </span>
                 <span className="language-cell" data-label="Language">{sample.language}</span>
                 <span className="translator-cell" data-label="Translator">{sample.translator}</span>

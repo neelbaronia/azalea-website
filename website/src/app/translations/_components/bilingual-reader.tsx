@@ -185,8 +185,8 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
             </strong>
           </div>
           <div className="title-meta translated-meta">
-            <span>English title</span>
-            <strong>{activeSample.translatedTitle ?? "Title pending"}</strong>
+            <span>English title / author</span>
+            <strong>{activeSample.translatedTitle} · {activeSample.englishAuthor}</strong>
           </div>
         </div>
 
