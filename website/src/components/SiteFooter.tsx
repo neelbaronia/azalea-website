@@ -48,7 +48,7 @@ export default function SiteFooter() {
             Contact
           </a>
           <a href="/samples" className="hover:text-white transition-colors">
-            Samples
+            Audio Samples
           </a>
           <a
             href="/translations"
