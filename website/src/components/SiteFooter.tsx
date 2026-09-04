@@ -62,14 +62,6 @@ export default function SiteFooter() {
           >
             Our Publications
           </a>
-          <a
-            href="/payout.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white transition-colors"
-          >
-            Payout Dashboard
-          </a>
           <a href="#" className="hover:text-white transition-colors">
             About
           </a>
