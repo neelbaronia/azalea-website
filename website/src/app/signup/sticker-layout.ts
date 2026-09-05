@@ -8,8 +8,8 @@ export const coverStickers = [
   { title: "The General's Cook", src: `${COVER_BASE_URL}/skyhorse-the-generals-cook.webp`, left: 0.4, top: 0.06, tilt: 8 },
   { title: "Fighting Techniques of the Elite Forces", src: `${COVER_BASE_URL}/skyhorse-fighting-techniques-of-the-elite-forces.webp`, left: 0.63, top: 0.34, tilt: -7 },
   { title: "Cowboys", src: `${COVER_BASE_URL}/skyhorse-cowboys.webp`, left: 0.4, top: 0.62, tilt: 10 },
-  { title: "Acts of Allegiance", src: `${COVER_BASE_URL}/skyhorse-acts-of-allegiance.webp`, left: 0.07, top: 0.57, tilt: -8 },
-  { title: "The Golden Age of Pirates", src: `${COVER_BASE_URL}/skyhorse-the-golden-age-of-pirates.webp`, left: 0.3, top: 0.33, tilt: 5 },
+  { title: "Home Is Where the Heart Is", src: `${COVER_BASE_URL}/home-is-where-the-heart-is.webp`, left: 0.07, top: 0.57, tilt: -8 },
+  { title: "The Conquest of Happiness", src: `${COVER_BASE_URL}/the-conquest-of-happiness.webp`, left: 0.3, top: 0.33, tilt: 5 },
 ] as const;
 
 export type CoverSticker = (typeof coverStickers)[number];
