@@ -44,7 +44,7 @@ function SignupForm({
         <div>
           <label
             htmlFor={`${idPrefix}-firstName`}
-            className="mb-1 block font-[family-name:var(--font-geist-sans)] text-xs font-semibold text-[#6f746f]"
+            className="mb-1 block font-[family-name:var(--font-geist-sans)] text-sm font-semibold text-[#6f746f] lg:text-xs"
           >
             First name
           </label>
@@ -54,7 +54,7 @@ function SignupForm({
             required
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-sm text-[#111] outline-none transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
+            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-base text-[#111] outline-none lg:text-sm transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
             placeholder="Jane"
             autoComplete="given-name"
           />
@@ -63,7 +63,7 @@ function SignupForm({
         <div>
           <label
             htmlFor={`${idPrefix}-lastName`}
-            className="mb-1 block font-[family-name:var(--font-geist-sans)] text-xs font-semibold text-[#6f746f]"
+            className="mb-1 block font-[family-name:var(--font-geist-sans)] text-sm font-semibold text-[#6f746f] lg:text-xs"
           >
             Last name
           </label>
@@ -73,7 +73,7 @@ function SignupForm({
             required
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-sm text-[#111] outline-none transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
+            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-base text-[#111] outline-none lg:text-sm transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
             placeholder="Doe"
             autoComplete="family-name"
           />
@@ -83,7 +83,7 @@ function SignupForm({
       <div>
         <label
           htmlFor={`${idPrefix}-email`}
-          className="mb-1 block font-[family-name:var(--font-geist-sans)] text-xs font-semibold text-[#6f746f]"
+          className="mb-1 block font-[family-name:var(--font-geist-sans)] text-sm font-semibold text-[#6f746f] lg:text-xs"
         >
           Email
         </label>
@@ -93,7 +93,7 @@ function SignupForm({
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-sm text-[#111] outline-none transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
+          className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 font-[family-name:var(--font-geist-sans)] text-base text-[#111] outline-none lg:text-sm transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
           placeholder="jane@example.com"
           autoComplete="email"
         />
@@ -102,7 +102,7 @@ function SignupForm({
       <div>
         <label
           htmlFor={`${idPrefix}-password`}
-          className="mb-1 block font-[family-name:var(--font-geist-sans)] text-xs font-semibold text-[#6f746f]"
+          className="mb-1 block font-[family-name:var(--font-geist-sans)] text-sm font-semibold text-[#6f746f] lg:text-xs"
         >
           Password
         </label>
@@ -114,14 +114,14 @@ function SignupForm({
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 pr-12 font-[family-name:var(--font-geist-sans)] text-sm text-[#111] outline-none transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
+            className="h-[52px] w-full rounded-[10px] border border-[#e1e5dd] bg-white px-4 pr-12 font-[family-name:var(--font-geist-sans)] text-base text-[#111] outline-none lg:text-sm transition focus:border-[#b7c4b3] focus:ring-4 focus:ring-[#1f6b4e]/10"
             placeholder="Min 6 characters"
             autoComplete="new-password"
           />
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-[#6f746f] transition hover:bg-[#f2f6ef] hover:text-[#111]"
+            className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-[#6f746f] transition hover:bg-[#f2f6ef] hover:text-[#111]"
             aria-label={showPassword ? "Hide password" : "Show password"}
             aria-pressed={showPassword}
           >
