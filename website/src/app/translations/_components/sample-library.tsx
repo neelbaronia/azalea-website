@@ -9,6 +9,9 @@ import { getLanguageTheme, samples } from "./sample-catalog";
 const uniqueValues = (field: "language" | "originalTitle" | "translator") =>
   Array.from(new Set(samples.map((sample) => sample[field])));
 
+const isSampleReady = (sample: (typeof samples)[number]) =>
+  sample.pairs.length > 0 || Boolean(sample.translationParagraphs?.length);
+
 export function SampleLibrary() {
   const [language, setLanguage] = useState("");
   const [title, setTitle] = useState("");
@@ -20,7 +23,7 @@ export function SampleLibrary() {
         (!language || sample.language === language)
         && (!title || sample.originalTitle === title)
         && (!translator || sample.translator === translator))
-      .sort((a, b) => Number(b.pairs.length > 0) - Number(a.pairs.length > 0)),
+      .sort((a, b) => Number(isSampleReady(b)) - Number(isSampleReady(a))),
     [language, title, translator],
   );
 
@@ -91,7 +94,7 @@ export function SampleLibrary() {
           </div>
 
           {visibleSamples.map((sample, index) => {
-            const isReady = sample.pairs.length > 0;
+            const isReady = isSampleReady(sample);
             const theme = getLanguageTheme(sample.languageCode);
             const rowStyle = {
               "--sample-accent": theme.accent,

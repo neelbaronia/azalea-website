@@ -19,13 +19,13 @@ function countWords(text: string) {
   return text.trim().split(/\s+/u).filter(Boolean).length;
 }
 
-function paginatePairs(pairs: SentencePair[]): IndexedPair[][] {
+function paginatePairs(pairs: SentencePair[], translationOnly = false): IndexedPair[][] {
   const spreads: IndexedPair[][] = [];
   let spread: IndexedPair[] = [];
   let wordCount = 0;
 
   pairs.forEach((pair, index) => {
-    const pairWordCount = countWords(pair.original);
+    const pairWordCount = countWords(translationOnly ? pair.translation : pair.original);
     const pageIsFull =
       spread.length >= MAX_PAIRS_PER_SPREAD ||
       (spread.length >= MIN_PAIRS_PER_SPREAD
@@ -51,6 +51,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   const [currentSpread, setCurrentSpread] = useState(0);
   const ticking = useRef(false);
   const activeSample = getSample(initialSampleId) ?? samples[0];
+  const translationOnly = activeSample.pairs.length === 0 && Boolean(activeSample.translationParagraphs?.length);
   const languageTheme = getLanguageTheme(activeSample.languageCode);
   const readerStyle = {
     "--accent": languageTheme.accent,
@@ -59,8 +60,13 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
     "--highlight": languageTheme.highlight,
     "--highlight-edge": languageTheme.accent,
   } as CSSProperties;
-  const activePairs = activeSample.pairs;
-  const spreads = useMemo(() => paginatePairs(activePairs), [activePairs]);
+  const activePairs = useMemo(
+    () => translationOnly
+      ? (activeSample.translationParagraphs ?? []).map((translation) => ({ original: "", translation }))
+      : activeSample.pairs,
+    [activeSample, translationOnly],
+  );
+  const spreads = useMemo(() => paginatePairs(activePairs, translationOnly), [activePairs, translationOnly]);
   const storySpreadCount = spreads.length;
   const totalSpreads = Math.max(1, storySpreadCount + 1);
 
@@ -89,20 +95,23 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   }, []);
 
   useEffect(() => {
+    if (translationOnly) return;
+
     const onScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
       window.requestAnimationFrame(findActiveSentence);
     };
 
-    findActiveSentence();
+    const initialFrame = window.requestAnimationFrame(findActiveSentence);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
+      window.cancelAnimationFrame(initialFrame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [findActiveSentence]);
+  }, [findActiveSentence, translationOnly]);
 
   const goTo = useCallback((index: number) => {
     const next = Math.max(0, Math.min(activePairs.length - 1, index));
@@ -152,7 +161,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   const visibleSpread = currentSpread > 0 ? spreads[storySpreadIndex] : undefined;
 
   return (
-    <main className="reader-shell" style={readerStyle}>
+    <main className={`reader-shell${translationOnly ? " translation-reader" : ""}`} style={readerStyle}>
       <header className="reader-bar">
         <Link className="brand" href="/translations" aria-label="Return to the Azalea Labs translation sample library">
           <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
@@ -191,12 +200,12 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
         </div>
 
         <div className="spread-actions">
-          <nav className="spread-controls" aria-label="Move between page spreads">
-            <button type="button" onClick={() => turnToSpread(currentSpread - 1)} disabled={currentSpread === 0} aria-label="Previous spread">
+          <nav className="spread-controls" aria-label={translationOnly ? "Move between pages" : "Move between page spreads"}>
+            <button type="button" onClick={() => turnToSpread(currentSpread - 1)} disabled={currentSpread === 0} aria-label={translationOnly ? "Previous page" : "Previous spread"}>
               <ArrowLeft aria-hidden="true" />
             </button>
             <span><strong>{currentSpread + 1}</strong><i>/</i>{totalSpreads}</span>
-            <button type="button" onClick={() => turnToSpread(currentSpread + 1)} disabled={currentSpread === totalSpreads - 1} aria-label="Next spread">
+            <button type="button" onClick={() => turnToSpread(currentSpread + 1)} disabled={currentSpread === totalSpreads - 1} aria-label={translationOnly ? "Next page" : "Next spread"}>
               <ArrowRight aria-hidden="true" />
             </button>
           </nav>
@@ -216,21 +225,24 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
 
       <section className="book-wrap" id="reading-spread">
         {activePairs.length > 0 && currentSpread === 0 && (
-          <article className="book title-book" aria-label="Bilingual title pages">
+          <article className="book title-book" aria-label={translationOnly ? "English translation title page" : "Bilingual title pages"}>
             <div className="title-spread">
-              <div className="title-page left-page">
-                <div className="running-head"><span>{activeSample.source}</span><span>{activeSample.language}</span></div>
-                <div className="title-lockup">
-                  <span className="ornament">✦</span>
-                  <h2>{activeSample.originalTitle}</h2>
-                  <p>By {activeSample.author}</p>
+              {!translationOnly && (
+                <div className="title-page left-page">
+                  <div className="running-head"><span>{activeSample.source}</span><span>{activeSample.language}</span></div>
+                  <div className="title-lockup">
+                    <span className="ornament">✦</span>
+                    <h2>{activeSample.originalTitle}</h2>
+                    <p>By {activeSample.author}</p>
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="title-page right-page">
-                <div className="running-head"><span>ENGLISH TRANSLATION</span><span>AZALEA</span></div>
+                <div className="running-head"><span>ENGLISH TRANSLATION</span><span>{translationOnly ? "AZALEA LABS" : "AZALEA"}</span></div>
                 <div className="title-lockup">
                   <span className="ornament">✦</span>
                   <h2>{activeSample.translatedTitle ?? "Translation sample"}</h2>
+                  {translationOnly && <p>By {activeSample.englishAuthor}</p>}
                   <p>Translated by {activeSample.translator}</p>
                 </div>
               </div>
@@ -241,13 +253,21 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
         {visibleSpread && (
           <article
             className={`book story-book ${storySpreadIndex === 0 ? "opening-page" : ""}`}
-            aria-label={`Side-by-side ${activeSample.language} and English story excerpt, spread ${storySpreadIndex + 1}`}
+            aria-label={translationOnly
+              ? `English translation, page ${storySpreadIndex + 1}`
+              : `Side-by-side ${activeSample.language} and English story excerpt, spread ${storySpreadIndex + 1}`}
             key={`spread-${storySpreadIndex}`}
-            onMouseLeave={findActiveSentence}
+            onMouseLeave={translationOnly ? undefined : findActiveSentence}
           >
             <div className="story-spread">
-              <div className="page-label left-label"><span>{activeSample.author}</span><strong>{activeSample.originalTitle}</strong></div>
-              <div className="page-label right-label"><strong>{activeSample.translatedTitle ?? activeSample.originalTitle}</strong><span>{activeSample.translator}</span></div>
+              {translationOnly ? (
+                <div className="page-label translation-label"><strong>{activeSample.translatedTitle}</strong><span>{activeSample.translator}</span></div>
+              ) : (
+                <>
+                  <div className="page-label left-label"><span>{activeSample.author}</span><strong>{activeSample.originalTitle}</strong></div>
+                  <div className="page-label right-label"><strong>{activeSample.translatedTitle ?? activeSample.originalTitle}</strong><span>{activeSample.translator}</span></div>
+                </>
+              )}
 
               <div className="sentence-list">
                 {visibleSpread.map(({ pair, index }) => {
@@ -259,26 +279,32 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
                       className={`sentence-pair ${activeIndex === index ? "is-active" : ""}`}
                       data-sentence-pair={index}
                       key={`${pair.original}-${index}`}
-                      onPointerEnter={() => setActiveIndex(index)}
+                      onPointerEnter={translationOnly ? undefined : () => setActiveIndex(index)}
                     >
-                      <p tabIndex={0} role="button" aria-label={`${activeSample.language} sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
-                        <span className="sentence-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                        <span className="sentence-text" lang={activeSample.languageCode}>
-                          {opening ? (
-                            <>
-                              <span className="opening-cluster">
-                                <span className="opening-quote">{opening[1]}</span>
-                                <span className="drop-letter">{opening[2]}</span>
-                              </span>
-                              {pair.original.slice(opening[0].length)}
-                            </>
-                          ) : pair.original}
-                        </span>
-                      </p>
-                      <p tabIndex={0} role="button" aria-label={`English sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
-                        <span className="sentence-text" lang="en">{pair.translation}</span>
-                        <span className="sentence-number right-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                      </p>
+                      {translationOnly ? (
+                        <p className="translation-paragraph" lang="en">{pair.translation}</p>
+                      ) : (
+                        <>
+                          <p tabIndex={0} role="button" aria-label={`${activeSample.language} sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
+                            <span className="sentence-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                            <span className="sentence-text" lang={activeSample.languageCode}>
+                              {opening ? (
+                                <>
+                                  <span className="opening-cluster">
+                                    <span className="opening-quote">{opening[1]}</span>
+                                    <span className="drop-letter">{opening[2]}</span>
+                                  </span>
+                                  {pair.original.slice(opening[0].length)}
+                                </>
+                              ) : pair.original}
+                            </span>
+                          </p>
+                          <p tabIndex={0} role="button" aria-label={`English sentence ${index + 1}`} onClick={() => goTo(index)} onKeyDown={(event) => activateWithKeyboard(event, index)}>
+                            <span className="sentence-text" lang="en">{pair.translation}</span>
+                            <span className="sentence-number right-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                          </p>
+                        </>
+                      )}
                     </div>
                   );
                 })}
@@ -291,8 +317,14 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
                 </div>
               )}
 
-              <span className="spread-folio spread-folio-left">{storySpreadIndex * 2 + 1}</span>
-              <span className="spread-folio spread-folio-right">{storySpreadIndex * 2 + 2}</span>
+              {translationOnly ? (
+                <span className="spread-folio spread-folio-single">{storySpreadIndex + 1}</span>
+              ) : (
+                <>
+                  <span className="spread-folio spread-folio-left">{storySpreadIndex * 2 + 1}</span>
+                  <span className="spread-folio spread-folio-right">{storySpreadIndex * 2 + 2}</span>
+                </>
+              )}
             </div>
           </article>
         )}
@@ -318,7 +350,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
               className="page-edge-turn page-edge-turn-left"
               onClick={() => turnToSpread(currentSpread - 1)}
               disabled={currentSpread === 0}
-              aria-label="Previous spread"
+              aria-label={translationOnly ? "Previous page" : "Previous spread"}
             >
               <ArrowLeft aria-hidden="true" />
             </button>
@@ -327,7 +359,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
               className="page-edge-turn page-edge-turn-right"
               onClick={() => turnToSpread(currentSpread + 1)}
               disabled={currentSpread === totalSpreads - 1}
-              aria-label="Next spread"
+              aria-label={translationOnly ? "Next page" : "Next spread"}
             >
               <ArrowRight aria-hidden="true" />
             </button>

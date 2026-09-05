@@ -4,6 +4,7 @@ import {
   lynnHelferPairs,
   type SentencePair,
 } from "./text-sample";
+import { hanForeheadAndBenchParagraphs, hanMinotaurParagraphs } from "./han-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -19,6 +20,7 @@ export type TranslationSample = {
   sourceUrl: string;
   sourceFolio?: number;
   pairs: SentencePair[];
+  translationParagraphs?: string[];
 };
 
 export type LanguageTheme = {
@@ -229,6 +231,7 @@ export const samples: TranslationSample[] = [
     source: "一苇轩",
     sourceUrl: "https://www.gzywtk.com/tmshow/31525.html",
     pairs: [],
+    translationParagraphs: hanMinotaurParagraphs,
   },
   {
     id: "forehead-and-bench-han-li",
@@ -243,6 +246,7 @@ export const samples: TranslationSample[] = [
     source: "北国网",
     sourceUrl: "https://news.lnd.com.cn/system/2025/02/19/030502682.shtml",
     pairs: [],
+    translationParagraphs: hanForeheadAndBenchParagraphs,
   },
   {
     id: "a-substitute-for-fiction-jordan-niver-johnson",
