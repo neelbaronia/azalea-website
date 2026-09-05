@@ -19,13 +19,13 @@ function countWords(text: string) {
   return text.trim().split(/\s+/u).filter(Boolean).length;
 }
 
-function paginatePairs(pairs: SentencePair[], translationOnly = false): IndexedPair[][] {
+function paginatePairs(pairs: SentencePair[], countTranslationWords = false): IndexedPair[][] {
   const spreads: IndexedPair[][] = [];
   let spread: IndexedPair[] = [];
   let wordCount = 0;
 
   pairs.forEach((pair, index) => {
-    const pairWordCount = countWords(translationOnly ? pair.translation : pair.original);
+    const pairWordCount = countWords(countTranslationWords ? pair.translation : pair.original);
     const pageIsFull =
       spread.length >= MAX_PAIRS_PER_SPREAD ||
       (spread.length >= MIN_PAIRS_PER_SPREAD
@@ -66,7 +66,10 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
       : activeSample.pairs,
     [activeSample, translationOnly],
   );
-  const spreads = useMemo(() => paginatePairs(activePairs, translationOnly), [activePairs, translationOnly]);
+  // Chinese does not separate words with spaces. Use the aligned English text
+  // to size its spreads instead of treating each Chinese paragraph as one word.
+  const countTranslationWords = translationOnly || activeSample.languageCode === "zh";
+  const spreads = useMemo(() => paginatePairs(activePairs, countTranslationWords), [activePairs, countTranslationWords]);
   const storySpreadCount = spreads.length;
   const totalSpreads = Math.max(1, storySpreadCount + 1);
 

@@ -1,3 +1,5 @@
+import type { SentencePair } from "./text-sample";
+
 // English translations delivered by Han Li. Paragraphs preserve the submitted
 // wording; only line wrapping from the document extraction is normalized.
 
@@ -22,6 +24,34 @@ export const hanForeheadAndBenchParagraphs: string[] = [
   "It rained for several days in a row. When the sun came out, the figure Bench had been waiting for appeared at last. He watched the early-autumn sunset stretch Forehead’s shadow into the shape of a tall bamboo. From far away, Bench shouted, “Forehead! Come on, if you’ve got the guts!”",
   "What Bench did not realize was that there were tears glimmering in his eyes."
 ];
+
+// Chinese original supplied by the user. Split only at existing sentence
+// boundaries to align with Han's English paragraphs; story wording is unchanged.
+const hanForeheadAndBenchOriginalParagraphs: string[] = [
+  "夕阳西下的公园里，散步的老庞看到了小学同学板凳，肯定没错，无论岁月如何磨砺，他还是认出了眉梢儿有疤的板凳，那个曾经总欺负他的家伙，如今却因为一场脑血栓，变得行动迟缓，像挎着菜筐的老大爷，完全失去了早年的威风。",
+  "小时候，板凳总是仗着自己身强体壮，每次在游戏中都死死地拿捏他，尤其是撞拐，记忆中老庞好像几乎没赢过。",
+  "撞拐是很多人都熟悉的游戏，在地上画一个圈儿，对战双方用右手把自己的左脚或者用左手把自己的右脚提起来，金鸡独立。双方在蹦跳中追逐相撞，出圈儿或站立不稳双腿着地就输了。",
+  "有一次，老庞被板凳狠狠地撞倒在地上，手掌支撑地面时擦出了口子，鲜血渗出。委屈的泪水在老庞眼眶里打转儿，板凳则在一旁鄙视地看着他，说：奔儿头，奔儿头，下雨不愁，你也就这熊样儿！奔儿头被刺激了，他偷偷在本子上写下几个歪歪扭扭的字：君子报仇十年不晚，等着瞧！",
+  "然而，命运似乎开了一个玩笑，40多年后他们才见面，而曾经的强者和弱者的位置似乎颠倒了。",
+  "老庞走到板凳身后，突然喊了一句：板凳！板凳回过头来，打量着老庞，说：你谁呀？怎么知道我的外号？老庞咯咯地笑着说：我是小时候的奔儿头呀！扒了皮我能认出你骨头。板凳眼睛一亮，说：扒了皮，我也能认出你骨头。",
+  "老庞说：小时候撞拐的事儿我还记着呢，一直想找你复仇。板凳的眼神里瞬间有些黯淡，叹了口气说：乘人之危，是吧？知道你小子憋着坏呢。",
+  "奔儿头没松口儿，盯着板凳的眼睛，挑衅地问：咋样？没种了吧？板凳也紧盯着奔儿头，目光并没有妥协，相持了一会儿，板凳说：别看你后来出息了，可输谁，我也不能输你！",
+  "那好啊，奔儿头说：三盘两胜，规矩照旧！",
+  "板凳先是犹豫了一下，可脑血栓后遗症并不影响撞拐，用灵活的一条腿站立，不灵活的另一条腿进攻，似乎相得益彰。",
+  "可当奔儿头提起脚金鸡独立时，他的斗志被激发出来，两人开始在圈儿里蹦跳，寻找最佳进攻机会。突然，板凳来了一个假动作，猝不及防地向奔儿头冲击，奔儿头来一个急转弯，巧妙地避开了板凳的冲撞，接着展开反击，等板凳反应过来，已经来不及了，他失去平衡，双脚着地。",
+  "接下来，板凳屡战屡败，他提出五盘三胜，可无论如何还是赢不了奔儿头。奔儿头对喘着粗气的板凳说，怎么样？今非昔比了吧。板凳不服气地说：你别高兴得太早，走着瞧！",
+  "就这样，奔儿头和板凳只要在公园里一见面，他们就开始撞拐，遇到刮风下雨天，他们见不到对方还觉得心里少了什么。板凳每次输了，都心有不甘，他涨红了脸，像一头愤怒的公牛，准备下一次发起更猛烈的进攻。",
+  "板凳的能力一点点恢复，由开始的完败到偶尔扳回一局，对于他来说，扳回的那一局足以令他偷偷啜泣。",
+  "奔儿头和板凳的游戏吸引了公园里锻炼身体的其他老人，渐渐有人加入进来。人数多了，他们就发明了一种新的玩法，对阵双方排成两列，画一条“楚河汉界”，相互对撞，落脚或过线者为胜。这个游戏很快就流行起来，老人们都沉浸在这种简单的快乐中，公园里变得热闹非常，充满了欢声笑语。",
+  "那天黄昏，夕阳的余晖给公园镀上了一层温暖的金色。奔儿头和板凳又开始了新一局的撞拐。板凳的眼神里不再是之前的愤怒和不甘，而是多了几分自信和从容。他们在圈儿里蹦跳着，互相躲闪、撞击……3∶2，板凳终于赢了奔儿头。板凳脸上露出了灿烂的笑容。那一刻，他仿佛找回了曾经的自己。",
+  "回家路上，板凳觉得自己的双腿充满了力量，他仿佛意识到了什么，陷入沉思。他想，哪天得找奔儿头喝两杯，好好聊聊，聊聊往事，聊聊人生。",
+  "一连几天下雨。雨晴那天，板凳期盼的身影终于出现了，他看到初秋的夕阳把奔儿头的影子拉成了修竹。隔着大老远，板凳大声喊：“奔儿头，有种的来呀！”",
+  "其实板凳并没有意识到，他的眼里闪着泪光。",
+];
+
+export const hanForeheadAndBenchPairs: SentencePair[] = hanForeheadAndBenchOriginalParagraphs.map(
+  (original, index) => ({ original, translation: hanForeheadAndBenchParagraphs[index] }),
+);
 
 export const hanMinotaurParagraphs: string[] = [
   "Inspiration is a mysterious word, like a stream in the wilderness. It seems shallow, but once you step into it, you may be trapped forever. Poets live on inspiration. Even Kafka’s Hunger Artist lives on “nothing.” Xu Yun, a poet, has recently found himself in a crisis: he has lost his inspiration.",

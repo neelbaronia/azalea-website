@@ -4,7 +4,7 @@ import {
   lynnHelferPairs,
   type SentencePair,
 } from "./text-sample";
-import { hanForeheadAndBenchParagraphs, hanMinotaurParagraphs } from "./han-text-samples";
+import { hanForeheadAndBenchPairs, hanMinotaurParagraphs } from "./han-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -245,8 +245,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://asianstudies.cornell.edu/current-grad-students",
     source: "北国网",
     sourceUrl: "https://news.lnd.com.cn/system/2025/02/19/030502682.shtml",
-    pairs: [],
-    translationParagraphs: hanForeheadAndBenchParagraphs,
+    pairs: hanForeheadAndBenchPairs,
   },
   {
     id: "a-substitute-for-fiction-jordan-niver-johnson",
