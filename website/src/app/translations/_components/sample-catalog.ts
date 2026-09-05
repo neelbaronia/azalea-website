@@ -4,7 +4,7 @@ import {
   lynnHelferPairs,
   type SentencePair,
 } from "./text-sample";
-import { hanForeheadAndBenchPairs, hanMinotaurParagraphs } from "./han-text-samples";
+import { hanForeheadAndBenchPairs, hanMinotaurPairs } from "./han-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -230,8 +230,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://asianstudies.cornell.edu/current-grad-students",
     source: "一苇轩",
     sourceUrl: "https://www.gzywtk.com/tmshow/31525.html",
-    pairs: [],
-    translationParagraphs: hanMinotaurParagraphs,
+    pairs: hanMinotaurPairs,
   },
   {
     id: "forehead-and-bench-han-li",
