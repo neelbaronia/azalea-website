@@ -27,9 +27,9 @@ export function SampleLibrary() {
   return (
     <main className="library-shell">
       <header className="library-bar">
-        <a className="brand" href="#sample-index" aria-label="Azalea translation sample library">
+        <a className="brand" href="#sample-index" aria-label="Azalea Labs translation sample library">
           <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
-          <span>AZALEA</span>
+          <span>AZALEA LABS</span>
         </a>
         <div className="library-identity">
           <strong>Translation Samples</strong>

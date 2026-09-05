@@ -154,9 +154,9 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   return (
     <main className="reader-shell" style={readerStyle}>
       <header className="reader-bar">
-        <Link className="brand" href="/translations" aria-label="Return to the Azalea translation sample library">
+        <Link className="brand" href="/translations" aria-label="Return to the Azalea Labs translation sample library">
           <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
-          <span>AZALEA</span>
+          <span>AZALEA LABS</span>
         </Link>
 
         <div className="document-meta" aria-label="Work details">
