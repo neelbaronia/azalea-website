@@ -161,7 +161,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
   const visibleSpread = currentSpread > 0 ? spreads[storySpreadIndex] : undefined;
 
   return (
-    <main className={`reader-shell${translationOnly ? " translation-reader" : ""}`} style={readerStyle}>
+    <main className={`reader-shell${translationOnly ? " translation-reader" : visibleSpread ? " bilingual-story-reader" : ""}`} style={readerStyle}>
       <header className="reader-bar">
         <Link className="brand" href="/translations" aria-label="Return to the Azalea Labs translation sample library">
           <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>

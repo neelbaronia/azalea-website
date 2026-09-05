@@ -1052,11 +1052,43 @@ button { font: inherit; }
 .translation-reader .page-edge-controls { inset: 24px 0 32px; }
 .translation-reader .page-edge-turn { width: 24px; }
 
+/* Let reading pages fit larger text instead of centering it in a fixed viewport. */
+.bilingual-story-reader {
+  height: auto;
+  overflow: visible;
+}
+
+.bilingual-story-reader .book-wrap {
+  flex: none;
+  min-height: 0;
+  scroll-margin-top: 6rem;
+}
+
+.bilingual-story-reader .story-book,
+.bilingual-story-reader .story-spread {
+  height: auto;
+  min-height: 0;
+}
+
+.bilingual-story-reader .story-spread { padding: 52px 0 48px; }
+
+.bilingual-story-reader .sentence-list {
+  flex: none;
+  justify-content: flex-start;
+}
+
+.bilingual-story-reader .sentence-pair p {
+  align-content: start;
+  font-size: clamp(1.25rem, 1.55vw, 1.375rem);
+  line-height: 1.45;
+}
+
 @media (max-width: 1120px) {
   .reader-bar { flex-wrap: wrap; gap: 12px 20px; }
   .reader-bar .brand { order: 1; }
   .document-meta { order: 3; flex: 1 0 100%; margin-left: 0; }
   .spread-actions { order: 2; margin-left: auto; }
+  .bilingual-story-reader .book-wrap { scroll-margin-top: 10rem; }
 }
 
 @media (max-width: 900px) {
@@ -1148,6 +1180,9 @@ button { font: inherit; }
   .sentence-pair p:last-child::before { box-shadow: inset 3px 0 0 var(--highlight-edge); }
   .sentence-pair.is-active { background: color-mix(in srgb, var(--highlight) 35%, transparent); }
   .page-edge-controls { display: none; }
+  .bilingual-story-reader .book-wrap { scroll-margin-top: 17rem; }
+  .bilingual-story-reader .story-spread { padding: 20px 0 48px; }
+  .bilingual-story-reader .sentence-pair p { font-size: 1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1162,5 +1197,7 @@ button { font: inherit; }
   .book { border: 0; box-shadow: none; }
   .title-book, .story-book { min-height: 180mm; break-after: page; }
   .title-spread, .story-spread { min-height: 180mm; }
+  .bilingual-story-reader .story-book,
+  .bilingual-story-reader .story-spread { min-height: 180mm; }
   .sentence-pair { break-inside: avoid; }
 }
