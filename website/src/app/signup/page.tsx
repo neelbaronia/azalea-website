@@ -7,143 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-const covers = [
-  {
-    title: "The Red Seal",
-    src: "/audiobook-covers/red-seal.png",
-  },
-  {
-    title: "The Hand in the Dark",
-    src: "/audiobook-covers/hand-in-the-dark.png",
-  },
-  {
-    title: "The Sign of the Seven Sins",
-    src: "/audiobook-covers/sign-seven-sins.png",
-  },
-  {
-    title: "The Phantom Public",
-    src: "/audiobook-covers/phantom-public.png",
-  },
-  {
-    title: "Tarrano the Conqueror",
-    src: "/audiobook-covers/tarrano.png",
-  },
-  {
-    title: "The Evolution of the Oil Industry",
-    src: "/audiobook-covers/oil-industry.png",
-  },
-];
-
-const waterfallSlots = [
-  {
-    left: "2%",
-    top: "2%",
-    rotate: "-8deg",
-    zIndex: 6,
-    opacity: 1,
-  },
-  {
-    left: "24%",
-    top: "12%",
-    rotate: "5deg",
-    zIndex: 5,
-    opacity: 0.96,
-  },
-  {
-    left: "48%",
-    top: "24%",
-    rotate: "-5deg",
-    zIndex: 4,
-    opacity: 0.92,
-  },
-  {
-    left: "64%",
-    top: "44%",
-    rotate: "8deg",
-    zIndex: 3,
-    opacity: 0.9,
-  },
-  {
-    left: "36%",
-    top: "58%",
-    rotate: "-7deg",
-    zIndex: 4,
-    opacity: 0.94,
-  },
-  {
-    left: "10%",
-    top: "42%",
-    rotate: "6deg",
-    zIndex: 5,
-    opacity: 0.98,
-  },
-];
-
-function CoverWaterfall({ desktop = false }: { desktop?: boolean }) {
-  const [offset, setOffset] = useState(0);
-  const [dragStart, setDragStart] = useState<number | null>(null);
-
-  function rotate(direction: 1 | -1) {
-    setOffset((current) => (current + direction + covers.length) % covers.length);
-  }
-
-  return (
-    <div>
-      <div
-        aria-label="Swipe audiobook covers"
-        className={`relative mx-auto aspect-square w-full cursor-grab touch-pan-y select-none active:cursor-grabbing ${
-          desktop ? "mt-8 max-w-[520px]" : "mt-5 max-w-[292px]"
-        }`}
-        onPointerDown={(event) => {
-          setDragStart(event.clientX);
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerUp={(event) => {
-          if (dragStart == null) return;
-          const delta = event.clientX - dragStart;
-          if (Math.abs(delta) > 24) {
-            rotate(delta < 0 ? 1 : -1);
-          }
-          setDragStart(null);
-        }}
-        onPointerCancel={() => setDragStart(null)}
-      >
-        {covers.map((cover, index) => {
-          const slot = waterfallSlots[(index + offset) % waterfallSlots.length];
-
-          return (
-            <div
-              key={cover.title}
-              className={`absolute aspect-square w-[34%] overflow-hidden border border-white/80 bg-[#edf2ec] shadow-[0_16px_34px_rgba(20,28,22,0.18)] transition-[left,top,transform,opacity] duration-300 ease-out ${
-                desktop ? "rounded-[22px]" : "rounded-[14px]"
-              }`}
-              style={{
-                left: slot.left,
-                top: slot.top,
-                transform: `rotate(${slot.rotate})`,
-                zIndex: slot.zIndex,
-                opacity: slot.opacity,
-              }}
-              onClick={() => rotate(index % 2 === 0 ? 1 : -1)}
-            >
-              <Image
-                src={cover.src}
-                alt={`${cover.title} cover`}
-                fill
-                sizes={desktop ? "180px" : "120px"}
-                className="object-cover"
-                draggable={false}
-              />
-              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-2 pb-2 pt-7 text-[10px] font-bold leading-tight text-white">
-                {cover.title}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+import { CoverStickers } from "./cover-stickers";
 
 function SignupForm({
   firstName,
@@ -362,7 +226,7 @@ export default function SignUpPage() {
             Start listening in two minutes
           </h1>
 
-          <CoverWaterfall />
+          <CoverStickers />
 
           <div className="mt-4 grid grid-cols-[1fr_auto] items-end rounded-[14px] bg-[#e8f3ee] p-4">
             <div>
@@ -418,7 +282,7 @@ export default function SignUpPage() {
             Create your Azalea account, then finish payment through secure Stripe Checkout. The library is ready as soon as your subscription is active.
           </p>
 
-          <CoverWaterfall desktop />
+          <CoverStickers desktop />
         </section>
 
         <aside className="rounded-[24px] border border-[#e1e5dd] bg-white/80 p-7 shadow-[0_24px_70px_rgba(23,35,26,0.10)] backdrop-blur">
