@@ -5,6 +5,7 @@ import {
   type SentencePair,
 } from "./text-sample";
 import { hanForeheadAndBenchPairs, hanMinotaurPairs } from "./han-text-samples";
+import { lynnVowinckelParagraphs } from "./lynn-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -105,6 +106,7 @@ export const samples: TranslationSample[] = [
     sourceUrl: "https://volltext.net/wp-content/uploads/2025/08/Volltext_2024-04.pdf",
     sourceFolio: 57,
     pairs: [],
+    translationParagraphs: lynnVowinckelParagraphs,
   },
   {
     id: "memoire-de-cendres-laila-riazi",
