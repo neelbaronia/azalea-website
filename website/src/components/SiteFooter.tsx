@@ -51,6 +51,12 @@ export default function SiteFooter() {
             Audio Samples
           </a>
           <a
+            href="/demo/tallys-corner"
+            className="hover:text-white transition-colors"
+          >
+            Tally&apos;s Corner Demo
+          </a>
+          <a
             href="/translations"
             className="hover:text-white transition-colors"
           >
