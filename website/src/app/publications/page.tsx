@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { overdriveLinksByBookId, retailerLinksByBookId } from "./retailer-links";
+import SiteFooter from "@/components/SiteFooter";
+import styles from "./publications.module.css";
 
 const LIBRARY_URL =
   "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/library.json";
@@ -17,68 +19,21 @@ interface Book {
   spotifyUrl?: string;
 }
 
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-function AppleLogo() {
+function PublicationsHeader() {
   return (
-    <svg
-      width="14"
-      height="18"
-      viewBox="0 0 384 512"
-      fill="currentColor"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path d="M279.55 258.94c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-79.7-44.6-33.4-3.5-69.9 19.5-83.2 19.5-14 0-46.3-18.3-72.4-17.7-34.4.5-66 20-83.9 50.8-35.6 61.7-9.1 152.5 25.5 202.5 17.3 24.9 38 52.8 65.1 51.8 26.1-1 35.9-16.7 67.5-16.7 30.6 0 39.8 16.7 67.4 16.7 27.8 0 45.5-25.4 62.6-50.4 20.1-29.3 28.4-57.8 28.9-59.3-.6-.3-56-21.5-56.3-84.6zM228.74 94.7c14.3-16.9 23.8-40.4 21.4-63.7-20.7.8-45.7 13.8-60.2 30.7-13 15-24.4 38.9-21.5 61.6 23.1 1.8 46.6-11.7 60.3-28.6z" />
-    </svg>
-  );
-}
-
-function GooglePlayLogo() {
-  return (
-    <svg
-      width="17"
-      height="17"
-      viewBox="0 0 512 512"
-      fill="currentColor"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path d="M325.3 234.3 104.6 13l280.2 161.2-59.5 60.1zM47 0C34 6.8 25.3 19.6 25.3 35.2v441.6c0 15.6 8.7 28.4 21.7 35.2l242.2-256L47 0zm425.2 225.6-58.4-33.7-65.3 64.1 65.3 64.1 59.5-34.3c18.1-10.8 18.1-49.5-1.1-60.2zM104.6 499l280.2-161.2-59.5-60.1L104.6 499z" />
-    </svg>
-  );
-}
-
-function PublicationsNavbar() {
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
-      <a href="/" className="flex items-center gap-2 flex-shrink-0">
-        <Image src="/azalea-icon.webp" alt="Azalea" width={32} height={32} className="w-7 h-7 md:w-10 md:h-10" />
-        <div className="flex flex-col leading-tight">
-          <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Azalea</span>
-          <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Labs</span>
-        </div>
+    <header className={styles.header}>
+      <a className={styles.wordmark} href="/" aria-label="Azalea Labs home">
+        <Image
+          src="/azalea-icon.webp"
+          alt=""
+          width={30}
+          height={30}
+          priority
+          unoptimized
+        />
+        <span>Azalea Labs</span>
       </a>
-      <div className="flex gap-0.5 rounded-xl p-1 border backdrop-blur-md bg-white/10 border-white/10 flex-shrink min-w-0">
-        <a
-          href="/"
-          className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
-        >
-          Listen
-        </a>
-        <a
-          href="/"
-          className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
-        >
-          Create &amp; Distribute
-        </a>
-      </div>
-    </nav>
+    </header>
   );
 }
 
@@ -97,143 +52,91 @@ async function getPublications(): Promise<Book[]> {
   }
 }
 
+function retailersFor(book: Book): { name: string; href: string }[] {
+  const retailerLinks = retailerLinksByBookId[book.id];
+  const overdriveLink = overdriveLinksByBookId[book.id];
+
+  const retailers = [
+    {
+      name: "Spotify",
+      href:
+        book.spotifyUrl ??
+        `https://open.spotify.com/search/${encodeURIComponent(book.title)}`,
+    },
+  ];
+
+  if (retailerLinks?.appleBooks) {
+    retailers.push({ name: "Apple Books", href: retailerLinks.appleBooks });
+  }
+  if (retailerLinks?.googlePlay) {
+    retailers.push({ name: "Google Play", href: retailerLinks.googlePlay });
+  }
+  if (overdriveLink) {
+    retailers.push({ name: "OverDrive", href: overdriveLink });
+  }
+
+  return retailers;
+}
+
 export default async function PublicationsPage() {
   const books = await getPublications();
 
   return (
-    <div className="min-h-screen bg-[#f5f5f0] relative">
-      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.webp')" }} />
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <PublicationsNavbar />
+    <main className={styles.page}>
+      <PublicationsHeader />
 
-        {/* Header */}
-        <div className="max-w-6xl mx-auto px-6 pt-24 pb-8 w-full">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-            Our Publications
-          </h1>
-          <p className="text-base md:text-lg text-white font-black mt-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-            Browse Azalea Labs original productions from our catalog.
-          </p>
-        </div>
+      <section className={styles.hero}>
+        <h1>
+          Our
+          <br />
+          <em>publications.</em>
+        </h1>
+      </section>
 
-        {/* Book grid */}
-        <div className="max-w-6xl mx-auto px-6 pb-20 w-full flex-1">
-          {books.length === 0 ? (
-            <p className="text-sm text-white/50">No publications available.</p>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              {books.map((book, index) => {
-                const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
-                const retailerLinks = retailerLinksByBookId[book.id];
-                const overdriveLink = overdriveLinksByBookId[book.id];
-                return (
-                  <div
-                    key={book.id}
-                    className="h-full flex flex-col gap-5 p-4 md:p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-shadow"
-                  >
-                    <div className="flex items-stretch gap-4 md:gap-6">
-                      <div className="flex-shrink-0">
-                        <img
-                          src={coverUrl}
-                          alt={book.title}
-                          width={160}
-                          height={160}
-                          loading={index < 4 ? "eager" : "lazy"}
-                          decoding="async"
-                          fetchPriority={index < 2 ? "high" : "auto"}
-                          className="rounded-xl object-cover shadow-md w-[120px] h-[120px] sm:w-[160px] sm:h-[160px]"
-                        />
-                      </div>
-                      <div className="flex flex-1 min-w-0 flex-col items-start">
-                        <h3 className="text-xl md:text-2xl font-bold text-white">{book.title}</h3>
-                        <p className="text-sm md:text-lg text-white/60">
-                          {book.author} &middot; {formatDuration(book.duration)}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 mt-auto pt-4">
-                          <a
-                            href={book.spotifyUrl ?? `https://open.spotify.com/search/${encodeURIComponent(book.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-white text-sm font-semibold rounded-full transition-colors"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                            </svg>
-                            Spotify
-                          </a>
-                          {retailerLinks?.appleBooks && (
-                            <a
-                              href={retailerLinks.appleBooks}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-black hover:bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 transition-colors"
-                            >
-                              <AppleLogo />
-                              Apple Books
-                            </a>
-                          )}
-                          {retailerLinks?.googlePlay && (
-                            <a
-                              href={retailerLinks.googlePlay}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-[#4285F4] hover:bg-[#5b95f5] text-white text-sm font-semibold rounded-full transition-colors"
-                            >
-                              <GooglePlayLogo />
-                              Google Play
-                            </a>
-                          )}
-                          {overdriveLink && (
-                            <a
-                              href={overdriveLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={`Listen to ${book.title} on OverDrive`}
-                              className="inline-flex items-center px-3 md:px-4 py-2 bg-white hover:bg-white/90 rounded-full transition-colors"
-                            >
-                              <Image
-                                src="/overdrive-logo.png"
-                                alt="OverDrive"
-                                width={118}
-                                height={18}
-                                className="w-auto h-[18px]"
-                              />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {book.description && (
-                      <p className="text-base text-white/50 leading-relaxed">
-                        {book.description}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+      {books.length === 0 ? (
+        <p className={styles.empty}>No publications available.</p>
+      ) : (
+        <ul className={styles.wall}>
+          {books.map((book, index) => {
+            const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
+            return (
+              <li key={book.id} className={styles.tile}>
+                <div className={styles.cover}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverUrl}
+                    alt={book.title}
+                    width={280}
+                    height={280}
+                    loading={index < 8 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={index < 4 ? "high" : "auto"}
+                  />
+                </div>
 
-        {/* Footer */}
-        <footer className="w-full bg-black text-white/60">
-          <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between gap-8">
-            <div className="space-y-2">
-              <p className="text-white font-bold text-sm uppercase tracking-[0.3em]">Azalea Labs</p>
-              <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Azalea Labs. All rights reserved.</p>
-            </div>
-            <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
-              <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
-              <a href="/samples" className="hover:text-white transition-colors">Samples</a>
-              <a href="/publications" className="hover:text-white transition-colors">Our Publications</a>
-              <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
-              <a href="#" className="hover:text-white transition-colors">About</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
+                <h2>{book.title}</h2>
+                <p className={styles.byline}>{book.author}</p>
+
+                <p className={styles.availability}>
+                  {retailersFor(book).map((retailer) => (
+                    <a
+                      key={retailer.name}
+                      href={retailer.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${book.title} on ${retailer.name}`}
+                    >
+                      {retailer.name}
+                    </a>
+                  ))}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <SiteFooter />
+    </main>
   );
 }

@@ -1,0 +1,187 @@
+.page {
+  --paper: #f1eee6;
+  --ink: #080808;
+  --muted: rgba(8, 8, 8, 0.56);
+  --line: rgba(8, 8, 8, 0.14);
+  --header: #282142;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+/* ---------- header ---------- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  height: 72px;
+  padding: 0 clamp(16px, 3vw, 40px);
+  display: flex;
+  align-items: center;
+  background: var(--header);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-size: clamp(18px, 1.8vw, 26px);
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.wordmark img {
+  width: 30px;
+  height: 30px;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  width: min(100%, 1600px);
+  margin: 0 auto;
+  padding: clamp(44px, 5.5vw, 84px) clamp(16px, 3vw, 40px) clamp(28px, 3vw, 40px);
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--font-garamond), Georgia, serif;
+  font-size: clamp(58px, 7vw, 116px);
+  font-weight: 700;
+  line-height: 0.82;
+  letter-spacing: -0.065em;
+}
+
+.hero h1 em {
+  font-weight: 500;
+}
+
+/* ---------- wall ---------- */
+
+.wall {
+  width: min(100%, 1600px);
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 40px) clamp(64px, 7vw, 100px);
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: clamp(24px, 2.6vw, 40px);
+  align-content: start;
+  list-style: none;
+}
+
+.empty {
+  padding: 40px clamp(16px, 3vw, 40px) 80px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+}
+
+.cover {
+  position: relative;
+  background: var(--ink);
+}
+
+.cover img {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  object-fit: cover;
+  transform: translate(-7px, -7px);
+  transition: transform 160ms ease;
+}
+
+.tile:hover .cover img {
+  transform: translate(0, 0);
+}
+
+.tile h2 {
+  margin: 15px 0 0;
+  font-family: var(--font-garamond), Georgia, serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.byline {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.availability {
+  margin: 12px 0 0;
+  padding-top: 11px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.availability a {
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ink);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.availability a:hover {
+  color: #3566ff;
+  border-color: #3566ff;
+}
+
+.page a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .header {
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .wordmark {
+    gap: 9px;
+    font-size: 16px;
+  }
+
+  .wordmark img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .wall {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 24px 18px;
+  }
+
+  .tile h2 {
+    font-size: 18px;
+  }
+}
