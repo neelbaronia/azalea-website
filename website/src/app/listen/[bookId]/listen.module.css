@@ -46,7 +46,7 @@
   width: min(100%, 460px);
   min-height: calc(100svh - 56px);
   margin: 0 auto;
-  padding: clamp(28px, 6svh, 64px) 20px clamp(32px, 6svh, 64px);
+  padding: clamp(20px, 4svh, 56px) 20px clamp(24px, 5svh, 56px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -55,7 +55,8 @@
 }
 
 .cover {
-  width: min(72vw, 36svh, 320px);
+  /* Sized off viewport height so the button stays above the fold on phones. */
+  width: min(62vw, 30svh, 320px);
   background: var(--ink);
   margin-left: 7px;
   margin-top: 7px;
@@ -95,8 +96,13 @@
 }
 
 .hook {
-  margin: 16px 0 0;
+  margin: 14px 0 0;
   max-width: 38ch;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.5;
