@@ -87,13 +87,7 @@ export default async function ListenPage({ params }: Props) {
 
         {book.hook && <p className={styles.hook}>{book.hook}</p>}
 
-        <ListenButton
-          bookId={book.id}
-          title={book.title}
-          author={book.author}
-          spotifyUrl={book.spotifyUrl}
-          className={styles.button}
-        />
+        <ListenButton spotifyUrl={book.spotifyUrl} className={styles.button} />
       </section>
 
       <SiteFooter />

@@ -1,6 +1,5 @@
 "use client";
 
-import { usePostHog } from "posthog-js/react";
 import type { MouseEvent } from "react";
 import { sendSpotifyClickConversion } from "./google-ads";
 
@@ -24,22 +23,11 @@ function withUtmParams(spotifyUrl: string): string {
 }
 
 interface Props {
-  bookId: string;
-  title: string;
-  author: string;
   spotifyUrl: string;
   className?: string;
 }
 
-export default function ListenButton({
-  bookId,
-  title,
-  author,
-  spotifyUrl,
-  className,
-}: Props) {
-  const posthog = usePostHog();
-
+export default function ListenButton({ spotifyUrl, className }: Props) {
   async function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     // Let cmd/ctrl/middle-click open a tab normally (the href is the backup).
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
@@ -48,11 +36,6 @@ export default function ListenButton({
     event.preventDefault();
 
     const destination = withUtmParams(spotifyUrl);
-    posthog?.capture(
-      "spotify_click",
-      { book_id: bookId, title, author, spotify_url: spotifyUrl },
-      { send_instantly: true, transport: "sendBeacon" },
-    );
     await sendSpotifyClickConversion();
     window.location.assign(destination);
   }
