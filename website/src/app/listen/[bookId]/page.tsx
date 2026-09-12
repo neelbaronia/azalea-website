@@ -90,6 +90,14 @@ export default async function ListenPage({ params }: Props) {
         <ListenButton spotifyUrl={book.spotifyUrl} className={styles.button} />
       </section>
 
+      {book.id === "killing-kennedy" && (
+        <p className={styles.licenseCredit}>
+          Original publisher: Skyhorse Publishing, Inc. Audiobook produced and
+          distributed by Azalea Labs &amp; Studio, Inc. under license from Skyhorse
+          Publishing, Inc.
+        </p>
+      )}
+
       <SiteFooter />
     </main>
   );
