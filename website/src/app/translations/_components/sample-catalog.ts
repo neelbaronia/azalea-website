@@ -5,6 +5,7 @@ import {
   type SentencePair,
 } from "./text-sample";
 import { hanForeheadAndBenchPairs, hanMinotaurPairs } from "./han-text-samples";
+import { landonNidoDeAvionesParagraphs, landonRosauroParagraphs } from "./landon-text-samples";
 import { lynnVowinckelParagraphs } from "./lynn-text-samples";
 
 export type TranslationSample = {
@@ -205,6 +206,7 @@ export const samples: TranslationSample[] = [
     source: "Energheia",
     sourceUrl: "https://www.energheia.org/rosauro-barbara-sanchez_madrid.html",
     pairs: [],
+    translationParagraphs: landonRosauroParagraphs,
   },
   {
     id: "nido-de-aviones-landon-kramer",
@@ -219,6 +221,7 @@ export const samples: TranslationSample[] = [
     source: "Energheia",
     sourceUrl: "https://www.energheia.org/nido-de-aviones.html",
     pairs: [],
+    translationParagraphs: landonNidoDeAvionesParagraphs,
   },
   {
     id: "minotaur-han-li",
