@@ -5,7 +5,7 @@ import {
   type SentencePair,
 } from "./text-sample";
 import { hanForeheadAndBenchPairs, hanMinotaurPairs } from "./han-text-samples";
-import { landonNidoDeAvionesParagraphs, landonRosauroParagraphs } from "./landon-text-samples";
+import { landonNidoDeAvionesPairs, landonRosauroPairs } from "./landon-text-samples";
 import { lynnVowinckelParagraphs } from "./lynn-text-samples";
 
 export type TranslationSample = {
@@ -205,8 +205,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://complit.berkeley.edu/people/landon-kramer",
     source: "Energheia",
     sourceUrl: "https://www.energheia.org/rosauro-barbara-sanchez_madrid.html",
-    pairs: [],
-    translationParagraphs: landonRosauroParagraphs,
+    pairs: landonRosauroPairs,
   },
   {
     id: "nido-de-aviones-landon-kramer",
@@ -220,8 +219,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://complit.berkeley.edu/people/landon-kramer",
     source: "Energheia",
     sourceUrl: "https://www.energheia.org/nido-de-aviones.html",
-    pairs: [],
-    translationParagraphs: landonNidoDeAvionesParagraphs,
+    pairs: landonNidoDeAvionesPairs,
   },
   {
     id: "minotaur-han-li",
