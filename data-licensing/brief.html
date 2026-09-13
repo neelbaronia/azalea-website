@@ -1,0 +1,714 @@
+<title>Azalea Translation Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    /* Ink on cool paper. Neutrals carry a slight indigo bias toward the accent. */
+    --paper:      #fcfcfa;
+    --paper-sunk: #f3f3f0;
+    --rule:       #dedde4;
+    --rule-soft:  #eae9ee;
+    --ink:        #15161c;
+    --ink-mid:    #4b4c58;
+    --ink-soft:   #75768a;
+    --accent:     #2f3aa8;   /* proofreader's indigo */
+    --accent-tint:#e9eaf6;
+    --caution:    #a8471c;
+    --caution-tint:#fbeee6;
+
+    /* Language accents, carried over from the Azalea translations site. */
+    --lang-de: #3566ff;
+    --lang-fr: #008a72;
+    --lang-zh: #c43b42;
+    --lang-it: #d93668;
+    --lang-es: #d47a13;
+    --lang-ja: #087fa6;
+
+    --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #101116;
+      --paper-sunk: #16181f;
+      --rule:       #2b2d38;
+      --rule-soft:  #23242e;
+      --ink:        #ececf2;
+      --ink-mid:    #b0b1c0;
+      --ink-soft:   #83849a;
+      --accent:     #9aa2ee;
+      --accent-tint:#1e2038;
+      --caution:    #e6a37c;
+      --caution-tint:#2a1d15;
+
+      --lang-de: #8aa6ff;
+      --lang-fr: #4fbfa5;
+      --lang-zh: #ea8288;
+      --lang-it: #ef7d9d;
+      --lang-es: #e0a75c;
+      --lang-ja: #5fb6d1;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #101116;
+    --paper-sunk: #16181f;
+    --rule:       #2b2d38;
+    --rule-soft:  #23242e;
+    --ink:        #ececf2;
+    --ink-mid:    #b0b1c0;
+    --ink-soft:   #83849a;
+    --accent:     #9aa2ee;
+    --accent-tint:#1e2038;
+    --caution:    #e6a37c;
+    --caution-tint:#2a1d15;
+
+    --lang-de: #8aa6ff;
+    --lang-fr: #4fbfa5;
+    --lang-zh: #ea8288;
+    --lang-it: #ef7d9d;
+    --lang-es: #e0a75c;
+    --lang-ja: #5fb6d1;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 860px;
+    margin: 0 auto;
+    padding-inline: 24px;
+    padding-block: 40px 72px;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .masthead .slug {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-left: auto;
+  }
+
+  .confidential {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--caution);
+  }
+
+  /* ---------- section rhythm ---------- */
+
+  section { margin-top: 56px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.35;
+    margin: 0 0 6px;
+  }
+
+  p { margin: 0 0 14px; max-width: var(--measure); }
+  p:last-child { margin-bottom: 0; }
+  .lede {
+    font-family: var(--serif);
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-mid);
+    font-weight: 300;
+  }
+  strong { font-weight: 600; color: var(--ink); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* ---------- hero: facing-page spread ---------- */
+
+  .spread {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0 28px;
+  }
+  .spread .gutter { background: var(--rule); }
+  .folio {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  .spread p.text {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    max-width: none;
+  }
+  .spread .src p.text { color: var(--ink-mid); }
+
+  .credit {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .credit em { font-family: var(--serif); font-style: italic; color: var(--ink-mid); }
+
+  /* ---------- inline data strip ---------- */
+
+  .strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 28px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .strip div {
+    flex: 1 1 130px;
+    padding: 12px 16px 12px 0;
+  }
+  .strip dt {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 3px;
+  }
+  .strip dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- scarcity list ---------- */
+
+  .claims { display: grid; gap: 22px; margin-top: 22px; }
+  .claim { display: grid; grid-template-columns: auto 1fr; gap: 0 14px; }
+  .claim .mark {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .claim p { margin: 0; color: var(--ink-mid); font-size: 15px; }
+
+  /* ---------- the record ---------- */
+
+  .record {
+    margin-top: 22px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .record-head {
+    background: var(--paper-sunk);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+  .chip.de { color: var(--lang-de); }
+  .chip.fr { color: var(--lang-fr); }
+  .chip.zh { color: var(--lang-zh); }
+  .chip.human { color: var(--accent); }
+  .chip.uncrawled { color: var(--accent); }
+
+  .record pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+  .k { color: var(--accent); }
+  .s { color: var(--ink); }
+  .s-lit { font-family: var(--serif); font-size: 14px; color: var(--ink); }
+  .c { color: var(--ink-soft); }
+  .b { color: var(--lang-fr); }
+
+  .annot-note {
+    border-top: 1px solid var(--rule);
+    background: var(--accent-tint);
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--ink-mid);
+  }
+  .annot-note strong { color: var(--ink); }
+
+  /* ---------- tables ---------- */
+
+  .table-wrap { overflow-x: auto; margin-top: 18px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 480px;
+    font-size: 14px;
+  }
+  caption {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding-bottom: 8px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 14px 9px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: baseline;
+  }
+  thead th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 400;
+    border-bottom: 1px solid var(--rule);
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  tfoot td { font-weight: 600; border-bottom: none; border-top: 1px solid var(--rule); }
+  .ask { font-family: var(--mono); font-weight: 500; white-space: nowrap; }
+
+  /* ---------- caution ---------- */
+
+  .caution {
+    margin-top: 22px;
+    background: var(--caution-tint);
+    border-left: 3px solid var(--caution);
+    padding: 18px 20px;
+    border-radius: 0 3px 3px 0;
+  }
+  .caution h3 { color: var(--caution); }
+  .caution p { color: var(--ink-mid); font-size: 15px; }
+
+  .checklist { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+  .checklist li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--ink-mid);
+  }
+  .checklist .box {
+    font-family: var(--mono);
+    color: var(--caution);
+    font-size: 12px;
+    padding-top: 2px;
+  }
+
+  /* ---------- ask ---------- */
+
+  .closing {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 2px solid var(--ink);
+  }
+  .questions { margin: 16px 0 0; padding-left: 20px; display: grid; gap: 8px; }
+  .questions li { color: var(--ink-mid); font-size: 15px; max-width: var(--measure); }
+
+  footer {
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+
+  @media (max-width: 620px) {
+    .spread { grid-template-columns: 1fr; gap: 24px; }
+    .spread .gutter { height: 1px; width: 100%; }
+    h2 { font-size: 24px; }
+    .lede { font-size: 19px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <h1 class="wordmark">Azalea Labs</h1>
+    <span class="slug">Licensing brief · v0.1.1 · Sept 2026</span>
+  </header>
+  <p class="confidential">Confidential — sample shared for evaluation, not for redistribution</p>
+
+  <section style="margin-top:40px;">
+    <p class="lede">We commission literary translation into English from named, credentialed
+    translators. Every English text we hold was written by a human being from scratch, has
+    never been published, and has never been crawled.</p>
+
+    <div class="spread">
+      <div class="src">
+        <p class="folio">Source · German · VOLLTEXT 4/2024, f. 48</p>
+        <p class="text">„Ich höre sie lachen“, sagte der Mann zu seiner Frau, und er drückte
+        sein Ohr an die Wand. Jedes Mal, wenn er ihr Lachen hörte, durchfuhr ihn die
+        Sehnsucht, und er dachte sich, was passiert gerade, wenn sie lacht. Er und seine
+        Frau lachten selten.</p>
+      </div>
+      <div class="gutter" aria-hidden="true"></div>
+      <div class="tgt">
+        <p class="folio">Target · English · unpublished</p>
+        <p class="text">“I hear her laughing,” the man said to his wife, pressing his ear to
+        the wall. Every time he heard her laugh, a pang of longing shot through him, and he
+        wondered what was happening just then to make her laugh. He and his wife rarely
+        laughed.</p>
+      </div>
+    </div>
+
+    <p class="credit"><em>Ich höre sie lachen</em> by Monika Helfer, translated by Anna Lynn
+    Dolman (PhD candidate, German, UC Berkeley). Segment 1 of 180. This is the unit we
+    license — aligned, attributed, and traceable to the person who wrote it.</p>
+
+    <dl class="strip">
+      <div><dt>Works</dt><dd>7</dd></div>
+      <div><dt>Aligned segments</dt><dd>423</dd></div>
+      <div><dt>English words</dt><dd>16,822</dd></div>
+      <div><dt>Translators</dt><dd>4</dd></div>
+      <div><dt>Directions</dt><dd>de·fr·zh·es → en</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <p class="eyebrow">Positioning</p>
+    <h2>Sentence-aligned bitext is free. These four things are not.</h2>
+    <p>OPUS, ParaCrawl, CCMatrix and the NLLB bitext releases put billions of segments in the
+    public domain at zero cost. We are not selling volume, and we are not competing on price
+    per word with a translation vendor. What we hold is a credentialed-expert supply in a
+    domain the expert-data marketplaces do not currently cover.</p>
+
+    <div class="claims">
+      <div class="claim">
+        <span class="mark">01</span>
+        <div>
+          <h3>Provenance you can defend</h3>
+          <p>Every record carries two rights chains — source text and translation, tracked
+          separately — plus the publication venue, folio and URL. Procurement's binding
+          constraint right now is legal exposure, not quality.</p>
+        </div>
+      </div>
+      <div class="claim">
+        <span class="mark">02</span>
+        <div>
+          <h3>No machine output, attested</h3>
+          <p>Each document carries a signed translator attestation: no MT, no LLM drafting,
+          no post-editing. Training on recycled machine output collapses diversity, and a
+          per-document guarantee is worth paying for.</p>
+        </div>
+      </div>
+      <div class="claim">
+        <span class="mark">03</span>
+        <div>
+          <h3>An English side nobody has crawled</h3>
+          <p>Our source texts are public and may already sit in web-scale pretraining
+          corpora. Our translations do not. The <code>contamination</code> block states, per
+          record, which side is exposed — which is what makes an evaluation set valid.</p>
+        </div>
+      </div>
+      <div class="claim">
+        <span class="mark">04</span>
+        <div>
+          <h3>The translator's reasoning, not just their output</h3>
+          <p>A segment carrying the decision, the rationale in the translator's own words,
+          and the renderings they rejected converts mechanically into a reasoning trace or a
+          preference pair. No scraped corpus can produce this at any volume.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Delivery format</p>
+    <h2>JSONL, one work per line, discourse order preserved</h2>
+    <p>Not TMX or XLIFF — those are CAT-tool interchange formats that force this metadata
+    into <code>&lt;prop&gt;</code> soup and signal language-vendor rather than data supplier.
+    Not a pickle, which no buyer should load from a stranger. Document-level, because a
+    pronoun resolved forty segments earlier is the whole reason literary data is
+    interesting; a flat segment view with context windows ships alongside for drop-in use.</p>
+
+    <div class="record">
+      <div class="record-head">
+        <span class="chip de">de → en</span>
+        <span class="chip human">human-authored</span>
+        <span class="chip uncrawled">uncrawled target</span>
+        <span style="margin-left:auto;">azl-de-0001 · segment 2 of 180</span>
+      </div>
+      <pre><code>{
+  <span class="k">"segment_id"</span>: <span class="s">"azl-de-0001:s0002"</span>,
+  <span class="k">"index"</span>: <span class="b">1</span>,
+  <span class="k">"source_text"</span>: <span class="s-lit">"„Sie lacht schon wieder“, sagte seine Frau. „Das ist
+                   doch penetrant, wahrscheinlich ist sie einfach
+                   gestrickt im Kopf.“"</span>,
+  <span class="k">"target_text"</span>: <span class="s-lit">"“She’s laughing again,” his wife said. “It’s downright
+                   obnoxious. She’s probably just simple-minded.”"</span>,
+  <span class="k">"alignment"</span>: <span class="s">"1:1"</span>,
+  <span class="k">"alignment_confidence"</span>: <span class="b">1.0</span>,
+  <span class="k">"translator_annotation"</span>: {
+    <span class="k">"difficulty"</span>: <span class="s">"register_and_idiom"</span>,
+    <span class="k">"decision"</span>: <span class="s">"'Das ist doch penetrant' rendered as 'It's downright
+                 obnoxious' rather than 'That's so intrusive'."</span>,
+    <span class="k">"rationale"</span>: <span class="s">"German 'penetrant' in this colloquial usage is a
+                 judgement about a person being grating, not about
+                 intrusion. The wife is being catty, and the English
+                 needs the same everyday nastiness; 'intrusive' reads
+                 clinical and loses the marital sniping the scene
+                 runs on."</span>,
+    <span class="k">"alternatives_rejected"</span>: [
+      <span class="s">"That's so intrusive"</span>, <span class="s">"It's really pushy"</span>, <span class="s">"How grating"</span>
+    ]
+  }
+}</code></pre>
+      <p class="annot-note"><strong>Chosen vs. rejected is already a preference row.</strong>
+      The delivered rendering is the chosen completion; each rejected alternative is a
+      plausible, fluent, human-generated dispreferred completion — the hard kind to
+      synthesize, because a model asked to produce a bad translation produces an
+      <em>implausible</em> one.</p>
+    </div>
+
+    <p style="margin-top:18px;">Beyond the text, each record carries five blocks:
+    <strong>translator</strong> (name, affiliation, verifiable credential URL),
+    <strong>provenance</strong> (both rights chains), <strong>process</strong> (authorship
+    and editorial passes), <strong>contamination</strong> (public-web exposure per side),
+    and <strong>stats</strong>. A JSON Schema and a checksummed manifest ship with every
+    delivery.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Inventory</p>
+    <h2>What is in this sample</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Sample package — all delivered, aligned, human-verified</caption>
+        <thead>
+          <tr>
+            <th>Direction</th><th>Work</th><th>Translator</th>
+            <th class="num">Segments</th><th class="num">English words</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="chip de">de→en</span></td>
+            <td><em>I Hear Her Laughing</em></td><td>Anna Lynn Dolman</td>
+            <td class="num">180</td><td class="num">4,893</td>
+          </tr>
+          <tr>
+            <td><span class="chip fr">fr→en</span></td>
+            <td><em>Memory of Ashes</em></td><td>Laila Riazi</td>
+            <td class="num">52</td><td class="num">1,013</td>
+          </tr>
+          <tr>
+            <td><span class="chip fr">fr→en</span></td>
+            <td><em>My Farmer and My Rose</em></td><td>Laila Riazi</td>
+            <td class="num">62</td><td class="num">2,539</td>
+          </tr>
+          <tr>
+            <td><span class="chip zh">zh→en</span></td>
+            <td><em>Minotaur</em></td><td>Han Li</td>
+            <td class="num">27</td><td class="num">1,557</td>
+          </tr>
+          <tr>
+            <td><span class="chip zh">zh→en</span></td>
+            <td><em>Forehead and Bench</em></td><td>Han Li</td>
+            <td class="num">19</td><td class="num">1,062</td>
+          </tr>
+          <tr>
+            <td><span class="chip es">es→en</span></td>
+            <td><em>Rosauro</em></td><td>Landon Kramer</td>
+            <td class="num">40</td><td class="num">2,827</td>
+          </tr>
+          <tr>
+            <td><span class="chip es">es→en</span></td>
+            <td><em>Nest of Airplanes</em></td><td>Landon Kramer</td>
+            <td class="num">43</td><td class="num">2,931</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="3">7 works · 4 translators</td>
+          <td class="num">423</td><td class="num">16,822</td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <p style="margin-top:16px;">The wider library adds further Italian, Spanish and Japanese
+    works and three further translators, currently held as translation-only text pending alignment.
+    Two notes we would rather state than have you discover: this sample is a format and
+    quality demonstration, not a supply commitment, and the rationale layer covers 3 of 423
+    segments — it is a capability we collect to spec at delivery time, not existing
+    inventory at density.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Commercials</p>
+    <h2>Priced per word and per annotation, not per token</h2>
+    <p>A token is a property of your tokenizer, not of our work — the same passage runs
+    roughly 1.3× more tokens in Chinese than in English under most BPE vocabularies, so
+    per-token pricing penalizes exactly the pairs that are hardest to produce. We price on
+    units that track human effort.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Opening positions · non-exclusive · per language pair</caption>
+        <thead>
+          <tr><th>Tier</th><th>What it is</th><th>Unit</th><th class="num">Ask</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Parallel text</strong></td>
+            <td>Rights-cleared, MT-free, uncrawled aligned works</td>
+            <td>per target word</td>
+            <td class="num ask">$0.25–0.40</td>
+          </tr>
+          <tr>
+            <td><strong>Annotated</strong></td>
+            <td>Above, plus rationale and rejected alternatives on flagged segments</td>
+            <td>per annotated segment</td>
+            <td class="num ask">$12–25</td>
+          </tr>
+          <tr>
+            <td><strong>Evaluation set</strong></td>
+            <td>Held out, never delivered elsewhere, contamination-guaranteed</td>
+            <td>flat, annual</td>
+            <td class="num ask">$25k–75k</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px;">The floor on tier one is our cost: professional literary
+    translation into English runs $0.12–0.20 per word to the translator before editorial.
+    Tier two is derived from credentialed-expert hourly rates at a realistic six to ten
+    considered annotations an hour. Tier three is priced as scarcity rather than effort —
+    an uncontaminated literary eval set in a pair you are weak in has no substitute, and
+    its value collapses the moment it is sold twice.</p>
+    <p><strong>Terms we hold:</strong> non-exclusive by default, exclusivity priced
+    separately; use limited to your own training and evaluation, no redistribution or
+    sublicensing; term-limited with renewal rather than perpetual; translator attribution
+    and revenue share; and no reselling synthetic translations derived from our data as
+    human work.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Status</p>
+    <h2>Rights clearance is in progress, and we will not pretend otherwise</h2>
+    <div class="caution">
+      <h3>Every record in this sample reads <code>"source_text_license": "NOT CLEARED"</code></h3>
+      <p>A translation is a derivative work. Copyright in the English belongs to the
+      translator; the right to make and distribute a translation at all belongs to the
+      original author or their magazine. Azalea holds neither in writing today, and the
+      sample is built to say so in the data rather than in a footnote.</p>
+      <p>This brief is an invitation to price the work and tell us your diligence bar — not
+      an offer of a corpus you can buy this quarter. We would rather sequence it that way
+      than discover at your legal review that we had oversold the position.</p>
+      <ul class="checklist">
+        <li><span class="box">[ ]</span><span>Translator license covering AI-training use, with explicit ML language and revenue share</span></li>
+        <li><span class="box">[ ]</span><span>Signed human-authorship attestation per document</span></li>
+        <li><span class="box">[ ]</span><span>Source rights holder identified per work — author or magazine, varies by venue</span></li>
+        <li><span class="box">[ ]</span><span>Written permission to commercially license the translation, AI training named separately</span></li>
+        <li><span class="box">[ ]</span><span>Territory, term, and whether permission survives resale</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="closing">
+    <p class="eyebrow">The ask</p>
+    <h2>Five questions, and we will build to your answers</h2>
+    <ol class="questions">
+      <li>Which language pairs are you weakest in — and is that a pretraining, a
+      post-training, or an evaluation gap?</li>
+      <li>Do you buy on volume, or on per-example quality?</li>
+      <li>What annotation density would you specify, and against what rubric?</li>
+      <li>What is your rights diligence bar — signed author consent per work, or is
+      translator warranty sufficient?</li>
+      <li>What have you paid per unit for comparable credentialed-expert data?</li>
+    </ol>
+    <footer>
+      <span>Azalea Labs</span>
+      <span>nbaronia@gmail.com</span>
+      <span>azalea-literary-parallel v0.1.1</span>
+      <span>Sample, schema and manifest available on request</span>
+    </footer>
+  </section>
+
+</div>

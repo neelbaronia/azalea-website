@@ -1,0 +1,132 @@
+{
+  "dataset": "azalea-literary-parallel",
+  "version": "0.1.1",
+  "release_date": "2026-09-13",
+  "publisher": "Azalea Labs",
+  "contact": "nbaronia@gmail.com",
+  "description": "Human-authored literary translations into English, segment-aligned, with translator provenance and a rationale annotation layer. Sample extract; not the full corpus.",
+  "status": "SAMPLE — rights clearance in progress, see RIGHTS.md",
+  "totals": {
+    "documents": 7,
+    "segments": 423,
+    "source_words": 17378,
+    "target_words": 16822,
+    "annotated_segments": 3,
+    "translators": 4,
+    "directions": 4
+  },
+  "by_direction": {
+    "de-en": {
+      "documents": 1,
+      "segments": 180,
+      "source_words": 4643,
+      "target_words": 4893
+    },
+    "fr-en": {
+      "documents": 2,
+      "segments": 114,
+      "source_words": 3602,
+      "target_words": 3552
+    },
+    "zh-en": {
+      "documents": 2,
+      "segments": 46,
+      "source_words": 3336,
+      "target_words": 2619
+    },
+    "es-en": {
+      "documents": 2,
+      "segments": 83,
+      "source_words": 5797,
+      "target_words": 5758
+    }
+  },
+  "files": [
+    {
+      "path": "azalea-literary-parallel-v0.1.jsonl",
+      "format": "jsonl",
+      "granularity": "document",
+      "records": 7,
+      "sha256": "62b1b7003a9cbd97cb50f034caf66643c2078fd0dba5e1262d9846376ef4972f"
+    },
+    {
+      "path": "azalea-segments-v0.1.jsonl",
+      "format": "jsonl",
+      "granularity": "segment",
+      "records": 423,
+      "sha256": "9e63259b188db8663b3836bc3b6ef9bac8de2635505c5fc3039d443a868b1e86"
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "azl-de-0001",
+      "direction": "de-en",
+      "target_title": "I Hear Her Laughing",
+      "translator": "Anna Lynn Dolman",
+      "segments": 180,
+      "source_words": 4643,
+      "target_words": 4893,
+      "annotated_segments": 1
+    },
+    {
+      "document_id": "azl-fr-0001",
+      "direction": "fr-en",
+      "target_title": "Memory of Ashes",
+      "translator": "Laila Riazi",
+      "segments": 52,
+      "source_words": 1025,
+      "target_words": 1013,
+      "annotated_segments": 0
+    },
+    {
+      "document_id": "azl-fr-0002",
+      "direction": "fr-en",
+      "target_title": "My Farmer and My Rose",
+      "translator": "Laila Riazi",
+      "segments": 62,
+      "source_words": 2577,
+      "target_words": 2539,
+      "annotated_segments": 1
+    },
+    {
+      "document_id": "azl-zh-0001",
+      "direction": "zh-en",
+      "target_title": "Minotaur",
+      "translator": "Han Li",
+      "segments": 27,
+      "source_words": 2035,
+      "target_words": 1557,
+      "annotated_segments": 0
+    },
+    {
+      "document_id": "azl-zh-0002",
+      "direction": "zh-en",
+      "target_title": "Forehead and Bench",
+      "translator": "Han Li",
+      "segments": 19,
+      "source_words": 1301,
+      "target_words": 1062,
+      "annotated_segments": 1
+    },
+    {
+      "document_id": "azl-es-0001",
+      "direction": "es-en",
+      "target_title": "Rosauro",
+      "translator": "Landon Kramer",
+      "segments": 40,
+      "source_words": 2927,
+      "target_words": 2827,
+      "annotated_segments": 0
+    },
+    {
+      "document_id": "azl-es-0002",
+      "direction": "es-en",
+      "target_title": "Nest of Airplanes",
+      "translator": "Landon Kramer",
+      "segments": 43,
+      "source_words": 2870,
+      "target_words": 2931,
+      "annotated_segments": 0
+    }
+  ]
+}
