@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { landonRosauroPairs } from "../translations/_components/landon-text-samples";
-import { hanMinotaurPairs } from "../translations/_components/han-text-samples";
-import { lailaMemoryOfAshesPairs } from "../translations/_components/text-sample";
+import {
+  landonNidoDeAvionesPairs,
+  landonRosauroPairs,
+} from "../translations/_components/landon-text-samples";
+import {
+  hanForeheadAndBenchPairs,
+  hanMinotaurPairs,
+} from "../translations/_components/han-text-samples";
+import {
+  lailaMemoryOfAshesPairs,
+  lailaMonBordierPairs,
+  lynnHelferPairs,
+  type SentencePair,
+} from "../translations/_components/text-sample";
 import styles from "./data-licensing.module.css";
 
 export const metadata: Metadata = {
@@ -21,18 +32,23 @@ type MappingSample = {
   sourceLanguage: string;
   targetLanguage: string;
   translator: string;
-  pair: { original: string; translation: string };
+  pair: SentencePair;
+  segmentIndex: number;
 };
 
-const mappingSamples: MappingSample[] = [
+type MappingWork = Omit<MappingSample, "pair" | "segmentIndex"> & {
+  pairs: SentencePair[];
+};
+
+const mappingWorks: MappingWork[] = [
   {
-    documentId: "azl-es-0001",
-    title: "Rosauro",
-    direction: "es-en",
-    sourceLanguage: "es",
+    documentId: "azl-de-0001",
+    title: "I Hear Her Laughing",
+    direction: "de-en",
+    sourceLanguage: "de",
     targetLanguage: "en",
-    translator: "Landon Kramer",
-    pair: landonRosauroPairs[0],
+    translator: "Anna Lynn Dolman",
+    pairs: lynnHelferPairs,
   },
   {
     documentId: "azl-fr-0001",
@@ -41,7 +57,16 @@ const mappingSamples: MappingSample[] = [
     sourceLanguage: "fr",
     targetLanguage: "en",
     translator: "Laila Riazi",
-    pair: lailaMemoryOfAshesPairs[0],
+    pairs: lailaMemoryOfAshesPairs,
+  },
+  {
+    documentId: "azl-fr-0002",
+    title: "My Farmer and My Rose",
+    direction: "fr-en",
+    sourceLanguage: "fr",
+    targetLanguage: "en",
+    translator: "Laila Riazi",
+    pairs: lailaMonBordierPairs,
   },
   {
     documentId: "azl-zh-0001",
@@ -50,9 +75,44 @@ const mappingSamples: MappingSample[] = [
     sourceLanguage: "zh",
     targetLanguage: "en",
     translator: "Han Li",
-    pair: hanMinotaurPairs[0],
+    pairs: hanMinotaurPairs,
+  },
+  {
+    documentId: "azl-zh-0002",
+    title: "Forehead and Bench",
+    direction: "zh-en",
+    sourceLanguage: "zh",
+    targetLanguage: "en",
+    translator: "Han Li",
+    pairs: hanForeheadAndBenchPairs,
+  },
+  {
+    documentId: "azl-es-0001",
+    title: "Rosauro",
+    direction: "es-en",
+    sourceLanguage: "es",
+    targetLanguage: "en",
+    translator: "Landon Kramer",
+    pairs: landonRosauroPairs,
+  },
+  {
+    documentId: "azl-es-0002",
+    title: "Nest of Airplanes",
+    direction: "es-en",
+    sourceLanguage: "es",
+    targetLanguage: "en",
+    translator: "Landon Kramer",
+    pairs: landonNidoDeAvionesPairs,
   },
 ];
+
+const mappingSamples: MappingSample[] = mappingWorks.flatMap((work) =>
+  work.pairs.slice(0, 2).map((pair, segmentIndex) => ({
+    ...work,
+    pair,
+    segmentIndex,
+  })),
+);
 
 function JsonObject({
   sample,
@@ -65,11 +125,15 @@ function JsonObject({
 }) {
   const language = side === "source" ? sample.sourceLanguage : sample.targetLanguage;
   const lines: JsonLine[] = [
-    { key: "segment_id", value: sample.documentId + ":s0001", tone: "meta" },
+    {
+      key: "segment_id",
+      value: sample.documentId + ":s" + String(sample.segmentIndex + 1).padStart(4, "0"),
+      tone: "meta",
+    },
     { key: "language", value: language, tone: "language" },
     { key: "text", value: text, tone: "text" },
     { key: "document_id", value: sample.documentId, tone: "meta" },
-    { key: "segment_index", value: 0, tone: "meta" },
+    { key: "segment_index", value: sample.segmentIndex, tone: "meta" },
   ];
 
   return (
@@ -118,9 +182,11 @@ export default function DataLicensingPage() {
 
       <div className={styles.mappingList}>
         {mappingSamples.map((sample, index) => (
-          <article className={styles.mappingCard} key={sample.documentId}>
+          <article className={styles.mappingCard} key={sample.documentId + ":" + sample.segmentIndex}>
             <div className={styles.cardHeader}>
-              <span>{String(index + 1).padStart(2, "0")} / {sample.documentId}:s0001</span>
+              <span>
+                {String(index + 1).padStart(2, "0")} / {sample.documentId}:s{String(sample.segmentIndex + 1).padStart(4, "0")}
+              </span>
               <span>{sample.direction} · 1:1</span>
             </div>
             <div className={styles.diffGrid}>
