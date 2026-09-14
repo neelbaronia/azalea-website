@@ -33,6 +33,10 @@
 .headerSpec { justify-self: end; color: #7e847d; }
 
 .mappingList, .blockList { display: grid; gap: 20px; max-width: 1480px; margin: 20px auto 0; }
+.inquiryRow { display: flex; justify-content: flex-end; max-width: 1480px; margin: 26px auto 8px; }
+.inquiryButton { display: inline-flex; align-items: center; gap: 18px; padding: 13px 16px; border: 1px solid #202824; color: #f4f1e9; background: #202824; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.07em; text-decoration: none; text-transform: uppercase; transition: background 160ms ease, color 160ms ease, transform 160ms ease; }
+.inquiryButton span { font-size: 15px; line-height: 0.7; }
+.inquiryButton:hover { color: #202824; background: transparent; transform: translateY(-2px); }
 .mappingCard, .blockCard { overflow: hidden; border: 1px solid #252a26; background: #fbfaf5; box-shadow: 5px 5px 0 #d9d4c7; }
 .cardHeader, .blockHeader { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 0 14px; border-bottom: 1px solid #252a26; color: #687068; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
 .diffGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -136,6 +136,14 @@ export default function DataLicensingPage() {
           </article>
         ))}
       </div>
+      <div className={styles.inquiryRow}>
+        <a
+          className={styles.inquiryButton}
+          href="mailto:nbaronia@gmail.com?subject=Azalea%20sample%20set%20inquiry"
+        >
+          INQUIRE FOR SAMPLE SET <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </main>
   );
 }
