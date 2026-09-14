@@ -80,8 +80,8 @@ export default function PretrainingPage() {
           <span>AZALEA / DATA</span>
         </Link>
         <nav className={styles.nav} aria-label="Data views">
-          <Link className={styles.navLink} href="/data-licensing">01 MAPPING</Link>
-          <Link className={styles.navLink + " " + styles.active} href="/data-licensing/pretraining">02 BLOCK TEXT</Link>
+          <Link className={styles.navLink} href="/data">01 MAPPING</Link>
+          <Link className={styles.navLink + " " + styles.active} href="/data/pretraining">02 BLOCK TEXT</Link>
         </nav>
         <span className={styles.headerSpec}>JSONL · DOCUMENT / ROW</span>
       </header>

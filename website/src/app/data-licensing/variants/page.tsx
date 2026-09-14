@@ -135,12 +135,12 @@ export default function DesignStudiesPage() {
   return (
     <main className={styles.gallery}>
       <header className={styles.header}>
-        <Link className={styles.wordmark} href="/data-licensing">
+        <Link className={styles.wordmark} href="/data">
           <Image src="/azalea-icon.webp" alt="" width={28} height={28} priority />
           <span>AZALEA / DATA</span>
         </Link>
         <div className={styles.headerTitle}>DESIGN STUDIES / 03 OPTIONS</div>
-        <Link className={styles.currentLink} href="/data-licensing">CURRENT PAGES ↗</Link>
+        <Link className={styles.currentLink} href="/data">CURRENT PAGES ↗</Link>
       </header>
 
       <div className={styles.studyList}>

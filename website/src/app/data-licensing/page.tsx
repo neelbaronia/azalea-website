@@ -106,10 +106,10 @@ export default function DataLicensingPage() {
           <span>AZALEA / DATA</span>
         </Link>
         <nav className={styles.nav} aria-label="Data views">
-          <Link className={styles.navLink + " " + styles.active} href="/data-licensing">
+          <Link className={styles.navLink + " " + styles.active} href="/data">
             01 MAPPING
           </Link>
-          <Link className={styles.navLink} href="/data-licensing/pretraining">
+          <Link className={styles.navLink} href="/data/pretraining">
             02 BLOCK TEXT
           </Link>
         </nav>
