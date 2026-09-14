@@ -75,7 +75,7 @@ function JsonObject({
   return (
     <div className={styles.codePane}>
       <div className={styles.codePaneHeader}>
-        <span>{side === "source" ? "original" : "translated"}</span>
+        <span>{side === "source" ? "− original" : "+ translated"}</span>
         <span className={side === "source" ? styles.sourceBadge : styles.targetBadge}>
           {language}
         </span>
