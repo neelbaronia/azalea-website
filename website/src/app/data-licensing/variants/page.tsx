@@ -15,13 +15,16 @@ type Study = {
   number: string;
   name: string;
   idea: string;
-  theme: "paper" | "terminal" | "index";
+  theme: "paper" | "terminal" | "index" | "signal" | "monograph" | "grid";
 };
 
 const studies: Study[] = [
   { number: "01", name: "PAPER SPLIT", idea: "warm / paired / legible", theme: "paper" },
   { number: "02", name: "NIGHTLINE", idea: "dense / technical / high-contrast", theme: "terminal" },
   { number: "03", name: "ARCHIVE INDEX", idea: "quiet / numbered / collectible", theme: "index" },
+  { number: "04", name: "SIGNAL DIFF", idea: "annotated / expressive / comparative", theme: "signal" },
+  { number: "05", name: "MONOGRAPH", idea: "literary / spacious / premium", theme: "monograph" },
+  { number: "06", name: "GRID 12", idea: "structured / crisp / institutional", theme: "grid" },
 ];
 
 const mappingSample = {
@@ -139,7 +142,7 @@ export default function DesignStudiesPage() {
           <Image src="/azalea-icon.webp" alt="" width={28} height={28} priority />
           <span>AZALEA / DATA</span>
         </Link>
-        <div className={styles.headerTitle}>DESIGN STUDIES / 03 OPTIONS</div>
+        <div className={styles.headerTitle}>DESIGN STUDIES / 06 OPTIONS</div>
         <Link className={styles.currentLink} href="/data">CURRENT PAGES ↗</Link>
       </header>
 

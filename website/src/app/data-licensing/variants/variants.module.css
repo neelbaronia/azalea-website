@@ -58,6 +58,44 @@
 .index .language { color: #347a65; }
 .index .studyHeader { font-family: "Space Grotesk", Arial, sans-serif; }
 
+.signal { background: #e5e7e4; }
+.signal .previewGrid { background: #6d7770; }
+.signal .previewCard { background: #f8faf6; border-color: #27322d; }
+.signal .previewHeader { color: #53625a; border-bottom-color: #27322d; }
+.signal .side:first-child { background: #fff1eb; box-shadow: inset 4px 0 #c76648; }
+.signal .side:last-child { background: #e8f5ed; box-shadow: inset -4px 0 #2e8066; }
+.signal .side + .side { border-left-color: #9aa69e; }
+.signal .sideHeader { color: #39453e; }
+.signal .side:first-child .sideHeader span:first-child { color: #ae4e36; }
+.signal .side:last-child .sideHeader span:first-child { color: #1e6d57; }
+.signal .key { color: #8b4b3c; }
+.signal .text { color: #294f93; background: #dce8fd; }
+.signal .language { color: #246f5b; }
+
+.monograph { background: #e8ded0; }
+.monograph .studyHeader { font-family: Georgia, serif; letter-spacing: 0.02em; }
+.monograph .previewGrid { background: #b9a18a; }
+.monograph .previewCard { background: #fbf4e9; border-color: #392c24; }
+.monograph .previewHeader { color: #775e4c; border-bottom-color: #392c24; font-family: Georgia, serif; font-size: 10px; letter-spacing: 0.04em; }
+.monograph .sideHeader { color: #634c3e; font-family: Georgia, serif; }
+.monograph .side + .side { border-left-color: #cdbba5; }
+.monograph .key { color: #944a3d; }
+.monograph .text, .monograph .blockText { color: #445d91; background: transparent; }
+.monograph .language { color: #45705b; }
+
+.grid { background: #d9e4ed; }
+.grid .previewGrid { background: #173954; }
+.grid .previewCard { background: #f9fcff; border-color: #173954; }
+.grid .previewHeader { color: #3b5f79; border-bottom-color: #a8bdcd; background: #eff6fb; }
+.grid .sideHeader { color: #3b607a; background: #f3f8fc; }
+.grid .side + .side { border-left-color: #a8bdcd; }
+.grid .miniCode, .grid .blockCode { background: #f8fbfd; }
+.grid .key { color: #b05442; }
+.grid .meta { color: #40637b; }
+.grid .text { color: #285b9c; background: #e4effc; }
+.grid .blockText { color: #285b9c; }
+.grid .language { color: #1c786d; }
+
 @media (max-width: 900px) {
   .header { grid-template-columns: 1fr auto; }
   .headerTitle { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
