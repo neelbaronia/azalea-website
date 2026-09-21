@@ -7,6 +7,8 @@ import {
 import { hanForeheadAndBenchPairs, hanMinotaurPairs } from "./han-text-samples";
 import { landonNidoDeAvionesPairs, landonRosauroPairs } from "./landon-text-samples";
 import { lynnVowinckelParagraphs } from "./lynn-text-samples";
+import { sophiaCarouselPairs, sophiaColonPairs } from "./sophia-text-samples";
+import { jordanFoolsBusPairs, jordanSubstituteForFictionPairs } from "./jordan-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -149,7 +151,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://societyofauthors.org/soa-member/sophia-barry-gordon/",
     source: "L’Indiscreto",
     sourceUrl: "https://www.indiscreto.org/la-giostra/",
-    pairs: [],
+    pairs: sophiaCarouselPairs,
   },
   {
     id: "io-non-sono-il-mio-colon-sophia-barry-gordon",
@@ -163,7 +165,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://societyofauthors.org/soa-member/sophia-barry-gordon/",
     source: "L’Indiscreto",
     sourceUrl: "https://www.indiscreto.org/io-non-sono-il-mio-colon-la-teoria-della-mente-allargata/",
-    pairs: [],
+    pairs: sophiaColonPairs,
   },
   {
     id: "la-giostra-jess-dubie",
@@ -261,7 +263,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://asian.washington.edu/people/jordan-niver-johnson",
     source: "オレンジ文庫",
     sourceUrl: "https://orangebunko.shueisha.co.jp/online/tanpen235_kyoko_no_daitaihin",
-    pairs: [],
+    pairs: jordanSubstituteForFictionPairs,
   },
   {
     id: "the-fools-bus-to-station-b-jordan-niver-johnson",
@@ -275,7 +277,7 @@ export const samples: TranslationSample[] = [
     translatorBioUrl: "https://asian.washington.edu/people/jordan-niver-johnson",
     source: "オレンジ文庫",
     sourceUrl: "https://orangebunko.shueisha.co.jp/online/tanpen235_gusha_no_bus",
-    pairs: [],
+    pairs: jordanFoolsBusPairs,
   },
 ];
 

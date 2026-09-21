@@ -917,7 +917,7 @@ button { font: inherit; }
 .sentence-pair p:focus-visible::before { opacity: 0.62; }
 .sentence-pair.is-active p::before { opacity: 1; transform: scaleX(1); }
 .sentence-text, .sentence-number { position: relative; z-index: 1; }
-.sentence-text { display: block; hyphens: auto; }
+.sentence-text { display: block; hyphens: auto; white-space: pre-line; }
 .sentence-number { padding-top: 0.5em; color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 7px; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; opacity: 0; transition: opacity 160ms ease; }
 .sentence-pair.is-active .sentence-number { opacity: 0.46; }
 .right-number { text-align: right; }
