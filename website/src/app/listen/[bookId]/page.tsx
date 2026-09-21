@@ -12,6 +12,16 @@ export const revalidate = 3600;
 
 const SITE_URL = "https://www.azalea-labs.com";
 
+const SKYHORSE_LICENSED_BOOK_IDS = new Set([
+  "killing-kennedy",
+  "the-homestead",
+  "cowboys",
+  "scottish-miscellany",
+  "people-of-the-first-crusade",
+  "the-pasha-of-cuisine",
+  "innovators",
+]);
+
 type Props = { params: Promise<{ bookId: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -90,7 +100,7 @@ export default async function ListenPage({ params }: Props) {
         <ListenButton spotifyUrl={book.spotifyUrl} className={styles.button} />
       </section>
 
-      {book.id === "killing-kennedy" && (
+      {SKYHORSE_LICENSED_BOOK_IDS.has(book.id) && (
         <p className={styles.licenseCredit}>
           Original publisher: Skyhorse Publishing, Inc. Audiobook produced and
           distributed by Azalea Labs &amp; Studio, Inc. under license from Skyhorse
