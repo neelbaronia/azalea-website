@@ -20,6 +20,10 @@ const SKYHORSE_LICENSED_BOOK_IDS = new Set([
   "people-of-the-first-crusade",
   "the-pasha-of-cuisine",
   "innovators",
+  "judgment-in-berlin",
+  "lincoln-and-the-irish",
+  "running-around-and-such",
+  "a-horse-for-elsie",
 ]);
 
 type Props = { params: Promise<{ bookId: string }> };
