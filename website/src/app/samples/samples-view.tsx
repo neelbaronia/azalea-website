@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { SampleEntry } from "./sample-data";
 
@@ -22,13 +23,13 @@ function SamplesNavbar() {
   const router = useRouter();
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
-      <a href="/" className="flex items-center gap-2 flex-shrink-0">
+      <Link href="/" className="flex items-center gap-2 flex-shrink-0">
         <Image src="/azalea-icon.webp" alt="Azalea" width={32} height={32} className="w-7 h-7 md:w-10 md:h-10" />
         <div className="flex flex-col leading-tight">
           <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Azalea</span>
           <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Labs</span>
         </div>
-      </a>
+      </Link>
       <div className="flex gap-0.5 rounded-xl p-1 border backdrop-blur-md bg-white/10 border-white/10 flex-shrink min-w-0">
         <button
           onClick={() => router.push("/")}
@@ -56,7 +57,9 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const [dragging, setDragging] = useState(false);
   const seekBarRef = useRef<HTMLDivElement>(null);
 
-  const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
+  // Ship small cover copies with the page instead of fetching multi-megabyte
+  // originals from R2 on an image-optimizer cache miss.
+  const coverUrl = `/sample-covers/${book.id}.webp`;
 
   const togglePlay = async () => {
     const audio = audioRef.current;
@@ -233,12 +236,12 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
           </div>
           <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
             <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
-            <a href="/samples" className="hover:text-white transition-colors">Samples</a>
-            <a href="/publications" className="hover:text-white transition-colors">Our Publications</a>
+            <Link href="/samples" className="hover:text-white transition-colors">Samples</Link>
+            <Link href="/publications" className="hover:text-white transition-colors">Our Publications</Link>
             <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
             <a href="#" className="hover:text-white transition-colors">About</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
           </div>
         </div>
       </footer>
