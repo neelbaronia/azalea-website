@@ -335,6 +335,17 @@
   outline: none;
 }
 
+.mapCountryWorldwide {
+  fill: #b9adcf;
+  stroke: var(--paper);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapCountryWorldwide:hover {
+  fill: #9b8ac5;
+}
+
 .mapCountryActive:hover,
 .mapCountryActive:focus {
   opacity: 0.74;

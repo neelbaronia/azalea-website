@@ -3,25 +3,15 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
+import { PUBLISHING_MARKETS } from "./markets";
 import styles from "./full-publishing.module.css";
 
 const WIDTH = 960;
 const HEIGHT = 500;
 
-const MARKET_COLORS: ReadonlyMap<string, string> = new Map([
-  ["United States of America", "#5d5df5"],
-  ["United Kingdom", "#ec4978"],
-  ["Canada", "#ff9900"],
-  ["Australia", "#00dd33"],
-  ["Netherlands", "#3566ff"],
-  ["Ireland", "#00ef82"],
-  ["Germany", "#d62036"],
-  ["New Zealand", "#ffcf00"],
-  ["Finland", "#192aff"],
-  ["Sweden", "#00b870"],
-  ["Belgium", "#f06b2f"],
-  ["France", "#9b5de5"],
-]);
+const MARKET_COLORS: ReadonlyMap<string, string> = new Map(
+  PUBLISHING_MARKETS.map(({ name, color }) => [name, color]),
+);
 
 type CountryProperties = { name: string };
 type CountryFeature = Feature<Geometry, CountryProperties>;
@@ -42,7 +32,13 @@ type Tooltip = {
   top: number;
 };
 
-export default function FullWorldMap() {
+export default function FullWorldMap({
+  className = "",
+  scope = "markets",
+}: {
+  className?: string;
+  scope?: "markets" | "worldwide";
+}) {
   const blockRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [countries, setCountries] = useState<MapCountry[] | null>(null);
@@ -134,8 +130,8 @@ export default function FullWorldMap() {
 
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
     return {
-      color: country.color ?? "#14101f",
-      label: country.isActive
+      color: scope === "worldwide" ? "#9b8ac5" : country.color ?? "#14101f",
+      label: scope === "worldwide" || country.isActive
         ? country.label
         : `${country.label} · Coming soon`,
       left,
@@ -172,7 +168,7 @@ export default function FullWorldMap() {
   }
 
   return (
-    <div ref={blockRef} className={styles.mapBlock}>
+    <div ref={blockRef} className={`${styles.mapBlock} ${className}`}>
       <div id="publishing-world-map" className={styles.mapCanvas}>
         <svg
           className={styles.mapSvg}
@@ -180,10 +176,13 @@ export default function FullWorldMap() {
           role="img"
           aria-labelledby="publishing-map-title publishing-map-description"
         >
-          <title id="publishing-map-title">Azalea Publishing markets</title>
+          <title id="publishing-map-title">
+            {scope === "worldwide" ? "Azalea worldwide distribution" : "Azalea Publishing markets"}
+          </title>
           <desc id="publishing-map-description">
-            A world map highlighting twelve countries where Azalea titles have
-            sales and distribution.
+            {scope === "worldwide"
+              ? "A world map illustrating worldwide distribution settings. Availability varies by title, store, and country. This is not a map of confirmed live listings."
+              : `A world map highlighting ${PUBLISHING_MARKETS.length} countries where Azalea titles have sales and distribution.`}
           </desc>
 
           <defs>
@@ -211,17 +210,19 @@ export default function FullWorldMap() {
                 key={country.label}
                 d={country.path}
                 className={
-                  country.isActive ? styles.mapCountryActive : styles.mapCountry
+                  scope === "worldwide"
+                    ? styles.mapCountryWorldwide
+                    : country.isActive ? styles.mapCountryActive : styles.mapCountry
                 }
                 style={
-                  country.color
+                  scope === "markets" && country.color
                     ? ({ "--market-color": country.color } as CSSProperties)
                     : undefined
                 }
-                tabIndex={country.isActive ? 0 : undefined}
-                role={country.isActive ? "img" : undefined}
+                tabIndex={scope === "markets" && country.isActive ? 0 : undefined}
+                role={scope === "markets" && country.isActive ? "img" : undefined}
                 aria-label={
-                  country.isActive
+                  scope === "worldwide" || country.isActive
                     ? country.label
                     : `${country.label}, coming soon`
                 }

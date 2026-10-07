@@ -1,6 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { overdriveLinksByBookId, retailerLinksByBookId } from "./retailer-links";
 import SiteFooter from "@/components/SiteFooter";
+import DistributionSection from "./DistributionSection";
+import PublicationsTabs from "./PublicationsTabs";
 import styles from "./publications.module.css";
 
 const LIBRARY_URL =
@@ -22,7 +25,7 @@ interface Book {
 function PublicationsHeader() {
   return (
     <header className={styles.header}>
-      <a className={styles.wordmark} href="/" aria-label="Azalea Labs home">
+      <Link className={styles.wordmark} href="/" aria-label="Azalea Labs home">
         <Image
           src="/azalea-icon.webp"
           alt=""
@@ -32,7 +35,7 @@ function PublicationsHeader() {
           unoptimized
         />
         <span>Azalea Labs</span>
-      </a>
+      </Link>
     </header>
   );
 }
@@ -93,48 +96,59 @@ export default async function PublicationsPage() {
         </h1>
       </section>
 
-      {books.length === 0 ? (
-        <p className={styles.empty}>No publications available.</p>
-      ) : (
-        <ul className={styles.wall}>
-          {books.map((book, index) => {
-            const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
-            return (
-              <li key={book.id} className={styles.tile}>
-                <div className={styles.cover}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={coverUrl}
-                    alt={book.title}
-                    width={280}
-                    height={280}
-                    loading={index < 8 ? "eager" : "lazy"}
-                    decoding="async"
-                    fetchPriority={index < 4 ? "high" : "auto"}
-                  />
-                </div>
+      <PublicationsTabs
+        network={<DistributionSection />}
+        books={
+          books.length === 0 ? (
+            <p id="publications-catalog" className={styles.empty}>
+              No publications available.
+            </p>
+          ) : (
+            <ul
+              id="publications-catalog"
+              className={styles.wall}
+              aria-label="Our publications"
+            >
+              {books.map((book, index) => {
+                const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
+                return (
+                  <li key={book.id} className={styles.tile}>
+                    <div className={styles.cover}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={coverUrl}
+                        alt={book.title}
+                        width={280}
+                        height={280}
+                        loading={index < 8 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={index < 4 ? "high" : "auto"}
+                      />
+                    </div>
 
-                <h2>{book.title}</h2>
-                <p className={styles.byline}>{book.author}</p>
+                    <h2>{book.title}</h2>
+                    <p className={styles.byline}>{book.author}</p>
 
-                <p className={styles.availability}>
-                  {retailersFor(book).map((retailer) => (
-                    <a
-                      key={retailer.name}
-                      href={retailer.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${book.title} on ${retailer.name}`}
-                    >
-                      {retailer.name}
-                    </a>
-                  ))}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    <p className={styles.availability}>
+                      {retailersFor(book).map((retailer) => (
+                        <a
+                          key={retailer.name}
+                          href={retailer.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${book.title} on ${retailer.name}`}
+                        >
+                          {retailer.name}
+                        </a>
+                      ))}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )
+        }
+      />
 
       <SiteFooter />
     </main>
