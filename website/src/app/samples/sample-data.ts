@@ -1,3 +1,6 @@
+import { canonicalSpotifyUrl } from "@/lib/listen-books";
+import { sampleDescriptionFallbacks } from "./sample-descriptions";
+
 const R2_BASE = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev";
 
 export const FEATURED_IDS = [
@@ -16,6 +19,8 @@ interface Book {
   coverImageName: string;
   remoteBaseURL: string;
   duration: number;
+  description?: string;
+  spotifyUrl?: string;
 }
 
 interface Chapter {
@@ -57,6 +62,9 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
     if (!metadata.title || !metadata.author || !metadata.coverImageName || !audioUrl) {
       throw new Error(`Incomplete sample metadata for ${id}`);
     }
+    const description = typeof metadata.description === "string"
+      ? metadata.description.replace(/[*_`]+/g, "").replace(/\s+/g, " ").trim()
+      : "";
 
     return {
       book: {
@@ -66,6 +74,12 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
         coverImageName: metadata.coverImageName,
         remoteBaseURL,
         duration: Number.isFinite(metadata.duration) ? metadata.duration : 0,
+        description: description && !/^Audiobook version of\b/i.test(description)
+          ? description
+          : sampleDescriptionFallbacks[id] ?? "",
+        spotifyUrl: canonicalSpotifyUrl(
+          typeof metadata.spotifyUrl === "string" ? metadata.spotifyUrl : undefined,
+        ) ?? undefined,
       },
       audioUrl,
       sampleDuration: chapter && Number.isFinite(chapter.duration) ? chapter.duration : 0,

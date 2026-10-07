@@ -54,12 +54,19 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(sampleDuration);
   const [audioError, setAudioError] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [dragging, setDragging] = useState(false);
   const seekBarRef = useRef<HTMLDivElement>(null);
 
   // Ship small cover copies with the page instead of fetching multi-megabyte
   // originals from R2 on an image-optimizer cache miss.
   const coverUrl = `/sample-covers/${book.id}.webp`;
+  const description = book.description ?? "";
+  const canExpandDescription = description.length > 200;
+  const descriptionPreview = canExpandDescription
+    ? `${description.slice(0, 200).replace(/\s+\S*$/, "")}…`
+    : description;
+  const descriptionId = `${book.id}-description`;
 
   const togglePlay = async () => {
     const audio = audioRef.current;
@@ -149,6 +156,26 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
         </div>
       </div>
 
+      {description && (
+        <div>
+          <p id={descriptionId} className="text-sm leading-relaxed text-black/75">
+            {descriptionExpanded ? description : descriptionPreview}
+          </p>
+          {canExpandDescription && (
+            <button
+              type="button"
+              aria-expanded={descriptionExpanded}
+              aria-controls={descriptionId}
+              aria-label={`${descriptionExpanded ? "Show less" : "Read more"} about ${book.title}`}
+              onClick={() => setDescriptionExpanded((expanded) => !expanded)}
+              className="mt-1 inline-flex min-h-8 items-center text-xs font-semibold text-black underline underline-offset-4 hover:text-black/70"
+            >
+              {descriptionExpanded ? "Show less" : "Read more"}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Controls stay aligned at the bottom, even when titles wrap. */}
       <div className="mt-auto min-w-0">
         <div className="flex items-center gap-3">
@@ -191,6 +218,17 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
           </div>
         </div>
         {audioError && <p role="alert" className="mt-2 text-xs text-black/70">Couldn’t play this sample. Please try again.</p>}
+        {book.spotifyUrl && (
+          <a
+            href={book.spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Listen to the full audiobook of ${book.title} on Spotify (opens in a new tab)`}
+            className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-[#3be477] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+          >
+            Full book on Spotify <span aria-hidden="true">↗</span>
+          </a>
+        )}
       </div>
     </article>
   );
