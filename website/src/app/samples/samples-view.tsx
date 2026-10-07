@@ -119,7 +119,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex items-center gap-4 md:gap-6 p-4 md:p-5 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-shadow">
+    <article className="flex h-full min-w-0 flex-col gap-5 p-5 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-shadow">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -132,30 +132,31 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
         onEnded={handleEnded}
       />
 
-      {/* Cover */}
-      <div className="flex-shrink-0">
+      {/* Keep the cover and title together; give the player the full card width. */}
+      <div className="flex items-start gap-4">
         <Image
           src={coverUrl}
           alt={book.title}
-          width={160}
-          height={160}
+          width={112}
+          height={112}
           priority={priority}
-          sizes="(max-width: 767px) 96px, 160px"
-          className="w-24 h-24 md:w-40 md:h-40 rounded-xl object-cover shadow-md"
+          sizes="(max-width: 767px) 96px, 112px"
+          className="w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-xl object-cover shadow-md"
         />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-bold leading-snug text-black">{book.title}</h3>
+          <p className="mt-2 text-xs leading-relaxed text-black/60">{book.author} &middot; {formatDuration(book.duration)}</p>
+        </div>
       </div>
 
-      {/* Info + controls */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm md:text-base font-bold text-black truncate">{book.title}</h3>
-        <p className="text-xs text-black/50 mb-3">{book.author} &middot; {formatDuration(book.duration)}</p>
-
+      {/* Controls stay aligned at the bottom, even when titles wrap. */}
+      <div className="mt-auto min-w-0">
         <div className="flex items-center gap-3">
           {/* Play/pause button */}
           <button
             onClick={togglePlay}
             aria-label={`${playing ? "Pause" : "Play"} ${book.title}`}
-            className="flex-shrink-0 w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-black/80 transition-colors"
           >
             {playing ? (
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
@@ -170,11 +171,11 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
           </button>
 
           {/* Progress bar */}
-          <div className="flex-1 min-w-0 flex items-center gap-1 md:gap-3">
-            <span className="text-xs text-black/40 tabular-nums w-9 text-right">{formatTime(currentTime)}</span>
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            <span className="text-xs text-black/50 tabular-nums w-9 flex-shrink-0 text-right">{formatTime(currentTime)}</span>
             <div
               ref={seekBarRef}
-              className="flex-1 h-3 bg-black/10 rounded-full cursor-pointer relative group"
+              className="flex-1 min-w-0 h-3 bg-black/10 rounded-full cursor-pointer relative group"
               onMouseDown={handleSeekDown}
             >
               <div
@@ -186,12 +187,12 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
                 style={{ left: `calc(${progress}% - 10px)` }}
               />
             </div>
-            <span className="text-xs text-black/40 tabular-nums w-9">{formatTime(duration)}</span>
+            <span className="text-xs text-black/50 tabular-nums w-9 flex-shrink-0">{formatTime(duration)}</span>
           </div>
         </div>
         {audioError && <p role="alert" className="mt-2 text-xs text-black/70">Couldn’t play this sample. Please try again.</p>}
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -205,7 +206,7 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
       <SamplesNavbar />
 
       {/* Header */}
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-8">
+      <div className="max-w-7xl mx-auto px-6 pt-24 pb-8">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
           Listen to samples.
         </h1>
@@ -215,11 +216,11 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
       </div>
 
       {/* Book list */}
-      <div className="max-w-3xl mx-auto px-6 pb-20">
+      <div className="max-w-7xl mx-auto px-6 pb-16">
         {samples.length === 0 ? (
           <p className="text-sm text-black/30">No samples available.</p>
         ) : (
-          <div className="space-y-10">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {samples.map((entry, index) => (
               <SamplePlayer key={entry.book.id} {...entry} priority={index === 0} />
             ))}
