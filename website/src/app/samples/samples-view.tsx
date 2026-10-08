@@ -20,7 +20,7 @@ function formatTime(seconds: number): string {
 
 function SamplesNavbar() {
   return (
-    <header className="sticky top-0 z-50 flex min-h-[72px] items-center justify-between gap-3 border-b border-white/15 bg-[#282142] px-4 text-white md:gap-4 md:px-10">
+    <header className="sticky top-0 z-50 flex min-h-[60px] items-center justify-between gap-3 border-b border-white/15 bg-[#282142] px-4 text-white md:gap-4 md:px-10">
       <Link href="/" className="flex shrink-0 items-center gap-2 md:gap-3" aria-label="Azalea Labs home">
         <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority unoptimized className="h-6 w-6 md:h-[30px] md:w-[30px]" />
         <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] md:text-sm md:tracking-[0.18em]">Azalea Labs</span>
@@ -49,7 +49,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const description = book.description ?? "";
   const canExpandDescription = description.length > 200;
   const descriptionPreview = canExpandDescription
-    ? `${description.slice(0, 200).replace(/\s+\S*$/, "")}…`
+    ? `${description.slice(0, 130).replace(/\s+\S*$/, "")}…`
     : description;
   const descriptionId = `${book.id}-description`;
 
@@ -151,7 +151,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <article className="flex h-full min-w-0 flex-col gap-5 border border-[#d9d9d5] border-t-[3px] border-t-[#3566ff] bg-[#f8f8f4] p-5 transition-colors hover:border-[#080808]/35">
+    <article className="flex h-full min-w-0 flex-col gap-3 border border-[#d9d9d5] border-t-[3px] border-t-[#3566ff] bg-[#f8f8f4] p-4 transition-colors hover:border-[#080808]/35 md:p-3">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -169,21 +169,21 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
         <Image
           src={coverUrl}
           alt={book.title}
-          width={112}
-          height={112}
+          width={72}
+          height={72}
           priority={priority}
-          sizes="(max-width: 767px) 96px, 112px"
-          className="h-24 w-24 flex-shrink-0 border border-black/10 object-cover md:h-28 md:w-28"
+          sizes="(max-width: 767px) 64px, 72px"
+          className="h-16 w-16 flex-shrink-0 border border-black/10 object-cover md:h-[72px] md:w-[72px]"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold leading-snug text-[#080808]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>{book.title}</h3>
-          <p className="mt-2 text-xs leading-relaxed text-[#080808]/60">{book.author} &middot; {formatDuration(book.duration)}</p>
+          <h3 className="text-base font-semibold leading-snug text-[#080808]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>{book.title}</h3>
+          <p className="mt-1 text-[11px] leading-snug text-[#080808]/60">{book.author} &middot; {formatDuration(book.duration)}</p>
         </div>
       </div>
 
       {description && (
         <div>
-          <p id={descriptionId} className="text-sm leading-relaxed text-[#080808]/75">
+          <p id={descriptionId} className={`text-xs leading-snug text-[#080808]/75 ${descriptionExpanded ? "" : "line-clamp-2"}`}>
             {descriptionExpanded ? description : descriptionPreview}
           </p>
           {canExpandDescription && (
@@ -193,7 +193,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
               aria-controls={descriptionId}
               aria-label={`${descriptionExpanded ? "Show less" : "Read more"} about ${book.title}`}
               onClick={() => setDescriptionExpanded((expanded) => !expanded)}
-              className="mt-1 inline-flex min-h-8 items-center text-xs font-semibold text-[#3566ff] underline underline-offset-4 hover:text-[#080808]"
+              className="inline-flex min-h-8 items-center text-[11px] font-semibold text-[#3566ff] underline underline-offset-4 hover:text-[#080808] md:min-h-6"
             >
               {descriptionExpanded ? "Show less" : "Read more"}
             </button>
@@ -208,7 +208,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
           <button
             onClick={togglePlay}
             aria-label={`${playing ? "Pause" : "Play"} ${book.title}`}
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#080808] text-white transition-colors hover:bg-[#282142] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff]"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#080808] text-white transition-colors hover:bg-[#282142] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff] md:h-8 md:w-8"
           >
             {playing ? (
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
@@ -224,7 +224,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
 
           {/* Progress bar */}
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            <span className="w-9 flex-shrink-0 text-right text-xs tabular-nums text-[#080808]/50">{formatTime(currentTime)}</span>
+            <span className="w-8 flex-shrink-0 text-right text-[10px] tabular-nums text-[#080808]/50">{formatTime(currentTime)}</span>
             <div
               ref={seekBarRef}
               role="slider"
@@ -239,18 +239,18 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
               onPointerMove={handleSeekPointerMove}
               onPointerUp={handleSeekPointerEnd}
               onPointerCancel={handleSeekPointerEnd}
-              className="group relative h-3 min-w-0 flex-1 touch-none cursor-pointer rounded-full bg-[#080808]/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff]"
+              className="group relative h-2 min-w-0 flex-1 touch-none cursor-pointer rounded-full bg-[#080808]/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff]"
             >
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-[#3566ff]"
                 style={{ width: `${progress}%`, transition: dragging ? "none" : "width 0.1s" }}
               />
               <div
-                className="absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-[#3566ff] opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-                style={{ left: `calc(${progress}% - 10px)` }}
+                className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#3566ff] opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                style={{ left: `calc(${progress}% - 8px)` }}
               />
             </div>
-            <span className="w-9 flex-shrink-0 text-xs tabular-nums text-[#080808]/50">{formatTime(duration)}</span>
+            <span className="w-8 flex-shrink-0 text-[10px] tabular-nums text-[#080808]/50">{formatTime(duration)}</span>
           </div>
         </div>
         {audioError && <p role="alert" className="mt-2 text-xs text-[#080808]/70">Couldn’t play this sample. Please try again.</p>}
@@ -260,7 +260,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Listen to the full audiobook of ${book.title} on Spotify (opens in a new tab)`}
-            className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-[#3be477] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+            className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 py-1.5 text-xs font-bold text-black transition-colors hover:bg-[#3be477] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black md:min-h-9"
           >
             Full book on Spotify <span aria-hidden="true">↗</span>
           </a>
@@ -276,17 +276,17 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
       <SamplesNavbar />
 
       <section className="border-b border-[#080808]/15 bg-[#f1eee6]">
-        <div className="mx-auto max-w-[1440px] px-6 py-16 md:px-10 md:py-24">
-          <p className="mb-5 flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#3566ff]">
+        <div className="mx-auto max-w-[1440px] px-6 py-4 md:px-10 md:py-5">
+          <p className="mb-2 flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#3566ff]">
             <span className="h-px w-8 bg-[#3566ff]" aria-hidden="true" />
             Azalea Labs · Listening room
           </p>
-          <h1 className="max-w-5xl text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.88] tracking-[-0.065em]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>
+          <h1 className="max-w-5xl text-[clamp(2.5rem,5vw,4.25rem)] font-bold leading-[0.9] tracking-[-0.065em]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>
             Listen to <em className="font-medium">samples.</em>
           </h1>
-          <div className="mt-8 flex flex-col gap-6 border-t border-[#080808]/15 pt-6 md:flex-row md:items-end md:justify-between">
-            <p className="max-w-2xl text-base leading-relaxed text-[#080808]/65 md:text-lg">
-              Hear a first chapter from the Azalea catalog. Pick a title, press play, and explore the full audiobook on Spotify.
+          <div className="mt-3 flex flex-col gap-3 border-t border-[#080808]/15 pt-3 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-2xl text-sm leading-snug text-[#080808]/65 md:text-base">
+              Listen to a chapter sample, then find the full audiobook on Spotify.
             </p>
             <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-[#080808]/55">
               {String(samples.length).padStart(2, "0")} featured titles
@@ -295,15 +295,15 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-12 md:px-10 md:py-16" aria-labelledby="featured-samples-heading">
-        <div className="mb-7 flex items-end justify-between gap-4 border-b border-[#080808]/15 pb-4">
-          <h2 id="featured-samples-heading" className="text-2xl font-semibold tracking-tight" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>Featured audiobooks</h2>
+      <section className="mx-auto max-w-[1440px] px-6 py-4 md:px-10 md:py-5" aria-labelledby="featured-samples-heading">
+        <div className="mb-3 flex items-end justify-between gap-4 border-b border-[#080808]/15 pb-2">
+          <h2 id="featured-samples-heading" className="text-xl font-semibold tracking-tight" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>Featured audiobooks</h2>
           <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#080808]/45">Audio previews</span>
         </div>
         {samples.length === 0 ? (
           <p className="border border-[#d9d9d5] bg-[#f8f8f4] p-6 text-sm text-[#080808]/55">No samples available.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {samples.map((entry, index) => (
               <SamplePlayer key={entry.book.id} {...entry} priority={index === 0} />
             ))}
