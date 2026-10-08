@@ -8,12 +8,12 @@ const runFile = promisify(execFile);
 const sourceBase = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev";
 const outputDirectory = new URL("../public/sample-covers/", import.meta.url);
 const featuredBooks = [
+  { id: "the-truth-about-the-oj-simpson-trial", extension: "jpg" },
+  { id: "cowboys", extension: "png" },
+  { id: "the-homestead", extension: "jpg" },
   { id: "a-honeymoon-in-space", extension: "png" },
   { id: "anthropology-and-modern-life", extension: "png" },
   { id: "diana", extension: "png" },
-  { id: "the-truth-about-the-oj-simpson-trial", extension: "jpg" },
-  { id: "lincoln-and-the-irish", extension: "jpg" },
-  { id: "the-homestead", extension: "jpg" },
 ];
 
 const requestedIds = process.argv.slice(2);

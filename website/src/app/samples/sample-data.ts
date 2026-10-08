@@ -4,13 +4,17 @@ import { sampleDescriptionFallbacks } from "./sample-descriptions";
 const R2_BASE = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev";
 
 export const FEATURED_IDS = [
+  "the-truth-about-the-oj-simpson-trial",
+  "cowboys",
+  "the-homestead",
   "a-honeymoon-in-space",
   "anthropology-and-modern-life",
   "diana",
-  "the-truth-about-the-oj-simpson-trial",
-  "lincoln-and-the-irish",
-  "the-homestead",
 ] as const;
+
+const preferredSampleChapterTitles: Partial<Record<(typeof FEATURED_IDS)[number], string>> = {
+  cowboys: "The History of the Cowboy",
+};
 
 interface Book {
   id: string;
@@ -52,7 +56,9 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
     if (!response.ok) throw new Error(`Unable to load sample ${id}: ${response.status}`);
 
     const metadata = await response.json() as BookMetadata;
-    const chapter = metadata.chapters?.find((item) => /^chapter/i.test(item.title))
+    const preferredChapterTitle = preferredSampleChapterTitles[id];
+    const chapter = metadata.chapters?.find((item) => item.title === preferredChapterTitle)
+      ?? metadata.chapters?.find((item) => /^chapter/i.test(item.title))
       ?? metadata.chapters?.find((item) => /^part/i.test(item.title))
       ?? metadata.chapters?.[0];
     const audioUrl = chapter?.remoteAudioURL
@@ -70,7 +76,7 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
     return {
       book: {
         id,
-        title: id === "lincoln-and-the-irish" ? "Lincoln and the Irish" : metadata.title,
+        title: metadata.title,
         author: metadata.author,
         coverImageName: metadata.coverImageName,
         remoteBaseURL,
