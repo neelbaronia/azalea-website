@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const ELEVENLABS_GRANTS_URL = "https://elevenlabs.io/startup-grants";
 const ELEVENLABS_GRANTS_LOGO_URL =
@@ -6,7 +7,7 @@ const ELEVENLABS_GRANTS_LOGO_URL =
 
 export default function SiteFooter() {
   return (
-    <footer id="site-footer" className="w-full bg-black text-white/60">
+    <footer id="site-footer" className="mt-auto w-full bg-black text-white/60">
       <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between gap-8">
         <div className="space-y-2">
           <p className="text-white font-bold text-sm uppercase tracking-[0.3em]">
@@ -47,24 +48,24 @@ export default function SiteFooter() {
           >
             Contact
           </a>
-          <a href="/samples" className="hover:text-white transition-colors">
+          <Link href="/samples" className="hover:text-white transition-colors">
             Audio Samples
-          </a>
-          <a
+          </Link>
+          <Link
             href="/translations"
             className="hover:text-white transition-colors"
           >
             Translation Samples
-          </a>
-          <a
+          </Link>
+          <Link
             href="/publications"
             className="hover:text-white transition-colors"
           >
             Our Publications
-          </a>
-          <a href="/privacy" className="hover:text-white transition-colors">
+          </Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">
             Privacy
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

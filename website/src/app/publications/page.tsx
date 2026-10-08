@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { overdriveLinksByBookId, retailerLinksByBookId } from "./retailer-links";
-import SiteFooter from "@/components/SiteFooter";
 import DistributionSection from "./DistributionSection";
 import PublicationsTabs from "./PublicationsTabs";
 import styles from "./publications.module.css";
@@ -150,7 +149,6 @@ export default async function PublicationsPage() {
         }
       />
 
-      <SiteFooter />
     </main>
   );
 }

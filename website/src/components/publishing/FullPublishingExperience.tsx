@@ -1,6 +1,5 @@
 import Image from "next/image";
 import DialHero from "@/components/dial/DialHero";
-import SiteFooter from "@/components/SiteFooter";
 import FullWorldMap from "./FullWorldMap";
 import styles from "./full-publishing.module.css";
 
@@ -67,8 +66,6 @@ export default function FullPublishingExperience() {
           </div>
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteFooter from "@/components/SiteFooter";
 import { getListenBook } from "@/lib/listen-books";
 import GoogleAdsTag from "./GoogleAdsTag";
 import ListenButton from "./ListenButton";
@@ -112,7 +111,6 @@ export default async function ListenPage({ params }: Props) {
         </p>
       )}
 
-      <SiteFooter />
     </main>
   );
 }

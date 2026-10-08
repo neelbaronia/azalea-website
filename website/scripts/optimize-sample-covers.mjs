@@ -12,8 +12,8 @@ const featuredBooks = [
   { id: "anthropology-and-modern-life", extension: "png" },
   { id: "diana", extension: "png" },
   { id: "the-truth-about-the-oj-simpson-trial", extension: "jpg" },
-  { id: "the-conquest-of-happiness-project-gutenberg", extension: "png" },
-  { id: "killing-kennedy", extension: "jpg" },
+  { id: "lincoln-and-the-irish", extension: "jpg" },
+  { id: "the-homestead", extension: "jpg" },
 ];
 
 const requestedIds = process.argv.slice(2);

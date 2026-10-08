@@ -8,8 +8,8 @@ export const FEATURED_IDS = [
   "anthropology-and-modern-life",
   "diana",
   "the-truth-about-the-oj-simpson-trial",
-  "the-conquest-of-happiness-project-gutenberg",
-  "killing-kennedy",
+  "lincoln-and-the-irish",
+  "the-homestead",
 ] as const;
 
 interface Book {
@@ -70,7 +70,7 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
     return {
       book: {
         id,
-        title: metadata.title,
+        title: id === "lincoln-and-the-irish" ? "Lincoln and the Irish" : metadata.title,
         author: metadata.author,
         coverImageName: metadata.coverImageName,
         remoteBaseURL,

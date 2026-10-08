@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { SampleEntry } from "./sample-data";
 
 function formatDuration(seconds: number): string {
@@ -20,31 +19,17 @@ function formatTime(seconds: number): string {
 }
 
 function SamplesNavbar() {
-  const router = useRouter();
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 md:px-8 py-3 md:py-6 bg-transparent">
-      <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-        <Image src="/azalea-icon.webp" alt="Azalea" width={32} height={32} className="w-7 h-7 md:w-10 md:h-10" />
-        <div className="flex flex-col leading-tight">
-          <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Azalea</span>
-          <span className="text-xs md:text-sm font-extrabold uppercase tracking-[0.2em] text-white">Labs</span>
-        </div>
+    <header className="sticky top-0 z-50 flex min-h-[72px] items-center justify-between gap-3 border-b border-white/15 bg-[#282142] px-4 text-white md:gap-4 md:px-10">
+      <Link href="/" className="flex shrink-0 items-center gap-2 md:gap-3" aria-label="Azalea Labs home">
+        <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority unoptimized className="h-6 w-6 md:h-[30px] md:w-[30px]" />
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] md:text-sm md:tracking-[0.18em]">Azalea Labs</span>
       </Link>
-      <div className="flex gap-0.5 rounded-xl p-1 border backdrop-blur-md bg-white/10 border-white/10 flex-shrink min-w-0">
-        <button
-          onClick={() => router.push("/")}
-          className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
-        >
-          Listen
-        </button>
-        <button
-          onClick={() => router.push("/")}
-          className="px-3 md:px-5 py-1.5 md:py-2 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors rounded-lg whitespace-nowrap"
-        >
-          Create &amp; Distribute
-        </button>
-      </div>
-    </nav>
+      <nav className="flex items-center gap-3 text-[8px] font-bold uppercase tracking-[0.07em] md:gap-8 md:text-xs md:tracking-[0.12em]" aria-label="Main navigation">
+        <Link href="/translations" className="text-white/65 transition-colors hover:text-white">Translations</Link>
+        <Link href="/publications" className="text-white/65 transition-colors hover:text-white">Publications</Link>
+      </nav>
+    </header>
   );
 }
 
@@ -102,31 +87,71 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
 
   const handleEnded = () => setPlaying(false);
 
-  const seekFromEvent = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+  const seekFromClientX = (clientX: number) => {
     const bar = seekBarRef.current;
     if (!bar || !audioRef.current || !duration) return;
     const rect = bar.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     audioRef.current.currentTime = pct * duration;
   };
 
-  const handleSeekDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    seekFromEvent(e);
+  const handleSeekPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    seekFromClientX(e.clientX);
     setDragging(true);
-    const onMove = (ev: MouseEvent) => seekFromEvent(ev);
-    const onUp = () => {
-      setDragging(false);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+  };
+
+  const handleSeekPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragging) seekFromClientX(e.clientX);
+  };
+
+  const handleSeekPointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    setDragging(false);
+  };
+
+  const handleSeekKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    if (!audio || !duration) return;
+
+    const step = e.shiftKey ? 10 : 5;
+    let nextTime: number;
+    switch (e.key) {
+      case "ArrowLeft":
+      case "ArrowDown":
+        nextTime = currentTime - step;
+        break;
+      case "ArrowRight":
+      case "ArrowUp":
+        nextTime = currentTime + step;
+        break;
+      case "PageDown":
+        nextTime = currentTime - 30;
+        break;
+      case "PageUp":
+        nextTime = currentTime + 30;
+        break;
+      case "Home":
+        nextTime = 0;
+        break;
+      case "End":
+        nextTime = duration;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    audio.currentTime = Math.max(0, Math.min(duration, nextTime));
   };
 
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <article className="flex h-full min-w-0 flex-col gap-5 p-5 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-shadow">
+    <article className="flex h-full min-w-0 flex-col gap-5 border border-[#d9d9d5] border-t-[3px] border-t-[#3566ff] bg-[#f8f8f4] p-5 transition-colors hover:border-[#080808]/35">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -148,17 +173,17 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
           height={112}
           priority={priority}
           sizes="(max-width: 767px) 96px, 112px"
-          className="w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-xl object-cover shadow-md"
+          className="h-24 w-24 flex-shrink-0 border border-black/10 object-cover md:h-28 md:w-28"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-bold leading-snug text-black">{book.title}</h3>
-          <p className="mt-2 text-xs leading-relaxed text-black/60">{book.author} &middot; {formatDuration(book.duration)}</p>
+          <h3 className="text-lg font-semibold leading-snug text-[#080808]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>{book.title}</h3>
+          <p className="mt-2 text-xs leading-relaxed text-[#080808]/60">{book.author} &middot; {formatDuration(book.duration)}</p>
         </div>
       </div>
 
       {description && (
         <div>
-          <p id={descriptionId} className="text-sm leading-relaxed text-black/75">
+          <p id={descriptionId} className="text-sm leading-relaxed text-[#080808]/75">
             {descriptionExpanded ? description : descriptionPreview}
           </p>
           {canExpandDescription && (
@@ -168,7 +193,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
               aria-controls={descriptionId}
               aria-label={`${descriptionExpanded ? "Show less" : "Read more"} about ${book.title}`}
               onClick={() => setDescriptionExpanded((expanded) => !expanded)}
-              className="mt-1 inline-flex min-h-8 items-center text-xs font-semibold text-black underline underline-offset-4 hover:text-black/70"
+              className="mt-1 inline-flex min-h-8 items-center text-xs font-semibold text-[#3566ff] underline underline-offset-4 hover:text-[#080808]"
             >
               {descriptionExpanded ? "Show less" : "Read more"}
             </button>
@@ -183,7 +208,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
           <button
             onClick={togglePlay}
             aria-label={`${playing ? "Pause" : "Play"} ${book.title}`}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#080808] text-white transition-colors hover:bg-[#282142] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff]"
           >
             {playing ? (
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
@@ -199,25 +224,36 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
 
           {/* Progress bar */}
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            <span className="text-xs text-black/50 tabular-nums w-9 flex-shrink-0 text-right">{formatTime(currentTime)}</span>
+            <span className="w-9 flex-shrink-0 text-right text-xs tabular-nums text-[#080808]/50">{formatTime(currentTime)}</span>
             <div
               ref={seekBarRef}
-              className="flex-1 min-w-0 h-3 bg-black/10 rounded-full cursor-pointer relative group"
-              onMouseDown={handleSeekDown}
+              role="slider"
+              aria-label={`Seek in ${book.title}`}
+              aria-valuemin={0}
+              aria-valuemax={Math.floor(duration)}
+              aria-valuenow={Math.floor(currentTime)}
+              aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
+              tabIndex={duration ? 0 : -1}
+              onKeyDown={handleSeekKeyDown}
+              onPointerDown={handleSeekPointerDown}
+              onPointerMove={handleSeekPointerMove}
+              onPointerUp={handleSeekPointerEnd}
+              onPointerCancel={handleSeekPointerEnd}
+              className="group relative h-3 min-w-0 flex-1 touch-none cursor-pointer rounded-full bg-[#080808]/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3566ff]"
             >
               <div
-                className="absolute inset-y-0 left-0 bg-black rounded-full"
+                className="absolute inset-y-0 left-0 rounded-full bg-[#3566ff]"
                 style={{ width: `${progress}%`, transition: dragging ? "none" : "width 0.1s" }}
               />
               <div
-                className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-black rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-[#3566ff] opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                 style={{ left: `calc(${progress}% - 10px)` }}
               />
             </div>
-            <span className="text-xs text-black/50 tabular-nums w-9 flex-shrink-0">{formatTime(duration)}</span>
+            <span className="w-9 flex-shrink-0 text-xs tabular-nums text-[#080808]/50">{formatTime(duration)}</span>
           </div>
         </div>
-        {audioError && <p role="alert" className="mt-2 text-xs text-black/70">Couldn’t play this sample. Please try again.</p>}
+        {audioError && <p role="alert" className="mt-2 text-xs text-[#080808]/70">Couldn’t play this sample. Please try again.</p>}
         {book.spotifyUrl && (
           <a
             href={book.spotifyUrl}
@@ -236,55 +272,44 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
 
 export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
   return (
-    <div className="min-h-screen bg-[#f5f5f0] relative">
-      {/* Background image */}
-      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/samples-bg.webp')" }} />
-      <div className="relative z-10">
-      {/* Navbar */}
+    <main className="min-h-screen bg-[#fbfbfb] text-[#080808]">
       <SamplesNavbar />
 
-      {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 pt-24 pb-8">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-          Listen to samples.
-        </h1>
-        <p className="text-base md:text-lg text-white font-black mt-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-          Preview audiobooks from the Azalea catalog.
-        </p>
-      </div>
+      <section className="border-b border-[#080808]/15 bg-[#f1eee6]">
+        <div className="mx-auto max-w-[1440px] px-6 py-16 md:px-10 md:py-24">
+          <p className="mb-5 flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#3566ff]">
+            <span className="h-px w-8 bg-[#3566ff]" aria-hidden="true" />
+            Azalea Labs · Listening room
+          </p>
+          <h1 className="max-w-5xl text-[clamp(3.5rem,8vw,7.5rem)] font-bold leading-[0.88] tracking-[-0.065em]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>
+            Listen to <em className="font-medium">samples.</em>
+          </h1>
+          <div className="mt-8 flex flex-col gap-6 border-t border-[#080808]/15 pt-6 md:flex-row md:items-end md:justify-between">
+            <p className="max-w-2xl text-base leading-relaxed text-[#080808]/65 md:text-lg">
+              Hear a first chapter from the Azalea catalog. Pick a title, press play, and explore the full audiobook on Spotify.
+            </p>
+            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-[#080808]/55">
+              {String(samples.length).padStart(2, "0")} featured titles
+            </p>
+          </div>
+        </div>
+      </section>
 
-      {/* Book list */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
+      <section className="mx-auto max-w-[1440px] px-6 py-12 md:px-10 md:py-16" aria-labelledby="featured-samples-heading">
+        <div className="mb-7 flex items-end justify-between gap-4 border-b border-[#080808]/15 pb-4">
+          <h2 id="featured-samples-heading" className="text-2xl font-semibold tracking-tight" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>Featured audiobooks</h2>
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#080808]/45">Audio previews</span>
+        </div>
         {samples.length === 0 ? (
-          <p className="text-sm text-black/30">No samples available.</p>
+          <p className="border border-[#d9d9d5] bg-[#f8f8f4] p-6 text-sm text-[#080808]/55">No samples available.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {samples.map((entry, index) => (
               <SamplePlayer key={entry.book.id} {...entry} priority={index === 0} />
             ))}
           </div>
         )}
-      </div>
-
-      {/* Footer */}
-      <footer className="w-full bg-black text-white/60">
-        <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between gap-8">
-          <div className="space-y-2">
-            <p className="text-white font-bold text-sm uppercase tracking-[0.3em]">Azalea Labs</p>
-            <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Azalea Labs. All rights reserved.</p>
-          </div>
-          <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm">
-            <a href="mailto:neel@azalea-labs.com" className="hover:text-white transition-colors">Contact</a>
-            <Link href="/samples" className="hover:text-white transition-colors">Samples</Link>
-            <Link href="/publications" className="hover:text-white transition-colors">Our Publications</Link>
-            <a href="/payout.html" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Payout Dashboard</a>
-            <a href="#" className="hover:text-white transition-colors">About</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-          </div>
-        </div>
-      </footer>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
