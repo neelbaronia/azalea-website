@@ -281,7 +281,7 @@ export default function SamplesView({ samples }: { samples: SampleEntry[] }) {
             <span className="h-px w-8 bg-[#3566ff]" aria-hidden="true" />
             Azalea Labs · Listening room
           </p>
-          <h1 className="max-w-5xl text-[clamp(3.5rem,8vw,7.5rem)] font-bold leading-[0.88] tracking-[-0.065em]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>
+          <h1 className="max-w-5xl text-[clamp(2.75rem,6vw,5.5rem)] font-bold leading-[0.88] tracking-[-0.065em]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>
             Listen to <em className="font-medium">samples.</em>
           </h1>
           <div className="mt-8 flex flex-col gap-6 border-t border-[#080808]/15 pt-6 md:flex-row md:items-end md:justify-between">
