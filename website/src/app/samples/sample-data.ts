@@ -7,9 +7,9 @@ export const FEATURED_IDS = [
   "a-honeymoon-in-space",
   "anthropology-and-modern-life",
   "diana",
-  "tarrano-the-conqueror",
+  "the-truth-about-the-oj-simpson-trial",
   "the-conquest-of-happiness-project-gutenberg",
-  "the-phantom-public",
+  "killing-kennedy",
 ] as const;
 
 interface Book {
@@ -52,7 +52,8 @@ export async function getFeaturedSamples(): Promise<SampleEntry[]> {
     if (!response.ok) throw new Error(`Unable to load sample ${id}: ${response.status}`);
 
     const metadata = await response.json() as BookMetadata;
-    const chapter = metadata.chapters?.find((item) => /^(chapter|part)/i.test(item.title))
+    const chapter = metadata.chapters?.find((item) => /^chapter/i.test(item.title))
+      ?? metadata.chapters?.find((item) => /^part/i.test(item.title))
       ?? metadata.chapters?.[0];
     const audioUrl = chapter?.remoteAudioURL
       || (chapter?.fileName ? `${remoteBaseURL}/chapters/${chapter.fileName}` : undefined);

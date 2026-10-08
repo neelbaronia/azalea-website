@@ -7,19 +7,27 @@ import sharp from "sharp";
 const runFile = promisify(execFile);
 const sourceBase = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev";
 const outputDirectory = new URL("../public/sample-covers/", import.meta.url);
-const featuredIds = [
-  "a-honeymoon-in-space",
-  "anthropology-and-modern-life",
-  "diana",
-  "tarrano-the-conqueror",
-  "the-conquest-of-happiness-project-gutenberg",
-  "the-phantom-public",
+const featuredBooks = [
+  { id: "a-honeymoon-in-space", extension: "png" },
+  { id: "anthropology-and-modern-life", extension: "png" },
+  { id: "diana", extension: "png" },
+  { id: "the-truth-about-the-oj-simpson-trial", extension: "jpg" },
+  { id: "the-conquest-of-happiness-project-gutenberg", extension: "png" },
+  { id: "killing-kennedy", extension: "jpg" },
 ];
+
+const requestedIds = process.argv.slice(2);
+const requestedBooks = requestedIds.length > 0
+  ? featuredBooks.filter(({ id }) => requestedIds.includes(id))
+  : featuredBooks;
+if (requestedBooks.length !== (requestedIds.length || featuredBooks.length)) {
+  throw new Error("Requested cover IDs must match the featured sample list.");
+}
 
 await mkdir(outputDirectory, { recursive: true });
 
-async function optimizeCover(id) {
-  const sourceUrl = `${sourceBase}/${id}/cover.png`;
+async function optimizeCover({ id, extension }) {
+  const sourceUrl = `${sourceBase}/${id}/cover.${extension}`;
   const { stdout: source } = await runFile("curl", [
     "--fail", "--silent", "--show-error", "--location",
     "--max-time", "90", "--retry", "2", sourceUrl,
@@ -38,8 +46,8 @@ async function optimizeCover(id) {
 
 // Keep the large source downloads bounded instead of saturating the connection.
 const results = [];
-for (let index = 0; index < featuredIds.length; index += 2) {
-  results.push(...await Promise.all(featuredIds.slice(index, index + 2).map(optimizeCover)));
+for (let index = 0; index < requestedBooks.length; index += 2) {
+  results.push(...await Promise.all(requestedBooks.slice(index, index + 2).map(optimizeCover)));
 }
 
 console.log(JSON.stringify({
