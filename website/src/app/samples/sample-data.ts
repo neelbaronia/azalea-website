@@ -5,7 +5,7 @@ const R2_BASE = "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev";
 
 export const FEATURED_IDS = [
   "the-truth-about-the-oj-simpson-trial",
-  "acts-of-allegiance",
+  "the-golden-age-of-pirates",
   "the-homestead",
   "a-honeymoon-in-space",
   "anthropology-and-modern-life",
@@ -13,7 +13,7 @@ export const FEATURED_IDS = [
 ] as const;
 
 const preferredSampleChapterTitles: Partial<Record<(typeof FEATURED_IDS)[number], string>> = {
-  "acts-of-allegiance": "Prologue",
+  "the-golden-age-of-pirates": "Preface: Imagining Pirates and Piracy",
 };
 
 interface Book {
