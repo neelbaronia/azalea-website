@@ -96,7 +96,7 @@ const campaigns: Campaign[] = [
 
 function CampaignSection({ campaign }: { campaign: Campaign }) {
   return (
-    <section id={campaign.id} className="scroll-mt-8 border-t border-[#171717]/15 py-14 md:py-20">
+    <section id={campaign.id} className="scroll-mt-8 border-t border-[#171717]/15 py-10 md:py-14 first:border-t-0 first:pt-7 md:first:pt-10">
       <div className="mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
         <div className="flex items-center gap-5 md:gap-7">
           <Image
@@ -199,33 +199,6 @@ export default function MarketingPage() {
       </header>
 
       <main className="mx-auto max-w-[1440px] px-5 md:px-10">
-        <section className="py-16 md:py-24 lg:py-28">
-          <p className="mb-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#355cff] md:text-xs">
-            <span className="h-px w-9 bg-[#355cff]" />
-            Azalea Labs · Campaign work
-          </p>
-          <div className="grid gap-8 border-b border-[#171717]/15 pb-10 md:grid-cols-[1.25fr_0.75fr] md:items-end md:gap-14 md:pb-12">
-            <h1 className="max-w-4xl font-[family-name:var(--font-garamond)] text-6xl font-medium leading-[0.88] tracking-[-0.055em] md:text-8xl lg:text-[108px]">
-              Stories made to <em className="font-normal">travel.</em>
-            </h1>
-            <div className="max-w-xl md:pb-1">
-              <p className="text-base leading-7 text-[#171717]/70 md:text-lg md:leading-8">
-                Short-form campaigns created to help listeners discover the books behind them. Explore selected video and social copy for two Azalea audiobook titles.
-              </p>
-              <p className="mt-4 text-xs leading-5 text-[#171717]/50">
-                Four vertical video samples · Two audiobook campaigns
-              </p>
-            </div>
-          </div>
-          <nav className="flex flex-wrap gap-x-7 gap-y-3 pt-5 text-[10px] font-bold uppercase tracking-[0.15em]" aria-label="Campaigns">
-            {campaigns.map((campaign) => (
-              <a key={campaign.id} href={`#${campaign.id}`} className="transition-colors hover:text-[#355cff]">
-                {campaign.title} <span aria-hidden="true">↓</span>
-              </a>
-            ))}
-          </nav>
-        </section>
-
         {campaigns.map((campaign) => (
           <CampaignSection key={campaign.id} campaign={campaign} />
         ))}
