@@ -167,57 +167,17 @@
   justify-items: start;
 }
 
-.mapViewToggle {
-  padding: 3px;
-  display: inline-flex;
-  gap: 2px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.64);
-}
-
-.mapViewButton {
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 999px;
-  color: var(--muted);
-  background: transparent;
-  font: inherit;
-  font-size: 10px;
-  font-weight: 750;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.mapViewButton[aria-pressed="true"] {
-  color: white;
-  background: var(--ink);
-}
-
-.mapLegend,
-.mapLegendTitle,
 .mapLegendNote {
   margin: 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
-}
-
-.mapLegend {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.mapCatalogLegend {
-  display: grid;
-  gap: 6px;
 }
 
 .mapLegendItems {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 9px 18px;
 }
 
 .mapLegendItem {
@@ -225,38 +185,34 @@
   align-items: center;
   gap: 6px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.4;
 }
 
 .mapLegendSwatch {
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   flex: 0 0 auto;
   border: 1px solid rgba(8, 8, 8, 0.12);
   border-radius: 3px;
 }
 
 .mapLegendListeners {
-  background: var(--ink);
+  background: linear-gradient(135deg, #5d5df5, #ec4978, #ff9900, #00dd33);
 }
 
-.mapLegendApple {
-  background: #a8d7c4;
-}
-
-.mapLegendSpotify {
-  background: #c3b5ed;
-}
-
-.mapLegendBoth {
+.mapLegendCatalog {
   background: repeating-linear-gradient(
     135deg,
-    #a8d7c4 0,
-    #a8d7c4 4px,
-    #9b87d5 4px,
-    #9b87d5 8px
+    transparent 0,
+    transparent 3px,
+    #262431 3px,
+    #262431 4px
   );
+}
+
+.mapLegendNeither {
+  background: var(--paper);
 }
 
 .mapCanvas {
@@ -283,58 +239,30 @@
 }
 
 .mapCountry {
-  fill: url("#map-lines");
+  fill: var(--paper);
+  stroke: rgba(8, 8, 8, 0.14);
   cursor: help;
 }
 
 .mapCountryActive {
-  fill: var(--ink);
+  fill: var(--market-color);
   cursor: pointer;
   outline: none;
 }
 
 .mapCountryActive:hover,
 .mapCountryActive:focus {
-  fill: #5d5df5;
+  opacity: 0.78;
   stroke: white;
   stroke-width: 1.4;
 }
 
-.mapCountryApple,
-.mapCountrySpotify,
-.mapCountryBoth {
+.mapCountryCatalogOverlay {
+  fill: url("#map-catalog-available");
+  pointer-events: none;
   stroke: var(--paper);
-  stroke-width: 0.7;
+  stroke-width: 0;
   vector-effect: non-scaling-stroke;
-  cursor: help;
-  transition: fill 180ms ease, opacity 180ms ease;
-}
-
-.mapCountryApple:hover,
-.mapCountrySpotify:hover,
-.mapCountryBoth:hover,
-.mapCountryApple:focus,
-.mapCountrySpotify:focus,
-.mapCountryBoth:focus {
-  stroke: var(--ink);
-  stroke-width: 1.4;
-}
-
-.mapCountryApple {
-  fill: #a8d7c4;
-}
-
-.mapCountrySpotify {
-  fill: #c3b5ed;
-}
-
-.mapCountryBoth {
-  fill: url("#map-catalog-both");
-}
-
-.mapViewButton:focus-visible {
-  outline: 2px solid #5d5df5;
-  outline-offset: 2px;
 }
 
 .mapCountry:hover {

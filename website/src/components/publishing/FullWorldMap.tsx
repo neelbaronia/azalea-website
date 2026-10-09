@@ -11,14 +11,11 @@ import {
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import {
-  APPLE_BOOKS_AUDIOBOOK_MARKETS,
-  CATALOG_MARKET_COUNTS,
   CATALOG_MARKET_COUNTRY_COUNT,
   getCatalogPlatforms,
   LISTENER_FOOTPRINT,
   LISTENER_FOOTPRINT_PERIOD,
   SMALL_COUNTRY_MARKERS,
-  SPOTIFY_AUDIOBOOK_MARKETS,
 } from "./markets";
 import styles from "./full-publishing.module.css";
 
@@ -59,7 +56,6 @@ export default function FullWorldMap({
   className?: string;
   scope?: "markets" | "worldwide";
 }) {
-  const [view, setView] = useState<"listeners" | "catalog">("listeners");
   const blockRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [countries, setCountries] = useState<MapCountry[] | null>(null);
@@ -172,54 +168,31 @@ export default function FullWorldMap({
   }, []);
 
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
-    const catalogLabel =
+    const listenerStatus = country.isActive
+      ? "active Spotify listener base"
+      : `no recorded Spotify listeners in ${LISTENER_FOOTPRINT_PERIOD}`;
+    const catalogStatus =
       country.catalogPlatforms.length === 2
-        ? "Apple Books + Spotify audiobook markets"
+        ? "catalog available on Apple Books and Spotify"
         : country.catalogPlatforms[0] === "apple"
-          ? "Apple Books audiobook market"
+          ? "catalog available on Apple Books"
           : country.catalogPlatforms[0] === "spotify"
-            ? "Spotify audiobook market"
-            : "No Apple Books or Spotify audiobook market listed";
-    const catalogColor =
-      country.catalogPlatforms.length === 2
-        ? "#9b87d5"
-        : country.catalogPlatforms[0] === "apple"
-          ? "#a8d7c4"
-          : country.catalogPlatforms[0] === "spotify"
-            ? "#c3b5ed"
-            : "#14101f";
+            ? "catalog available on Spotify"
+            : "no Apple Books or Spotify audiobook market listed";
 
     return {
-      color:
-        scope === "worldwide"
-          ? "#9b8ac5"
-          : view === "catalog"
-            ? catalogColor
-            : country.color ?? "#14101f",
+      color: scope === "worldwide" ? "#9b8ac5" : country.color ?? "#14101f",
       label:
         scope === "worldwide"
           ? country.label
-          : view === "catalog"
-            ? `${country.label} · ${catalogLabel}`
-            : country.isActive
-              ? `${country.label} · Spotify listeners`
-              : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_PERIOD}`,
+          : `${country.label} · ${listenerStatus} · ${catalogStatus}`,
       left,
       top,
     };
   }
 
   function isHighlighted(country: MapCountry) {
-    return view === "listeners"
-      ? country.isActive
-      : country.catalogPlatforms.length > 0;
-  }
-
-  function catalogClassName(country: MapCountry) {
-    if (country.catalogPlatforms.length === 2) return styles.mapCountryBoth;
-    if (country.catalogPlatforms[0] === "apple") return styles.mapCountryApple;
-    if (country.catalogPlatforms[0] === "spotify") return styles.mapCountrySpotify;
-    return styles.mapCountry;
+    return country.isActive || country.catalogPlatforms.length > 0;
   }
 
   function showFromPointer(
@@ -254,53 +227,23 @@ export default function FullWorldMap({
     <div ref={blockRef} className={`${styles.mapBlock} ${className}`}>
       {scope === "markets" ? (
         <div className={styles.mapToolbar}>
-          <div className={styles.mapViewToggle} role="group" aria-label="Map view">
-            <button
-              className={styles.mapViewButton}
-              type="button"
-              aria-pressed={view === "listeners"}
-              onClick={() => setView("listeners")}
-            >
-              Listener activity
-            </button>
-            <button
-              className={styles.mapViewButton}
-              type="button"
-              aria-pressed={view === "catalog"}
-              onClick={() => setView("catalog")}
-            >
-              Catalog markets
-            </button>
-          </div>
-          {view === "listeners" ? (
-            <p className={styles.mapLegend}>
+          <div className={styles.mapLegendItems} role="list" aria-label="Map legend">
+            <span className={styles.mapLegendItem} role="listitem">
               <span className={`${styles.mapLegendSwatch} ${styles.mapLegendListeners}`} />
-              Listener activity · {LISTENER_FOOTPRINT_PERIOD}
-            </p>
-          ) : (
-            <div className={styles.mapCatalogLegend}>
-              <p className={styles.mapLegendTitle}>
-                Supported audiobook markets · {CATALOG_MARKET_COUNTRY_COUNT} countries
-              </p>
-              <div className={styles.mapLegendItems}>
-                <span className={styles.mapLegendItem}>
-                  <span className={`${styles.mapLegendSwatch} ${styles.mapLegendApple}`} />
-                  Apple Books ({CATALOG_MARKET_COUNTS.appleBooks})
-                </span>
-                <span className={styles.mapLegendItem}>
-                  <span className={`${styles.mapLegendSwatch} ${styles.mapLegendSpotify}`} />
-                  Spotify ({CATALOG_MARKET_COUNTS.spotify})
-                </span>
-                <span className={styles.mapLegendItem}>
-                  <span className={`${styles.mapLegendSwatch} ${styles.mapLegendBoth}`} />
-                  Both ({CATALOG_MARKET_COUNTS.both})
-                </span>
-              </div>
-              <p className={styles.mapLegendNote}>
-                Store markets only—not confirmation that a specific title is listed there.
-              </p>
-            </div>
-          )}
+              Active listener base · Spotify
+            </span>
+            <span className={styles.mapLegendItem} role="listitem">
+              <span className={`${styles.mapLegendSwatch} ${styles.mapLegendCatalog}`} />
+              Catalog available · Apple Books or Spotify ({CATALOG_MARKET_COUNTRY_COUNT} countries)
+            </span>
+            <span className={styles.mapLegendItem} role="listitem">
+              <span className={`${styles.mapLegendSwatch} ${styles.mapLegendNeither}`} />
+              Neither
+            </span>
+          </div>
+          <p className={styles.mapLegendNote}>
+            Catalog availability varies by title; hatching shows supported store markets, not confirmed listings.
+          </p>
         </div>
       ) : null}
       <div id="publishing-world-map" className={styles.mapCanvas}>
@@ -313,44 +256,23 @@ export default function FullWorldMap({
           <title id="publishing-map-title">
             {scope === "worldwide"
               ? "Azalea worldwide distribution"
-              : view === "catalog"
-                ? `Apple Books and Spotify audiobook markets — ${CATALOG_MARKET_COUNTRY_COUNT} countries`
-                : `Azalea listener footprint — ${LISTENER_FOOTPRINT_PERIOD}`}
+              : "Azalea listener and audiobook catalog footprint"}
           </title>
           <desc id="publishing-map-description">
             {scope === "worldwide"
               ? "A world map illustrating worldwide distribution settings. Availability varies by title, store, and country. This is not a map of confirmed live listings."
-              : view === "catalog"
-                ? `A world map showing ${APPLE_BOOKS_AUDIOBOOK_MARKETS.size} Apple Books audiobook markets and ${SPOTIFY_AUDIOBOOK_MARKETS.size} Spotify audiobook markets, with ${CATALOG_MARKET_COUNTRY_COUNT} unique countries between them. Individual title availability may vary.`
-                : `A world map highlighting the ${LISTENER_FOOTPRINT.length} countries with Spotify listener activity across the available analytics history, ${LISTENER_FOOTPRINT_PERIOD}.`}
+              : `A world map with colored countries showing Spotify listener activity in ${LISTENER_FOOTPRINT.length} countries during ${LISTENER_FOOTPRINT_PERIOD}; hatching marks ${CATALOG_MARKET_COUNTRY_COUNT} unique Apple Books or Spotify audiobook markets. Clear countries have neither recorded listener activity nor a listed audiobook market. Individual title availability may vary.`}
           </desc>
 
           <defs>
             <pattern
-              id="map-lines"
-              width="7"
-              height="7"
-              patternUnits="userSpaceOnUse"
-              patternTransform="rotate(35)"
-            >
-              <line
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="7"
-                stroke="currentColor"
-                strokeWidth="1.2"
-              />
-            </pattern>
-            <pattern
-              id="map-catalog-both"
+              id="map-catalog-available"
               width="8"
               height="8"
               patternUnits="userSpaceOnUse"
               patternTransform="rotate(35)"
             >
-              <rect width="8" height="8" fill="#a8d7c4" />
-              <line x1="0" y1="0" x2="0" y2="8" stroke="#9b87d5" strokeWidth="4" />
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#262431" strokeWidth="2.5" />
             </pattern>
           </defs>
 
@@ -358,77 +280,116 @@ export default function FullWorldMap({
             {countries
               ?.filter((country) => country.path)
               .map((country) => {
-                const commonProps = {
-                  className:
-                    scope === "worldwide"
-                      ? styles.mapCountryWorldwide
-                      : view === "catalog"
-                        ? catalogClassName(country)
+                const base = (
+                  <path
+                    d={country.path}
+                    className={
+                      scope === "worldwide"
+                        ? styles.mapCountryWorldwide
                         : country.isActive
                           ? styles.mapCountryActive
-                          : styles.mapCountry,
-                  style:
-                    scope === "markets" && view === "listeners" && country.color
-                      ? ({ "--market-color": country.color } as CSSProperties)
-                      : undefined,
-                  tabIndex:
-                    scope === "markets" && isHighlighted(country) ? 0 : undefined,
-                  role:
-                    scope === "markets" && isHighlighted(country)
-                      ? ("img" as const)
-                      : undefined,
-                  "aria-label": tooltipFor(country, 0, 0).label,
-                  onMouseEnter: (event: MouseEvent<SVGElement>) =>
-                    showFromPointer(country, event.clientX, event.clientY),
-                  onMouseMove: (event: MouseEvent<SVGElement>) =>
-                    showFromPointer(country, event.clientX, event.clientY),
-                  onMouseLeave: () => setTooltip(null),
-                  onFocus: () => isHighlighted(country) && showFromCentroid(country),
-                  onBlur: () => setTooltip(null),
-                  onPointerDown: (event: PointerEvent<SVGElement>) =>
-                    showFromPointer(country, event.clientX, event.clientY),
-                };
+                          : styles.mapCountry
+                    }
+                    style={
+                      scope === "markets" && country.color
+                        ? ({ "--market-color": country.color } as CSSProperties)
+                        : undefined
+                    }
+                    tabIndex={
+                      scope === "markets" && isHighlighted(country) ? 0 : undefined
+                    }
+                    role={
+                      scope === "markets" && isHighlighted(country)
+                        ? "img"
+                        : undefined
+                    }
+                    aria-label={tooltipFor(country, 0, 0).label}
+                    onMouseEnter={(event: MouseEvent<SVGPathElement>) =>
+                      showFromPointer(country, event.clientX, event.clientY)
+                    }
+                    onMouseMove={(event: MouseEvent<SVGPathElement>) =>
+                      showFromPointer(country, event.clientX, event.clientY)
+                    }
+                    onMouseLeave={() => setTooltip(null)}
+                    onFocus={() => isHighlighted(country) && showFromCentroid(country)}
+                    onBlur={() => setTooltip(null)}
+                    onPointerDown={(event: PointerEvent<SVGPathElement>) =>
+                      showFromPointer(country, event.clientX, event.clientY)
+                    }
+                  />
+                );
+                const catalogOverlay =
+                  scope === "markets" && country.catalogPlatforms.length > 0 ? (
+                    <path
+                      d={country.path}
+                      className={styles.mapCountryCatalogOverlay}
+                      aria-hidden="true"
+                    />
+                  ) : null;
 
-                return <path key={country.label} d={country.path} {...commonProps} />;
+                return (
+                  <g key={country.label}>
+                    {base}
+                    {catalogOverlay}
+                  </g>
+                );
               })}
             {scope === "markets"
               ? countries
                   ?.filter((country) => !country.path)
-                  .map((country) => (
-                    <circle
-                      key={country.label}
-                      cx={country.x}
-                      cy={country.y}
-                      r={5}
-                      className={
-                        view === "catalog"
-                          ? catalogClassName(country)
-                          : country.isActive
+                  .map((country) => {
+                    const base = (
+                      <circle
+                        cx={country.x}
+                        cy={country.y}
+                        r={5}
+                        className={
+                          country.isActive
                             ? styles.mapCountryActive
                             : styles.mapCountry
-                      }
-                      style={
-                        view === "listeners" && country.color
-                          ? ({ "--market-color": country.color } as CSSProperties)
-                          : undefined
-                      }
-                      tabIndex={isHighlighted(country) ? 0 : undefined}
-                      role={isHighlighted(country) ? "img" : undefined}
-                      aria-label={tooltipFor(country, 0, 0).label}
-                      onMouseEnter={(event) =>
-                        showFromPointer(country, event.clientX, event.clientY)
-                      }
-                      onMouseMove={(event) =>
-                        showFromPointer(country, event.clientX, event.clientY)
-                      }
-                      onMouseLeave={() => setTooltip(null)}
-                      onFocus={() => isHighlighted(country) && showFromCentroid(country)}
-                      onBlur={() => setTooltip(null)}
-                      onPointerDown={(event) =>
-                        showFromPointer(country, event.clientX, event.clientY)
-                      }
-                    />
-                  ))
+                        }
+                        style={
+                          country.color
+                            ? ({ "--market-color": country.color } as CSSProperties)
+                            : undefined
+                        }
+                        tabIndex={isHighlighted(country) ? 0 : undefined}
+                        role={isHighlighted(country) ? "img" : undefined}
+                        aria-label={tooltipFor(country, 0, 0).label}
+                        onMouseEnter={(event) =>
+                          showFromPointer(country, event.clientX, event.clientY)
+                        }
+                        onMouseMove={(event) =>
+                          showFromPointer(country, event.clientX, event.clientY)
+                        }
+                        onMouseLeave={() => setTooltip(null)}
+                        onFocus={() =>
+                          isHighlighted(country) && showFromCentroid(country)
+                        }
+                        onBlur={() => setTooltip(null)}
+                        onPointerDown={(event) =>
+                          showFromPointer(country, event.clientX, event.clientY)
+                        }
+                      />
+                    );
+                    const catalogOverlay =
+                      country.catalogPlatforms.length > 0 ? (
+                        <circle
+                          cx={country.x}
+                          cy={country.y}
+                          r={5}
+                          className={styles.mapCountryCatalogOverlay}
+                          aria-hidden="true"
+                        />
+                      ) : null;
+
+                    return (
+                      <g key={country.label}>
+                        {base}
+                        {catalogOverlay}
+                      </g>
+                    );
+                  })
               : null}
           </g>
         </svg>

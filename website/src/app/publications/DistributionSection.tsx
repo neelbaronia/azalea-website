@@ -29,8 +29,9 @@ export default function DistributionSection() {
         <p className={styles.eyebrow}>Stories without borders</p>
         <h2 id="distribution-title">Global distribution.</h2>
         <p className={styles.distributionIntro}>
-          Use the map to compare Spotify listener activity with supported
-          markets for Apple Books and Spotify audiobooks.
+          Colored countries show our active Spotify listener base; hatching
+          marks Apple Books or Spotify audiobook markets. Clear countries have
+          neither.
         </p>
       </div>
 
