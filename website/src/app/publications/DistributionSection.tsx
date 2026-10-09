@@ -29,9 +29,8 @@ export default function DistributionSection() {
         <p className={styles.eyebrow}>Stories without borders</p>
         <h2 id="distribution-title">Global distribution.</h2>
         <p className={styles.distributionIntro}>
-          Our audiobooks are set for worldwide distribution through leading
-          partners. The map shows every country with Spotify listener activity
-          in our available analytics history through October 2026.
+          Use the map to compare Spotify listener activity with supported
+          markets for Apple Books and Spotify audiobooks.
         </p>
       </div>
 

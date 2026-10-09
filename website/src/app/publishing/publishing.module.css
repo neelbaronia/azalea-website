@@ -155,7 +155,108 @@
   width: 100%;
   min-width: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
+}
+
+.mapToolbar {
+  width: 100%;
+  margin-bottom: clamp(12px, 2vw, 22px);
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.mapViewToggle {
+  padding: 3px;
+  display: inline-flex;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.mapViewButton {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mapViewButton[aria-pressed="true"] {
+  color: white;
+  background: var(--ink);
+}
+
+.mapLegend,
+.mapLegendTitle,
+.mapLegendNote {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.mapLegend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mapCatalogLegend {
+  display: grid;
+  gap: 6px;
+}
+
+.mapLegendItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.mapLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.mapLegendSwatch {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(8, 8, 8, 0.12);
+  border-radius: 3px;
+}
+
+.mapLegendListeners {
+  background: var(--ink);
+}
+
+.mapLegendApple {
+  background: #a8d7c4;
+}
+
+.mapLegendSpotify {
+  background: #c3b5ed;
+}
+
+.mapLegendBoth {
+  background: repeating-linear-gradient(
+    135deg,
+    #a8d7c4 0,
+    #a8d7c4 4px,
+    #9b87d5 4px,
+    #9b87d5 8px
+  );
 }
 
 .mapCanvas {
@@ -197,6 +298,43 @@
   fill: #5d5df5;
   stroke: white;
   stroke-width: 1.4;
+}
+
+.mapCountryApple,
+.mapCountrySpotify,
+.mapCountryBoth {
+  stroke: var(--paper);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+  cursor: help;
+  transition: fill 180ms ease, opacity 180ms ease;
+}
+
+.mapCountryApple:hover,
+.mapCountrySpotify:hover,
+.mapCountryBoth:hover,
+.mapCountryApple:focus,
+.mapCountrySpotify:focus,
+.mapCountryBoth:focus {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.mapCountryApple {
+  fill: #a8d7c4;
+}
+
+.mapCountrySpotify {
+  fill: #c3b5ed;
+}
+
+.mapCountryBoth {
+  fill: url("#map-catalog-both");
+}
+
+.mapViewButton:focus-visible {
+  outline: 2px solid #5d5df5;
+  outline-offset: 2px;
 }
 
 .mapCountry:hover {
