@@ -8,13 +8,13 @@ export const FEATURED_IDS = [
   "the-golden-age-of-pirates",
   "the-homestead",
   "a-honeymoon-in-space",
-  "fighting-techniques-of-the-elite-forces",
+  "kremlin-wives",
   "diana",
 ] as const;
 
 const preferredSampleChapterTitles: Partial<Record<(typeof FEATURED_IDS)[number], string>> = {
   "the-golden-age-of-pirates": "Preface: Imagining Pirates and Piracy",
-  "fighting-techniques-of-the-elite-forces": "Sample",
+  "kremlin-wives": "Chapter 18 The Raisa Phenomenon",
 };
 
 interface Book {
