@@ -6,30 +6,19 @@ import { feature } from "topojson-client";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import worldData from "world-atlas/countries-110m.json";
+import {
+  LISTENER_FOOTPRINT,
+  LISTENER_FOOTPRINT_MONTH,
+  LISTENER_FOOTPRINT_PERIOD,
+} from "@/components/publishing/markets";
 import styles from "./publishing.module.css";
 
 const WIDTH = 960;
 const HEIGHT = 500;
 
-const MARKET_NAMES = [
-  "United States",
-  "United Kingdom",
-  "Canada",
-  "Australia",
-  "Netherlands",
-  "Ireland",
-  "Germany",
-  "New Zealand",
-  "Finland",
-  "Sweden",
-  "Belgium",
-  "France",
-] as const;
-
-const ACTIVE_COUNTRIES = new Set([
-  "United States of America",
-  ...MARKET_NAMES.slice(1),
-]);
+const FOOTPRINT_COUNTRIES = new Set<string>(
+  LISTENER_FOOTPRINT.map(({ name }) => name),
+);
 
 type CountryProperties = { name: string };
 type CountryFeature = Feature<Geometry, CountryProperties>;
@@ -84,7 +73,7 @@ export default function WorldMap() {
         const [x, y] = makePath.centroid(country);
 
         return {
-          isActive: ACTIVE_COUNTRIES.has(name),
+          isActive: FOOTPRINT_COUNTRIES.has(name),
           label: name === "United States of America" ? "United States" : name,
           path,
           x,
@@ -102,7 +91,7 @@ export default function WorldMap() {
     setTooltip({
       label: country.isActive
         ? country.label
-        : `${country.label} · Coming soon`,
+        : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
       left: ((clientX - bounds.left) / bounds.width) * 100,
       top: ((clientY - bounds.top) / bounds.height) * 100,
     });
@@ -112,7 +101,7 @@ export default function WorldMap() {
     setTooltip({
       label: country.isActive
         ? country.label
-        : `${country.label} · Coming soon`,
+        : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
       left: (country.x / WIDTH) * 100,
       top: (country.y / HEIGHT) * 100,
     });
@@ -127,10 +116,12 @@ export default function WorldMap() {
           role="img"
           aria-labelledby="publishing-map-title publishing-map-description"
         >
-          <title id="publishing-map-title">Azalea Publishing markets</title>
+          <title id="publishing-map-title">
+            Azalea listener footprint — {LISTENER_FOOTPRINT_PERIOD}
+          </title>
           <desc id="publishing-map-description">
-            A world map highlighting twelve countries where Azalea titles have
-            sales and distribution.
+            A world map highlighting the {LISTENER_FOOTPRINT.length} countries
+            with Spotify listener activity in {LISTENER_FOOTPRINT_PERIOD}.
           </desc>
 
           <defs>
@@ -165,7 +156,7 @@ export default function WorldMap() {
                 aria-label={
                   country.isActive
                     ? country.label
-                    : `${country.label}, coming soon`
+                    : `${country.label}, no listeners in ${LISTENER_FOOTPRINT_MONTH}`
                 }
                 onMouseEnter={(event) =>
                   showFromPointer(country, event.clientX, event.clientY)

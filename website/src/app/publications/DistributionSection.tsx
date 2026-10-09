@@ -4,7 +4,9 @@ import styles from "./publications.module.css";
 // All 46 titles returned by Azalea's PublishDrive account were checked on
 // 2026-10-07: saleTerritory is ["ALL"] and these nine channels are enabled.
 // This is a distribution setting, not confirmation of every store listing.
-// Spotify is distributed separately.
+// The 41 enabled-store names deduplicate to 29 platform families; Spotify is
+// separate, for 30 unique platforms total. Format/brand variants (e.g. Apple,
+// Google Play, and Kobo) are counted once.
 const PLATFORMS = [
   "Apple Books",
   "Google Play Books",
@@ -17,6 +19,8 @@ const PLATFORMS = [
   "Wehear",
   "Voxa",
 ];
+const UNIQUE_PLATFORM_COUNT = 30;
+const ADDITIONAL_PLATFORM_COUNT = UNIQUE_PLATFORM_COUNT - PLATFORMS.length;
 
 export default function DistributionSection() {
   return (
@@ -26,7 +30,8 @@ export default function DistributionSection() {
         <h2 id="distribution-title">Global distribution.</h2>
         <p className={styles.distributionIntro}>
           Our audiobooks are set for worldwide distribution through leading
-          retail, streaming, and library partners.
+          partners. The map shows Spotify listener activity for October 2026 so
+          far.
         </p>
       </div>
 
@@ -42,7 +47,9 @@ export default function DistributionSection() {
               <li key={platform}>{platform}</li>
             ))}
           </ul>
-          <p className={styles.distributionNote}>and more</p>
+          <p className={styles.distributionNote}>
+            and {ADDITIONAL_PLATFORM_COUNT} more platforms
+          </p>
         </div>
       </div>
     </section>

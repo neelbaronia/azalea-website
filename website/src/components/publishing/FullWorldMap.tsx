@@ -3,14 +3,21 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
-import { PUBLISHING_MARKETS } from "./markets";
+import {
+  LISTENER_FOOTPRINT,
+  LISTENER_FOOTPRINT_MONTH,
+  LISTENER_FOOTPRINT_PERIOD,
+} from "./markets";
 import styles from "./full-publishing.module.css";
 
 const WIDTH = 960;
 const HEIGHT = 500;
 
-const MARKET_COLORS: ReadonlyMap<string, string> = new Map(
-  PUBLISHING_MARKETS.map(({ name, color }) => [name, color]),
+const FOOTPRINT_BY_COUNTRY: ReadonlyMap<
+  string,
+  (typeof LISTENER_FOOTPRINT)[number]
+> = new Map(
+  LISTENER_FOOTPRINT.map((country) => [country.name, country]),
 );
 
 type CountryProperties = { name: string };
@@ -85,7 +92,8 @@ export default function FullWorldMap({
           if (!path) return [];
 
           const name = country.properties.name;
-          const color = MARKET_COLORS.get(name) ?? null;
+          const footprint = FOOTPRINT_BY_COUNTRY.get(name);
+          const color = footprint?.color ?? null;
           const [x, y] = makePath.centroid(country);
 
           return [
@@ -131,9 +139,12 @@ export default function FullWorldMap({
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
     return {
       color: scope === "worldwide" ? "#9b8ac5" : country.color ?? "#14101f",
-      label: scope === "worldwide" || country.isActive
-        ? country.label
-        : `${country.label} · Coming soon`,
+      label:
+        scope === "worldwide"
+          ? country.label
+          : country.isActive
+            ? country.label
+            : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
       left,
       top,
     };
@@ -177,12 +188,14 @@ export default function FullWorldMap({
           aria-labelledby="publishing-map-title publishing-map-description"
         >
           <title id="publishing-map-title">
-            {scope === "worldwide" ? "Azalea worldwide distribution" : "Azalea Publishing markets"}
+            {scope === "worldwide"
+              ? "Azalea worldwide distribution"
+              : `Azalea listener footprint — ${LISTENER_FOOTPRINT_PERIOD}`}
           </title>
           <desc id="publishing-map-description">
             {scope === "worldwide"
               ? "A world map illustrating worldwide distribution settings. Availability varies by title, store, and country. This is not a map of confirmed live listings."
-              : `A world map highlighting ${PUBLISHING_MARKETS.length} countries where Azalea titles have sales and distribution.`}
+              : `A world map highlighting the ${LISTENER_FOOTPRINT.length} countries with Spotify listener activity in ${LISTENER_FOOTPRINT_PERIOD}.`}
           </desc>
 
           <defs>
@@ -224,7 +237,7 @@ export default function FullWorldMap({
                 aria-label={
                   scope === "worldwide" || country.isActive
                     ? country.label
-                    : `${country.label}, coming soon`
+                    : `${country.label}, no listeners in ${LISTENER_FOOTPRINT_MONTH}`
                 }
                 onMouseEnter={(event) =>
                   showFromPointer(country, event.clientX, event.clientY)
