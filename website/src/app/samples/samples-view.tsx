@@ -25,10 +25,6 @@ function SamplesNavbar() {
         <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority unoptimized className="h-6 w-6 md:h-[30px] md:w-[30px]" />
         <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] md:text-sm md:tracking-[0.18em]">Azalea Labs</span>
       </Link>
-      <nav className="flex items-center gap-3 text-[8px] font-bold uppercase tracking-[0.07em] md:gap-8 md:text-xs md:tracking-[0.12em]" aria-label="Main navigation">
-        <Link href="/translations" className="text-white/65 transition-colors hover:text-white">Translations</Link>
-        <Link href="/publications" className="text-white/65 transition-colors hover:text-white">Publications</Link>
-      </nav>
     </header>
   );
 }
