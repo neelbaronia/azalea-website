@@ -1,7 +1,6 @@
-// Countries with Spotify listener activity, October 2026 month to date.
-// Shared by the homepage, publishing page, and publications map.
-export const LISTENER_FOOTPRINT_PERIOD = "October 2026 month to date";
-export const LISTENER_FOOTPRINT_MONTH = "October 2026";
+// Countries with any Spotify listener activity in the available analytics
+// history, December 2025 through October 2026. Shared by all site maps.
+export const LISTENER_FOOTPRINT_PERIOD = "December 2025–October 2026";
 
 export const LISTENER_FOOTPRINT = [
   { name: "United States of America", label: "United States", color: "#5d5df5" },
@@ -16,4 +15,8 @@ export const LISTENER_FOOTPRINT = [
   { name: "Netherlands", label: "Netherlands", color: "#3566ff" },
   { name: "Sweden", label: "Sweden", color: "#00b870" },
   { name: "Switzerland", label: "Switzerland", color: "#9b5de5" },
+  { name: "Austria", label: "Austria", color: "#192aff" },
+  { name: "Finland", label: "Finland", color: "#2a9d8f" },
+  { name: "France", label: "France", color: "#8d5fd3" },
+  { name: "Monaco", label: "Monaco", color: "#d65a31" },
 ] as const;

@@ -30,8 +30,8 @@ export default function DistributionSection() {
         <h2 id="distribution-title">Global distribution.</h2>
         <p className={styles.distributionIntro}>
           Our audiobooks are set for worldwide distribution through leading
-          partners. The map shows Spotify listener activity for October 2026 so
-          far.
+          partners. The map shows every country with Spotify listener activity
+          in our available analytics history through October 2026.
         </p>
       </div>
 

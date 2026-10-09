@@ -5,10 +5,9 @@ import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
-import worldData from "world-atlas/countries-110m.json";
+import worldData from "world-atlas/countries-50m.json";
 import {
   LISTENER_FOOTPRINT,
-  LISTENER_FOOTPRINT_MONTH,
   LISTENER_FOOTPRINT_PERIOD,
 } from "@/components/publishing/markets";
 import styles from "./publishing.module.css";
@@ -91,7 +90,7 @@ export default function WorldMap() {
     setTooltip({
       label: country.isActive
         ? country.label
-        : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
+        : `${country.label} · No recorded listeners in ${LISTENER_FOOTPRINT_PERIOD}`,
       left: ((clientX - bounds.left) / bounds.width) * 100,
       top: ((clientY - bounds.top) / bounds.height) * 100,
     });
@@ -101,7 +100,7 @@ export default function WorldMap() {
     setTooltip({
       label: country.isActive
         ? country.label
-        : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
+        : `${country.label} · No recorded listeners in ${LISTENER_FOOTPRINT_PERIOD}`,
       left: (country.x / WIDTH) * 100,
       top: (country.y / HEIGHT) * 100,
     });
@@ -121,7 +120,8 @@ export default function WorldMap() {
           </title>
           <desc id="publishing-map-description">
             A world map highlighting the {LISTENER_FOOTPRINT.length} countries
-            with Spotify listener activity in {LISTENER_FOOTPRINT_PERIOD}.
+            with Spotify listener activity across the available analytics
+            history, {LISTENER_FOOTPRINT_PERIOD}.
           </desc>
 
           <defs>
@@ -156,7 +156,7 @@ export default function WorldMap() {
                 aria-label={
                   country.isActive
                     ? country.label
-                    : `${country.label}, no listeners in ${LISTENER_FOOTPRINT_MONTH}`
+                    : `${country.label}, no recorded listeners in ${LISTENER_FOOTPRINT_PERIOD}`
                 }
                 onMouseEnter={(event) =>
                   showFromPointer(country, event.clientX, event.clientY)

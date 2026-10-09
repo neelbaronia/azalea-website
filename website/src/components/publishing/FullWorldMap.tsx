@@ -5,7 +5,6 @@ import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import {
   LISTENER_FOOTPRINT,
-  LISTENER_FOOTPRINT_MONTH,
   LISTENER_FOOTPRINT_PERIOD,
 } from "./markets";
 import styles from "./full-publishing.module.css";
@@ -60,7 +59,7 @@ export default function FullWorldMap({
         await Promise.all([
           import("d3-geo"),
           import("topojson-client"),
-          import("world-atlas/countries-110m.json"),
+          import("world-atlas/countries-50m.json"),
         ]);
       if (cancelled) return;
 
@@ -144,7 +143,7 @@ export default function FullWorldMap({
           ? country.label
           : country.isActive
             ? country.label
-            : `${country.label} · No listeners in ${LISTENER_FOOTPRINT_MONTH}`,
+            : `${country.label} · No recorded listeners in ${LISTENER_FOOTPRINT_PERIOD}`,
       left,
       top,
     };
@@ -195,7 +194,7 @@ export default function FullWorldMap({
           <desc id="publishing-map-description">
             {scope === "worldwide"
               ? "A world map illustrating worldwide distribution settings. Availability varies by title, store, and country. This is not a map of confirmed live listings."
-              : `A world map highlighting the ${LISTENER_FOOTPRINT.length} countries with Spotify listener activity in ${LISTENER_FOOTPRINT_PERIOD}.`}
+              : `A world map highlighting the ${LISTENER_FOOTPRINT.length} countries with Spotify listener activity across the available analytics history, ${LISTENER_FOOTPRINT_PERIOD}.`}
           </desc>
 
           <defs>
@@ -237,7 +236,7 @@ export default function FullWorldMap({
                 aria-label={
                   scope === "worldwide" || country.isActive
                     ? country.label
-                    : `${country.label}, no listeners in ${LISTENER_FOOTPRINT_MONTH}`
+                    : `${country.label}, no recorded listeners in ${LISTENER_FOOTPRINT_PERIOD}`
                 }
                 onMouseEnter={(event) =>
                   showFromPointer(country, event.clientX, event.clientY)
