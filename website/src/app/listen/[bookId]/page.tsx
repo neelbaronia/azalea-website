@@ -5,25 +5,12 @@ import { notFound } from "next/navigation";
 import { getListenBook } from "@/lib/listen-books";
 import GoogleAdsTag from "./GoogleAdsTag";
 import ListenButton from "./ListenButton";
+import { SKYHORSE_LICENSED_BOOK_IDS } from "@/lib/skyhorse-catalog";
 import styles from "./listen.module.css";
 
 export const revalidate = 3600;
 
 const SITE_URL = "https://www.azalea-labs.com";
-
-const SKYHORSE_LICENSED_BOOK_IDS = new Set([
-  "killing-kennedy",
-  "the-homestead",
-  "cowboys",
-  "scottish-miscellany",
-  "people-of-the-first-crusade",
-  "the-pasha-of-cuisine",
-  "innovators",
-  "judgment-in-berlin",
-  "lincoln-and-the-irish",
-  "running-around-and-such",
-  "a-horse-for-elsie",
-]);
 
 type Props = { params: Promise<{ bookId: string }> };
 

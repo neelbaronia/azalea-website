@@ -7,6 +7,7 @@ import {
 } from "./retailer-links";
 import DistributionSection from "./DistributionSection";
 import PublicationsTabs from "./PublicationsTabs";
+import { SKYHORSE_CATALOG_BOOK_IDS } from "@/lib/skyhorse-catalog";
 import styles from "./publications.module.css";
 
 const LIBRARY_URL =
@@ -52,7 +53,9 @@ async function getPublications(): Promise<Book[]> {
     const response = await fetch(LIBRARY_URL, { next: { revalidate } });
     if (!response.ok) return [];
     const books = (await response.json()) as Book[];
-    return books.filter(isAzaleaOriginal);
+    return books.filter(
+      (book) => isAzaleaOriginal(book) && SKYHORSE_CATALOG_BOOK_IDS.has(book.id),
+    );
   } catch {
     return [];
   }
