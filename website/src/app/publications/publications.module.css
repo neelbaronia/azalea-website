@@ -269,13 +269,32 @@
 .availability {
   margin: 12px 0 0;
   padding-top: 11px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
+  display: grid;
+  gap: 12px;
   border-top: 1px solid var(--line);
 }
 
-.availability a {
+.availabilityGroup {
+  display: grid;
+  gap: 5px;
+}
+
+.availabilityLabel {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.availabilityLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.availabilityLinks a {
   color: var(--ink);
   font-size: 10px;
   font-weight: 800;
@@ -283,12 +302,10 @@
   text-decoration: none;
   text-transform: uppercase;
   border-bottom: 1px solid var(--ink);
-  transition:
-    color 160ms ease,
-    border-color 160ms ease;
+  transition: color 160ms ease, border-color 160ms ease;
 }
 
-.availability a:hover {
+.availabilityLinks a:hover {
   color: #3566ff;
   border-color: #3566ff;
 }

@@ -58,12 +58,20 @@ async function getPublications(): Promise<Book[]> {
   }
 }
 
-function retailersFor(book: Book): { name: string; href: string }[] {
+interface RetailerLink {
+  name: string;
+  href: string;
+}
+
+function retailersFor(book: Book): {
+  audio: RetailerLink[];
+  ebook: RetailerLink[];
+} {
   const retailerLinks = retailerLinksByBookId[book.id];
   const ebookLinks = ebookLinksByBookId[book.id];
   const overdriveLink = overdriveLinksByBookId[book.id];
 
-  const retailers = [
+  const audio: RetailerLink[] = [
     {
       name: "Spotify",
       href:
@@ -73,22 +81,25 @@ function retailersFor(book: Book): { name: string; href: string }[] {
   ];
 
   if (retailerLinks?.appleBooks) {
-    retailers.push({ name: "Apple Books", href: retailerLinks.appleBooks });
+    audio.push({ name: "Apple Books", href: retailerLinks.appleBooks });
   }
   if (retailerLinks?.googlePlay) {
-    retailers.push({ name: "Google Play", href: retailerLinks.googlePlay });
-  }
-  if (ebookLinks?.appleBooks) {
-    retailers.push({ name: "Apple Books eBook", href: ebookLinks.appleBooks });
-  }
-  if (ebookLinks?.googlePlayBooks) {
-    retailers.push({ name: "Google Play Books eBook", href: ebookLinks.googlePlayBooks });
-  }
-  if (overdriveLink) {
-    retailers.push({ name: "OverDrive", href: overdriveLink });
+    audio.push({ name: "Google Play", href: retailerLinks.googlePlay });
   }
 
-  return retailers;
+  if (overdriveLink) {
+    audio.push({ name: "OverDrive", href: overdriveLink });
+  }
+
+  const ebook: RetailerLink[] = [];
+  if (ebookLinks?.appleBooks) {
+    ebook.push({ name: "Apple Books", href: ebookLinks.appleBooks });
+  }
+  if (ebookLinks?.googlePlayBooks) {
+    ebook.push({ name: "Google Play Books", href: ebookLinks.googlePlayBooks });
+  }
+
+  return { audio, ebook };
 }
 
 export default async function PublicationsPage() {
@@ -121,6 +132,8 @@ export default async function PublicationsPage() {
             >
               {books.map((book, index) => {
                 const coverUrl = `${book.remoteBaseURL}/${book.coverImageName}`;
+                const retailers = retailersFor(book);
+
                 return (
                   <li key={book.id} className={styles.tile}>
                     <div className={styles.cover}>
@@ -139,19 +152,44 @@ export default async function PublicationsPage() {
                     <h2>{book.title}</h2>
                     <p className={styles.byline}>{book.author}</p>
 
-                    <p className={styles.availability}>
-                      {retailersFor(book).map((retailer) => (
-                        <a
-                          key={retailer.name}
-                          href={retailer.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`${book.title} on ${retailer.name}`}
-                        >
-                          {retailer.name}
-                        </a>
-                      ))}
-                    </p>
+                    <div className={styles.availability}>
+                      {retailers.audio.length > 0 && (
+                        <div className={styles.availabilityGroup}>
+                          <span className={styles.availabilityLabel}>Audio</span>
+                          <div className={styles.availabilityLinks}>
+                            {retailers.audio.map((retailer) => (
+                              <a
+                                key={retailer.name}
+                                href={retailer.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${book.title} audiobook on ${retailer.name}`}
+                              >
+                                {retailer.name}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {retailers.ebook.length > 0 && (
+                        <div className={styles.availabilityGroup}>
+                          <span className={styles.availabilityLabel}>eBook</span>
+                          <div className={styles.availabilityLinks}>
+                            {retailers.ebook.map((retailer) => (
+                              <a
+                                key={retailer.name}
+                                href={retailer.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${book.title} eBook on ${retailer.name}`}
+                              >
+                                {retailer.name}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </li>
                 );
               })}
