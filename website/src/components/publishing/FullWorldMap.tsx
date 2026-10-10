@@ -169,16 +169,11 @@ export default function FullWorldMap({
 
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
     const listenerStatus = country.isActive
-      ? "active Spotify listener base"
-      : `no recorded Spotify listeners in ${LISTENER_FOOTPRINT_PERIOD}`;
-    const catalogStatus =
-      country.catalogPlatforms.length === 2
-        ? "catalog available on Apple Books and Spotify"
-        : country.catalogPlatforms[0] === "apple"
-          ? "catalog available on Apple Books"
-          : country.catalogPlatforms[0] === "spotify"
-            ? "catalog available on Spotify"
-            : "no Apple Books or Spotify audiobook market listed";
+      ? "active readers and listeners"
+      : `no recorded readers or listeners in ${LISTENER_FOOTPRINT_PERIOD}`;
+    const catalogStatus = country.catalogPlatforms.length
+      ? "catalog available"
+      : "no catalog availability listed";
 
     return {
       color: scope === "worldwide" ? "#9b8ac5" : country.color ?? "#14101f",
@@ -230,20 +225,13 @@ export default function FullWorldMap({
           <div className={styles.mapLegendItems} role="list" aria-label="Map legend">
             <span className={styles.mapLegendItem} role="listitem">
               <span className={`${styles.mapLegendSwatch} ${styles.mapLegendListeners}`} />
-              Active listener base · Spotify
+              Active Readers &amp; Listeners
             </span>
             <span className={styles.mapLegendItem} role="listitem">
               <span className={`${styles.mapLegendSwatch} ${styles.mapLegendCatalog}`} />
-              Catalog available · Apple Books or Spotify ({CATALOG_MARKET_COUNTRY_COUNT} countries)
-            </span>
-            <span className={styles.mapLegendItem} role="listitem">
-              <span className={`${styles.mapLegendSwatch} ${styles.mapLegendNeither}`} />
-              Neither
+              Catalog Available
             </span>
           </div>
-          <p className={styles.mapLegendNote}>
-            Catalog availability varies by title; hatching shows supported store markets, not confirmed listings.
-          </p>
         </div>
       ) : null}
       <div id="publishing-world-map" className={styles.mapCanvas}>
@@ -261,20 +249,8 @@ export default function FullWorldMap({
           <desc id="publishing-map-description">
             {scope === "worldwide"
               ? "A world map illustrating worldwide distribution settings. Availability varies by title, store, and country. This is not a map of confirmed live listings."
-              : `A world map with colored countries showing Spotify listener activity in ${LISTENER_FOOTPRINT.length} countries during ${LISTENER_FOOTPRINT_PERIOD}; hatching marks ${CATALOG_MARKET_COUNTRY_COUNT} unique Apple Books or Spotify audiobook markets. Clear countries have neither recorded listener activity nor a listed audiobook market. Individual title availability may vary.`}
+              : `A world map showing active readers and listeners in ${LISTENER_FOOTPRINT.length} countries during ${LISTENER_FOOTPRINT_PERIOD}; translucent color marks catalog availability across ${CATALOG_MARKET_COUNTRY_COUNT} countries. Clear countries have neither recorded audience activity nor listed catalog availability. Availability varies by title.`}
           </desc>
-
-          <defs>
-            <pattern
-              id="map-catalog-available"
-              width="8"
-              height="8"
-              patternUnits="userSpaceOnUse"
-              patternTransform="rotate(35)"
-            >
-              <line x1="0" y1="0" x2="0" y2="8" stroke="#262431" strokeWidth="2.5" />
-            </pattern>
-          </defs>
 
           <g className={styles.mapCountries}>
             {countries

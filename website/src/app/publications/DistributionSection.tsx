@@ -29,9 +29,8 @@ export default function DistributionSection() {
         <p className={styles.eyebrow}>Stories without borders</p>
         <h2 id="distribution-title">Global distribution.</h2>
         <p className={styles.distributionIntro}>
-          Colored countries show our active Spotify listener base; hatching
-          marks Apple Books or Spotify audiobook markets. Clear countries have
-          neither.
+          Full color marks active readers and listeners; a lighter tint marks
+          catalog availability. Clear countries have neither.
         </p>
       </div>
 

@@ -167,13 +167,6 @@
   justify-items: start;
 }
 
-.mapLegendNote {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
 .mapLegendItems {
   display: flex;
   flex-wrap: wrap;
@@ -202,17 +195,7 @@
 }
 
 .mapLegendCatalog {
-  background: repeating-linear-gradient(
-    135deg,
-    transparent 0,
-    transparent 3px,
-    #262431 3px,
-    #262431 4px
-  );
-}
-
-.mapLegendNeither {
-  background: var(--paper);
+  background: rgba(93, 93, 245, 0.28);
 }
 
 .mapCanvas {
@@ -258,10 +241,10 @@
 }
 
 .mapCountryCatalogOverlay {
-  fill: url("#map-catalog-available");
+  fill: #5d5df5;
+  opacity: 0.28;
   pointer-events: none;
-  stroke: var(--paper);
-  stroke-width: 0;
+  stroke: none;
   vector-effect: non-scaling-stroke;
 }
 
