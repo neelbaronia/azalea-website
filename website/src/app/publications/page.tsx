@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { overdriveLinksByBookId, retailerLinksByBookId } from "./retailer-links";
+import {
+  ebookLinksByBookId,
+  overdriveLinksByBookId,
+  retailerLinksByBookId,
+} from "./retailer-links";
 import DistributionSection from "./DistributionSection";
 import PublicationsTabs from "./PublicationsTabs";
 import styles from "./publications.module.css";
@@ -56,6 +60,7 @@ async function getPublications(): Promise<Book[]> {
 
 function retailersFor(book: Book): { name: string; href: string }[] {
   const retailerLinks = retailerLinksByBookId[book.id];
+  const ebookLinks = ebookLinksByBookId[book.id];
   const overdriveLink = overdriveLinksByBookId[book.id];
 
   const retailers = [
@@ -72,6 +77,12 @@ function retailersFor(book: Book): { name: string; href: string }[] {
   }
   if (retailerLinks?.googlePlay) {
     retailers.push({ name: "Google Play", href: retailerLinks.googlePlay });
+  }
+  if (ebookLinks?.appleBooks) {
+    retailers.push({ name: "Apple Books eBook", href: ebookLinks.appleBooks });
+  }
+  if (ebookLinks?.googlePlayBooks) {
+    retailers.push({ name: "Google Play Books eBook", href: ebookLinks.googlePlayBooks });
   }
   if (overdriveLink) {
     retailers.push({ name: "OverDrive", href: overdriveLink });
