@@ -38,7 +38,7 @@ function CampaignDetails({
               className="mb-1 text-[9px] font-bold uppercase tracking-[0.16em]"
               style={{ color: campaign.accent }}
             >
-              Audiobook · {campaign.author}
+              {campaign.author}
             </p>
             <h2 className="font-[family-name:var(--font-garamond)] text-lg font-semibold leading-tight md:text-xl">
               {campaign.title}
