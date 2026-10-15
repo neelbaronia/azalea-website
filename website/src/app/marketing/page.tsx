@@ -4,10 +4,26 @@ import type { Metadata } from "next";
 import MarketingCarousel from "./marketing-carousel";
 import type { Campaign } from "./marketing-types";
 
+const title = "Marketing Content | Azalea Labs";
+const description =
+  "Short-form videos, visual storytelling, and campaign content created by Azalea Labs.";
+
 export const metadata: Metadata = {
-  title: "Marketing Work | Azalea Labs",
-  description:
-    "A look at short-form audiobook campaigns created by Azalea Labs for The Truth About the O.J. Simpson Trial, The Little Book of Restorative Teaching Tools, Killing Kennedy, and Kremlin Wives.",
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "https://www.azalea-labs.com/marketing",
+    type: "website",
+    images: [{ url: "https://www.azalea-labs.com/azalea-icon.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["https://www.azalea-labs.com/azalea-icon.png"],
+  },
 };
 
 const campaigns: Campaign[] = [
@@ -60,7 +76,7 @@ const campaigns: Campaign[] = [
     cover: "/sample-covers/killing-kennedy.webp",
     spotify: "https://open.spotify.com/show/6PLTDAQcC6aIFOdOMWE2bN",
     summary:
-      "A short historical explainer that turns an account from the audiobook into a focused, attributed question for listeners.",
+      "A historical explainer uses attributed accounts and a visual timeline to frame one focused question.",
     accent: "#b33d3c",
     clips: [
       {
@@ -81,7 +97,7 @@ const campaigns: Campaign[] = [
     cover: "/sample-covers/kremlin-wives.jpg",
     spotify: "https://open.spotify.com/show/035jpZT0xyX07KSLnIApV2",
     summary:
-      "A portrait-led audiobook teaser follows Polina Zhemchuzhina through turning points in Soviet public life.",
+      "A portrait-led video follows Polina Zhemchuzhina through turning points in Soviet public life.",
     accent: "#a33f5c",
     clips: [
       {
@@ -114,13 +130,13 @@ export default function MarketingPage() {
       <main className="mx-auto max-w-[1440px] px-5 md:px-10">
         <div className="py-5 md:py-6">
           <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#282142]/65">
-            Audiobook campaigns
+            Selected work
           </p>
           <h1 className="font-[family-name:var(--font-garamond)] text-3xl font-semibold leading-tight tracking-[-0.035em] md:text-4xl">
-            Short-form marketing
+            Marketing content
           </h1>
           <p className="mt-1.5 max-w-2xl text-xs leading-5 text-[#171717]/65 md:text-sm md:leading-6">
-            Browse the video, story, and audiobook details together. Swipe or use the arrows to move through all four clips.
+            Short-form videos, visual storytelling, and campaign creative by Azalea Labs. Swipe or use the arrows to explore.
           </p>
         </div>
         <MarketingCarousel campaigns={campaigns} />

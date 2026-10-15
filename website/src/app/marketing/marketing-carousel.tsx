@@ -171,7 +171,7 @@ export default function MarketingCarousel({ campaigns }: { campaigns: Campaign[]
   }
 
   return (
-    <section aria-label="Audiobook marketing video carousel" aria-roledescription="carousel" className="pb-8 md:pb-10">
+    <section aria-label="Marketing video carousel" aria-roledescription="carousel" className="pb-8 md:pb-10">
       <div className="mb-2 flex items-center justify-between gap-3">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#171717]/50">
           <span aria-live="polite">{String(activeIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
