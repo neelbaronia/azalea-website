@@ -109,11 +109,6 @@ export default function MarketingPage() {
           <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority className="h-7 w-7" />
           <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Azalea Labs</span>
         </Link>
-        <nav className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-[0.06em] md:gap-8 md:text-[11px] md:tracking-[0.14em]" aria-label="Main navigation">
-          <Link href="/samples" className="text-white/70 transition-colors hover:text-white">Samples</Link>
-          <Link href="/translations" className="text-white/70 transition-colors hover:text-white">Translations</Link>
-          <Link href="/publications" className="text-white/70 transition-colors hover:text-white">Publications</Link>
-        </nav>
       </header>
 
       <main className="mx-auto max-w-[1440px] px-5 md:px-10">
