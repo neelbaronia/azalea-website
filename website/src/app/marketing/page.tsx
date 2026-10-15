@@ -1,32 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import MarketingCarousel from "./marketing-carousel";
+import type { Campaign } from "./marketing-types";
 
 export const metadata: Metadata = {
   title: "Marketing Work | Azalea Labs",
   description:
-    "A look at short-form audiobook campaigns created by Azalea Labs for The Truth About the O.J. Simpson Trial and Killing Kennedy.",
-};
-
-type Clip = {
-  id: string;
-  title: string;
-  format: string;
-  video: string;
-  poster: string;
-  caption: string;
-  note?: string;
-};
-
-type Campaign = {
-  id: string;
-  title: string;
-  author: string;
-  cover: string;
-  spotify: string;
-  summary: string;
-  accent: string;
-  clips: Clip[];
+    "A look at short-form audiobook campaigns created by Azalea Labs for The Truth About the O.J. Simpson Trial, The Little Book of Restorative Teaching Tools, Killing Kennedy, and Kremlin Wives.",
 };
 
 const campaigns: Campaign[] = [
@@ -37,18 +18,9 @@ const campaigns: Campaign[] = [
     cover: "/sample-covers/the-truth-about-the-oj-simpson-trial.webp",
     spotify: "https://open.spotify.com/show/75D1hObxJKNo3s5CGktk1f",
     summary:
-      "An Evidence File series built around questions from the trial, with careful distinctions between testimony, prosecution theories, and Bailey’s defense-side memoir account.",
+      "A source-labeled Evidence File separates witness testimony from a prosecution theory in Bailey’s defense-side memoir.",
     accent: "#16877f",
     clips: [
-      {
-        id: "oj-evidence-01",
-        title: "The 15 Minutes Before the Glove",
-        format: "Evidence File 01 · Vertical video",
-        video: "/marketing/oj-evidence-01.mp4",
-        poster: "/marketing/oj-evidence-01.jpg",
-        caption:
-          "What happened during the roughly 15 minutes before the Rockingham glove was reported?\n\nThis Evidence File follows F. Lee Bailey’s defense-side memoir account of that timeline. It does not establish that evidence was planted.",
-      },
       {
         id: "oj-evidence-02",
         title: "The “Mysterious” Dark Bag",
@@ -61,127 +33,73 @@ const campaigns: Campaign[] = [
     ],
   },
   {
+    id: "restorative-teaching-tools",
+    title: "The Little Book of Restorative Teaching Tools",
+    author: "Lindsey Pointer · Kathleen McGoey · Haley Farrar",
+    cover: "/sample-covers/little-book-of-restorative-teaching-tools.jpg",
+    spotify: "https://open.spotify.com/show/3R9AKKQHQiTvznreMBQORN",
+    summary:
+      "A Practice File explores restorative pedagogy through the teacher’s role as a facilitator in a shared learning experience.",
+    accent: "#3f806f",
+    clips: [
+      {
+        id: "restorative-teacher-as-facilitator",
+        title: "The Teacher’s Role Is to Make Space",
+        format: "Practice File 04 · Vertical video",
+        video: "/marketing/restorative-teaching-tools/teacher-as-facilitator.mp4",
+        poster: "/marketing/restorative-teaching-tools/teacher-as-facilitator.jpg",
+        caption:
+          "How can a teacher guide learning without taking over as the sole expert?\n\nThis Chapter 3 excerpt presents the instructor as a facilitator who participates in the learning experience. The visual follows three ideas: create a safe space, reflect together, and share voice and power.",
+      },
+    ],
+  },
+  {
     id: "kennedy",
     title: "Killing Kennedy",
     author: "Jack Roth",
     cover: "/sample-covers/killing-kennedy.webp",
     spotify: "https://open.spotify.com/show/6PLTDAQcC6aIFOdOMWE2bN",
     summary:
-      "Short historical explainers that turn details and competing accounts in the audiobook into focused, attributed questions for listeners.",
+      "A short historical explainer that turns an account from the audiobook into a focused, attributed question for listeners.",
     accent: "#b33d3c",
     clips: [
       {
         id: "kennedy-evidence-09a",
-        title: "Two Caskets. Two Claimed Arrival Times.",
+        title: "Conflicting Casket Arrival Times",
         format: "Evidence File 09A · Vertical video",
         video: "/marketing/kennedy-evidence-09a.mp4",
         poster: "/marketing/kennedy-evidence-09a.jpg",
         caption:
           "Two accounts place different caskets at Bethesda at different times on November 22, 1963. In Killing Kennedy, William Matson Law contrasts the Honor Guard’s reported 8:00 p.m. arrival with Dennis David’s account of a shipping casket at about 6:35 p.m. How should the discrepancy be understood?",
       },
+    ],
+  },
+  {
+    id: "kremlin-wives",
+    title: "Kremlin Wives",
+    author: "Larissa Vasilyeva · Cathy Porter",
+    cover: "/sample-covers/kremlin-wives.jpg",
+    spotify: "https://open.spotify.com/show/035jpZT0xyX07KSLnIApV2",
+    summary:
+      "A portrait-led audiobook teaser follows Polina Zhemchuzhina through turning points in Soviet public life.",
+    accent: "#a33f5c",
+    clips: [
       {
-        id: "kennedy-evidence-26a",
-        title: "Oswald: Unknown—or Monitored for Four Years?",
-        format: "Evidence File 26A · Vertical video",
-        video: "/marketing/kennedy-evidence-26a.mp4",
-        poster: "/marketing/kennedy-evidence-26a.jpg",
+        id: "kremlin-wives-polina-zhemchuzhina",
+        title: "Polina at the 1921 Women’s Conference",
+        format: "Portrait story · Vertical video",
+        video: "/marketing/kremlin-wives/polina-zhemchuzhina.mp4",
+        poster: "/marketing/kremlin-wives/polina-zhemchuzhina.jpg",
         caption:
-          "Lee Harvey Oswald is often described as an unknown figure who suddenly entered history. In Killing Kennedy, Jefferson Morley says the CIA had monitored him for four years and collected information that reached James Angleton’s office. What does that change about the timeline?",
-        note:
-          "This clip presents Jefferson Morley’s account as discussed in the audiobook, not as a settled historical finding.",
+          "At a 1921 women’s conference, Molotov noticed Polina Zhemchuzhina. She went on to lead major Soviet industries before her 1949 arrest.\n\nTimeline: 1921 · 1936 · 1939 · 1949",
+        photoCredit:
+          "Photo: unknown Associated Press photographer, 1936. Wikimedia Commons marks it public domain in the United States; rights may vary elsewhere.",
+        photoUrl:
+          "https://commons.wikimedia.org/wiki/File:Polina_Zhemchuzhina_1936.jpg",
       },
     ],
   },
 ];
-
-function CampaignSection({ campaign }: { campaign: Campaign }) {
-  return (
-    <section id={campaign.id} className="scroll-mt-8 border-t border-[#171717]/15 py-10 md:py-14 first:border-t-0 first:pt-7 md:first:pt-10">
-      <div className="mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
-        <div className="flex items-center gap-5 md:gap-7">
-          <Image
-            src={campaign.cover}
-            alt={`Cover of ${campaign.title}`}
-            width={88}
-            height={132}
-            className="h-[108px] w-[72px] shrink-0 rounded-sm object-cover shadow-md md:h-[132px] md:w-[88px]"
-          />
-          <div>
-            <p
-              className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em]"
-              style={{ color: campaign.accent }}
-            >
-              Audiobook campaign
-            </p>
-            <h2 className="max-w-2xl font-[family-name:var(--font-garamond)] text-3xl font-semibold leading-tight tracking-[-0.035em] md:text-5xl">
-              {campaign.title}
-            </h2>
-            <p className="mt-1 text-sm text-[#171717]/60">{campaign.author}</p>
-          </div>
-        </div>
-        <Link
-          href={campaign.spotify}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-[#171717]/25 px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:bg-[#171717] hover:text-white"
-        >
-          Listen on Spotify <span aria-hidden="true">↗</span>
-        </Link>
-      </div>
-
-      <p className="mb-8 max-w-3xl text-base leading-7 text-[#171717]/70 md:mb-10 md:text-lg">
-        {campaign.summary}
-      </p>
-
-      <div className="grid gap-5 md:grid-cols-2 md:gap-7">
-        {campaign.clips.map((clip, index) => (
-          <article
-            key={clip.id}
-            className="overflow-hidden border border-[#171717]/15 bg-white/55"
-          >
-            <div className="flex items-center justify-between border-b border-[#171717]/10 px-5 py-4 md:px-6">
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#171717]/55">
-                {clip.format}
-              </span>
-              <span className="font-[family-name:var(--font-garamond)] text-xl text-[#171717]/35">
-                0{index + 1}
-              </span>
-            </div>
-            <div className="flex justify-center bg-[#e8e5dc] px-5 py-6 md:px-8 md:py-8">
-              <video
-                controls
-                playsInline
-                preload="none"
-                poster={clip.poster}
-                aria-label={clip.title}
-                className="aspect-[9/16] max-h-[520px] w-full max-w-[292px] bg-black object-contain shadow-lg"
-              >
-                <source src={clip.video} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div className="p-5 md:p-7">
-              <h3 className="font-[family-name:var(--font-garamond)] text-2xl font-semibold leading-tight md:text-3xl">
-                {clip.title}
-              </h3>
-              <p className="mt-4 text-sm leading-6 text-[#171717]/75 md:text-base md:leading-7">
-                {clip.caption}
-              </p>
-              {clip.note && (
-                <p className="mt-4 border-l-2 pl-3 text-xs leading-5 text-[#171717]/55" style={{ borderColor: campaign.accent }}>
-                  {clip.note}
-                </p>
-              )}
-              <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#171717]/45">
-                Sample social caption · Instagram
-              </p>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export default function MarketingPage() {
   return (
@@ -191,7 +109,7 @@ export default function MarketingPage() {
           <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority className="h-7 w-7" />
           <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Azalea Labs</span>
         </Link>
-        <nav className="flex items-center gap-4 text-[9px] font-bold uppercase tracking-[0.1em] md:gap-8 md:text-[11px] md:tracking-[0.14em]" aria-label="Main navigation">
+        <nav className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-[0.06em] md:gap-8 md:text-[11px] md:tracking-[0.14em]" aria-label="Main navigation">
           <Link href="/samples" className="text-white/70 transition-colors hover:text-white">Samples</Link>
           <Link href="/translations" className="text-white/70 transition-colors hover:text-white">Translations</Link>
           <Link href="/publications" className="text-white/70 transition-colors hover:text-white">Publications</Link>
@@ -199,9 +117,18 @@ export default function MarketingPage() {
       </header>
 
       <main className="mx-auto max-w-[1440px] px-5 md:px-10">
-        {campaigns.map((campaign) => (
-          <CampaignSection key={campaign.id} campaign={campaign} />
-        ))}
+        <div className="py-5 md:py-6">
+          <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#282142]/65">
+            Audiobook campaigns
+          </p>
+          <h1 className="font-[family-name:var(--font-garamond)] text-3xl font-semibold leading-tight tracking-[-0.035em] md:text-4xl">
+            Short-form marketing
+          </h1>
+          <p className="mt-1.5 max-w-2xl text-xs leading-5 text-[#171717]/65 md:text-sm md:leading-6">
+            Browse the video, story, and audiobook details together. Swipe or use the arrows to move through all four clips.
+          </p>
+        </div>
+        <MarketingCarousel campaigns={campaigns} />
       </main>
     </div>
   );
