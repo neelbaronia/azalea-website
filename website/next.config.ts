@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
           ],
           destination: "/publishing",
         },
+        {
+          source: "/storyboard-drafts",
+          destination: "/storyboard-drafts/index.html",
+        },
       ],
     };
   },

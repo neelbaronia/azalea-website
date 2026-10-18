@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<base href="/storyboard-drafts/">
+<title>Storyboard Drafts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a production storyboard sheet — header, compact shot list, then sequences of numbered panels with notes beneath */
+:root {
+  --bg: #eef0ec; --surface: #f8f9f6; --ink: #22262a; --muted: #5d6660; --rule: #c9cfc8; --accent: #a0412d; --paper: #f6f5ef;
+  --f-display: "Libre Caslon Display", "Libre Caslon Text", Georgia, serif;
+  --f-quote: "Libre Caslon Text", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #171a19; --surface: #202423; --ink: #e3e6e1; --muted: #9ba49d; --rule: #353b38; --accent: #e08a72; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #171a19; --surface: #202423; --ink: #e3e6e1; --muted: #9ba49d; --rule: #353b38; --accent: #e08a72; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 48px; }
+header { display: grid; gap: 14px; max-width: 760px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(36px, 6vw, 60px); line-height: 1.02; margin: 0; text-wrap: balance; }
+h1 em { font-family: var(--f-quote); font-style: italic; font-size: .55em; display: block; color: var(--muted); margin-top: 8px; }
+header p { margin: 0; color: var(--muted); max-width: 64ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.facts b { font-weight: 500; color: var(--ink); }
+.facts span { color: var(--muted); }
+h2 { font-family: var(--f-display); font-weight: 400; font-size: 28px; margin: 0; text-wrap: balance; }
+.seq-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: 10px; }
+.seq-head .eyebrow { margin-left: auto; }
+.list { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-mono); font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+td.n, td.d { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.n a { color: var(--accent); text-decoration: none; }
+td.n a:hover, td.n a:focus-visible { text-decoration: underline; }
+tr.seq td { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+.seq { display: grid; gap: 20px; }
+/* storyboard sheet: ruled grid of frames, number bar above, notes box below */
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid > figure { border-top: 1.5px solid var(--ink); border-left: 1.5px solid var(--ink); margin: 0 -1.5px -1.5px 0; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.grid > figure { gap: 0; background: var(--surface); border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); align-content: start; grid-template-rows: auto auto 1fr; }
+.grid .meta { padding: 6px 9px; border-bottom: 1px solid var(--rule); gap: 8px; font-size: 10.5px; letter-spacing: .02em; }
+.grid .meta .num { font-family: var(--f-mono); font-size: 13px; }
+.grid figure img { border-radius: 0; border-bottom: 1px solid var(--rule); }
+.grid figcaption { padding: 8px 9px 11px; gap: 6px; background-image: repeating-linear-gradient(transparent 0 19px, var(--rule) 19px 20px); background-position: 0 8px; }
+.grid .action { font-size: 12.5px; line-height: 20px; }
+.grid .line { font-size: 12.5px; line-height: 20px; border-left: 0; padding-left: 0; font-style: italic; }
+.grid .line .who { font-size: 9.5px; line-height: 20px; }
+figure { margin: 0; display: grid; gap: 9px; align-content: start; min-width: 0; scroll-margin-top: 16px; }
+figure img { width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #1d2a38; border-radius: 3px; cursor: zoom-in; }
+.cast { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.cast figure img { aspect-ratio: auto; }
+@media (max-width: 760px) { .cast { grid-template-columns: minmax(0, 1fr); } }
+.cast figcaption { font-size: 13.5px; color: var(--muted); }
+dialog { padding: 0; border: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+dialog::backdrop { background: rgba(0,0,0,.88); }
+dialog img { max-width: 96vw; max-height: 92vh; display: block; }
+.meta { display: flex; gap: 10px; align-items: baseline; font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.meta .num { color: var(--accent); font-weight: 500; font-size: 14px; }
+.meta .size { font-weight: 500; }
+.meta .dur { margin-left: auto; color: var(--muted); }
+.meta .move { color: var(--muted); }
+figcaption { display: grid; gap: 6px; }
+.action { margin: 0; font-size: 14px; }
+.line { margin: 0; font-family: var(--f-quote); font-size: 14.5px; line-height: 1.45; padding-left: 12px; border-left: 2px solid var(--rule); }
+.line .who { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; font-style: normal; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; color: var(--muted); }
+.key i { font-style: normal; color: var(--accent); font-family: var(--f-mono); }
+footer { color: var(--muted); font-size: 13px; max-width: 70ch; border-top: 1px solid var(--rule); padding-top: 16px; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--rule); margin-bottom: -24px; }
+.tabs button { font: 500 13px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px; margin-bottom: -1px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs button:focus-visible, .filters button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tab { display: grid; gap: 48px; }
+.tab[hidden] { display: none; }
+#tab-chars { gap: 28px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filters button { font: 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.char { display: grid; gap: 16px; scroll-margin-top: 16px; }
+.char .seq-head h2 { font-size: 24px; }
+.char > p { margin: 0; color: var(--muted); max-width: 72ch; font-size: 14px; }
+.emos { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1100px) { .emos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .emos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.emos figure img { aspect-ratio: 1; }
+.emos figure[hidden] { display: none; }
+.tag { justify-self: start; font: 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 999px; padding: 1px 8px; }
+.only .turn { display: none; }
+.only .emos { grid-template-columns: minmax(0, 220px); }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>War with the Newts<em>The Eccentricity of Captain Van Toch</em></h1>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Page sections">
+    <button role="tab" id="t-board" aria-controls="tab-board" aria-selected="true">Storyboard</button>
+    <button role="tab" id="t-chars" aria-controls="tab-chars" aria-selected="false" tabindex="-1">Characters</button>
+  </div>
+
+  <div class="tab" id="tab-chars" role="tabpanel" aria-labelledby="t-chars" hidden>
+    <section class="seq">
+    <div class="seq-head"><h2>Reference sheets</h2></div>
+    <div class="cast">
+      <figure><img src="cast/cast-humans.jpg" alt="Puppet lineup: Captain van Toch, the agent, the tall and small divers, Jensen, Gudmundson, the mayor and Shark" loading="lazy"><figcaption>Van Toch, the agent, the two divers, Jensen, Gudmundson, the mayor, Shark</figcaption></figure>
+      <figure><img src="cast/vantoch-expressions.jpg" alt="Captain van Toch replacement faces: grumbling, spitting, furious, astonished, drunk, cold stare" loading="lazy"><figcaption>Van Toch replacement faces</figcaption></figure>
+      <figure><img src="cast/newt-design.jpg" alt="The newt puppet: black felt, round bald head, dark eyes, long tail" loading="lazy"><figcaption>The newt (design L)</figcaption></figure>
+      <figure><img src="cast/newt-expressions.jpg" alt="Newt expressions and poses" loading="lazy"><figcaption>Newt expressions and poses</figcaption></figure>
+    </div>
+  </section>
+
+    <div class="seq-head"><h2>Character studies</h2></div>
+    <div class="filters" role="group" aria-label="Show emotion" id="filters"></div>
+    <div id="chars" style="display:grid;gap:56px"></div>
+  </div>
+
+  <div class="tab" id="tab-board" role="tabpanel" aria-labelledby="t-board">
+
+
+  <div id="boards" style="display:grid;gap:56px"></div>
+  </div>
+
+  <footer>Lines are taken from our translation and trimmed for screen time. The opening "sir" speech plays as the captain talking straight to camera, which is how the chapter addresses the reader. Running times are estimates for pacing, not a locked edit.</footer>
+</div>
+
+<script>
+/* ---------- pencil kit: everything is drawn in a 160 x 90 panel space ---------- */
+function rng(seed) { let s = seed * 2654435761 >>> 0; return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function cr(pts, closed) { // Catmull-Rom resample
+  const out = [], n = pts.length, P = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+  for (let i = 0; i < (closed ? n : n - 1); i++) { const a = P(i - 1), b = P(i), c = P(i + 1), d = P(i + 2);
+    for (let k = 0; k < 8; k++) { const t = k / 8, t2 = t * t, t3 = t2 * t; out.push([0, 1].map(j => .5 * (2 * b[j] + (-a[j] + c[j]) * t + (2 * a[j] - 5 * b[j] + 4 * c[j] - d[j]) * t2 + (-a[j] + 3 * b[j] - 3 * c[j] + d[j]) * t3))); } }
+  out.push(closed ? out[0] : pts[n - 1]); return out;
+}
+const GR = '40,42,46', RED = '176,56,38';
+function kit(cv, seed) {
+  const c = cv.getContext('2d'), S = cv.width / 160, r = rng(seed), J = a => (r() - .5) * a;
+  const P = { c, S, r, J };
+  P.stroke = (pts, o = {}) => { const w = o.w ?? .32, a = o.a ?? .8, n = o.n ?? 2, j = o.j ?? .3;
+    c.lineCap = c.lineJoin = 'round';
+    for (let k = 0; k < n; k++) { c.beginPath(); const ox = J(j), oy = J(j);
+      pts.forEach(([x, y], i) => { const X = (x + ox + J(j * .5)) * S, Y = (y + oy + J(j * .5)) * S; i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+      c.strokeStyle = `rgba(${o.col || GR},${a * (k ? .5 : 1)})`; c.lineWidth = w * S * (k ? .75 : 1); c.stroke(); } };
+  P.curve = (pts, o = {}) => P.stroke(cr(pts, o.closed), o);
+  P.line = (x1, y1, x2, y2, o) => P.stroke([[x1, y1], [(x1 + x2) / 2 + J(.4), (y1 + y2) / 2 + J(.4)], [x2, y2]], o);
+  P.ellPts = (x, y, rx, ry, rot = 0) => { const pts = [], a0 = r() * 6.28; for (let i = 0; i <= 30; i++) { const a = a0 + i / 28 * 6.28, u = Math.cos(a) * rx * (1 + J(.06)), v = Math.sin(a) * ry * (1 + J(.06)); pts.push([x + u * Math.cos(rot) - v * Math.sin(rot), y + u * Math.sin(rot) + v * Math.cos(rot)]); } return pts; };
+  P.ell = (x, y, rx, ry, o = {}) => { const pts = P.ellPts(x, y, rx, ry, o.rot); if (o.fill) P.wash(pts, o.fill, o.fa); if (o.tone) P.tone(pts, o.tone); P.stroke(pts, o); };
+  P.poly = (pts, o = {}) => { const q = o.smooth === false ? [...pts, pts[0]] : cr(pts, true); if (o.fill) P.wash(q, o.fill, o.fa); if (o.tone) P.tone(q, o.tone); if (o.hatch) P.hatch(q, o.hatch); if (o.line !== false) P.stroke(q, o); };
+  P.path = pts => { c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x * S, y * S) : c.moveTo(x * S, y * S)); c.closePath(); };
+  // watercolor wash: a few jittered, low-alpha fills with a darker pooled edge
+  P.wash = (pts, col, a = .22) => { for (let k = 0; k < 3; k++) { c.beginPath(); pts.forEach(([x, y], i) => { const X = (x + J(.9)) * S, Y = (y + J(.9)) * S; i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.closePath(); c.fillStyle = col; c.globalAlpha = a * (k ? .55 : 1); c.fill(); } c.globalAlpha = 1; };
+  P.tone = (pts, a = .25) => { c.save(); P.path(pts); c.fillStyle = `rgba(${GR},${a})`; c.fill(); c.restore(); };
+  // graphite hatching clipped to a shape: o = {ang, gap, a}
+  P.hatch = (pts, o = {}) => { const ang = o.ang ?? .9, gap = o.gap ?? 1.3, a = o.a ?? .45; c.save(); P.path(pts); c.clip();
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, R = Math.hypot(x1 - x0, y1 - y0) / 2 + 2, dx = Math.cos(ang), dy = Math.sin(ang);
+    for (let d = -R; d < R; d += gap) { const px = cx - dy * d, py = cy + dx * d; P.stroke([[px - dx * R, py - dy * R], [px + dx * R, py + dy * R]], { w: .18, a, n: 1, j: .25 }); }
+    c.restore(); };
+  P.rect = (x, y, w, h, o = {}) => P.poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], { smooth: false, ...o });
+  P.arrow = (pts, o = {}) => { const q = cr(pts); P.stroke(q, { col: RED, w: .5, a: .9, ...o }); const [ax, ay] = q[q.length - 3], [bx, by] = q[q.length - 1], an = Math.atan2(by - ay, bx - ax), L = 3.2;
+    P.stroke([[bx - Math.cos(an - .45) * L, by - Math.sin(an - .45) * L], [bx, by], [bx - Math.cos(an + .45) * L, by - Math.sin(an + .45) * L]], { col: RED, w: .5, a: .9 }); };
+  P.frame = (x, y, w, h) => P.stroke([[x, y], [x + w, y], [x + w, y + h], [x, y + h], [x, y]], { col: RED, w: .35, a: .8, n: 1 });
+  P.note = (t, x, y, o = {}) => { c.font = `${(o.size || 3.4) * S}px "IBM Plex Mono", monospace`; c.fillStyle = `rgba(${o.col || RED},.9)`; c.textAlign = o.align || 'left'; c.fillText(t, x * S, y * S); };
+  return P;
+}
+
+/* ---------- props and people ---------- */
+const SEA = '#7fa3ad', SKY = '#c9d6d2', SAND = '#d8c49a', LEAF = '#8ea27a', SKIN = '#b98a68', SKIN2 = '#7d5a43', WOOD = '#9b7a5a', NIGHT = '#33475a', NEWT = '#4c5a4e', RUST = '#b5654a';
+function horizon(P, y, o = {}) { P.line(-2, y, 162, y + (o.tilt || 0), { w: .28 }); if (o.sky) P.wash([[0, 0], [160, 0], [160, y], [0, y]], o.sky, .2); if (o.sea !== false) { P.wash([[0, y], [160, y], [160, 90], [0, 90]], o.seaCol || SEA, o.seaA ?? .22);
+  for (let i = 0; i < (o.waves ?? 14); i++) { const yy = y + 3 + P.r() * (88 - y), xx = P.r() * 150, L = 4 + (yy - y) * .25; P.stroke([[xx, yy], [xx + L / 2, yy - .5], [xx + L, yy]], { w: .2, a: .5, n: 1 }); } } }
+function palm(P, x, y, h, lean = .2) { const top = [x + lean * h, y - h]; P.curve([[x, y], [x + lean * h * .3, y - h * .5], top], { w: .55 });
+  for (let i = 0; i < 6; i++) { const a = -2.9 + i * .55 + P.J(.2), L = h * .38; P.curve([top, [top[0] + Math.cos(a) * L * .6, top[1] + Math.sin(a) * L * .6 - 1], [top[0] + Math.cos(a) * L, top[1] + Math.sin(a) * L + L * .25]], { w: .3 }); }
+  P.ell(top[0], top[1] + 1, 1.6, 1.3, { fill: LEAF, fa: .35, w: .2 }); }
+function island(P, x, y, w, h, palms = 3) { P.curve([[x - w / 2, y], [x - w / 3, y - h * .7], [x, y - h], [x + w / 3, y - h * .8], [x + w / 2, y]], { w: .32 }); P.wash([[x - w / 2, y], [x - w / 3, y - h * .7], [x, y - h], [x + w / 3, y - h * .8], [x + w / 2, y]], LEAF, .3);
+  for (let i = 0; i < palms; i++) palm(P, x - w / 3 + i * w / (palms + .5), y - h * .7 + P.J(1), h * (1.1 + P.r() * .5), P.J(.5)); }
+function ship(P, x, y, s, dir = 1) { const X = u => x + u * s * dir, Y = v => y - v * s;
+  P.poly([[X(-10), Y(2.5)], [X(11), Y(2.5)], [X(9), Y(-.6)], [X(-8), Y(-.6)]], { smooth: false, fill: '#6b6f6e', fa: .3, w: .35 });
+  P.rect(Math.min(X(-4), X(3)), Y(5), 7 * s, 2.5 * s, { w: .3, fill: '#ddd', fa: .3 }); P.rect(Math.min(X(-.6), X(1)), Y(8.5), 1.6 * s, 3.5 * s, { w: .3, fill: RUST, fa: .4 });
+  P.line(X(-6), Y(2.5), X(-6), Y(11), { w: .25 }); P.line(X(7), Y(2.5), X(7), Y(9.5), { w: .25 }); P.line(X(-6), Y(11), X(7), Y(9.5), { w: .15, a: .5 });
+  P.curve([[X(1.2), Y(9)], [X(-2), Y(11.5)], [X(-7), Y(12.5)]], { w: .3, a: .4 }); }
+function rowboat(P, x, y, s, o = {}) { const pts = [[x - 7 * s, y - 1.2 * s], [x + 7 * s, y - 1.6 * s], [x + 5 * s, y + 1.2 * s], [x - 5 * s, y + 1.2 * s]];
+  P.poly(pts, { smooth: false, fill: WOOD, fa: .35, w: .35 }); for (let i = 0; i < (o.crew ?? 3); i++) P.ell(x - 4 * s + i * 3.4 * s, y - 2.6 * s, .9 * s, .9 * s, { w: .25, fill: o.cap && i === 0 ? '#fff' : SKIN, fa: .3 });
+  if (o.oars !== false) { P.line(x - 2 * s, y - 1.5 * s, x - 7 * s, y + 2.5 * s, { w: .25 }); P.line(x + 2 * s, y - 1.5 * s, x + 6.5 * s, y + 2.8 * s, { w: .25 }); } }
+function boulders(P, list) { for (const [x, y, rx, ry] of list) { const pts = P.ellPts(x, y, rx, ry); P.poly(pts.slice(0, -2), { w: .35, fill: '#8d8a80', fa: .3 }); P.hatch(pts.map(([u, v]) => [u + rx * .35, v + ry * .3]), { gap: 1.1, a: .3 }); } }
+function hut(P, x, y, w, h) { P.poly([[x - w / 2, y], [x + w / 2, y], [x + w / 2, y - h * .6], [x - w / 2, y - h * .6]], { smooth: false, w: .3, fill: WOOD, fa: .25 });
+  P.poly([[x - w * .65, y - h * .55], [x + w * .65, y - h * .55], [x, y - h]], { smooth: false, w: .35, hatch: { ang: 1.2, gap: .9, a: .35 } }); }
+function fin(P, x, y, s) { P.poly([[x, y], [x + 1.4 * s, y - 3.4 * s], [x + 2.6 * s, y]], { smooth: false, fill: '#444', fa: .5, w: .3 }); P.stroke([[x - 2 * s, y + .4], [x + 5 * s, y + .4]], { w: .2, a: .6, n: 1 }); }
+function splash(P, x, y, s) { for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * .35; P.curve([[x, y], [x + Math.cos(a) * 2 * s, y + Math.sin(a) * 3 * s], [x + Math.cos(a) * 3.4 * s, y + Math.sin(a) * 3.2 * s + 1]], { w: .22, a: .7 }); } P.ell(x, y + .5, 4 * s, .9 * s, { w: .2, a: .6 }); }
+function motion(P, pts) { for (const [x, y, L] of pts) P.stroke([[x, y], [x - L, y]], { w: .18, a: .6, n: 1 }); }
+// gesture figure: pose in figure units (feet at 0, crown at 1), +x is the way he faces
+const POSE = { head: [0, .9], neck: [0, .8], hip: [0, .46], le: [-.15, .62], lh: [-.16, .44], re: [.15, .62], rh: [.16, .44], lk: [-.06, .23], lf: [-.07, 0], rk: [.06, .23], rf: [.07, 0] };
+function fig(P, x, y, h, pose = {}, o = {}) {
+  const p = { ...POSE, ...pose }, T = ([u, v]) => [x + u * h * (o.dir || 1), y - v * h], sh = o.sh ?? .14, hw = o.hw ?? .1, b = o.belly ?? 0;
+  const n = p.neck, hp = p.hip, ls = [n[0] - sh, n[1] - .03], rs = [n[0] + sh, n[1] - .03], m = [(n[0] + hp[0]) / 2, (n[1] + hp[1]) / 2];
+  const torso = [ls, [m[0] - sh - b * .4, m[1]], [hp[0] - hw, hp[1]], [hp[0] + hw, hp[1]], [m[0] + sh + b, m[1] - .02], rs].map(T);
+  const lw = (o.lw ?? .7) * h / 40, limb = (a, b2, c2) => P.curve([T(a), T(b2), T(c2)], { w: lw, a: .85 });
+  if (!o.noLegs) { limb([hp[0] - hw * .6, hp[1]], p.lk, p.lf); limb([hp[0] + hw * .6, hp[1]], p.rk, p.rf); }
+  limb(ls, p.le, p.lh);
+  P.poly(torso, { w: .38, fill: o.shirt || (o.bare ? SKIN : '#e9e6dc'), fa: o.bare ? .35 : .5, tone: o.dark ? .35 : 0 });
+  if (o.trunks) P.poly([[hp[0] - hw, hp[1] + .03], [hp[0] + hw, hp[1] + .03], [hp[0] + hw * .9, hp[1] - .08], [hp[0] - hw * .9, hp[1] - .08]].map(T), { smooth: false, w: .3, fill: '#eee', fa: .5 });
+  limb(rs, p.re, p.rh);
+  const H = T(p.head), hr = (o.hr ?? .085) * h; P.ell(H[0], H[1], hr, hr * 1.08, { w: .38, fill: o.bare || o.skin ? SKIN : '#e7c9a9', fa: .4, tone: o.dark ? .4 : 0 });
+  P.stroke([[H[0] + hr * .95 * (o.dir || 1), H[1] - hr * .1], [H[0] + hr * 1.25 * (o.dir || 1), H[1] + hr * .2], [H[0] + hr * .9 * (o.dir || 1), H[1] + hr * .3]], { w: .25, n: 1 });
+  if (o.cap) { P.poly([[H[0] - hr * 1.05, H[1] - hr * .35], [H[0] + hr * 1.05, H[1] - hr * .35], [H[0] + hr * .9, H[1] - hr * 1.15], [H[0] - hr * .9, H[1] - hr * 1.1]], { smooth: false, w: .35, fill: '#2f3a4a', fa: .55 });
+    P.stroke([[H[0] - hr * .2 * (o.dir || 1), H[1] - hr * .35], [H[0] + hr * 1.7 * (o.dir || 1), H[1] - hr * .25]], { w: .45 }); }
+  if (o.beard) P.poly([[H[0] - hr * .4, H[1] + hr * .3], [H[0] + hr * .95, H[1] + hr * .3], [H[0] + hr * .5, H[1] + hr * 1.15], [H[0] - hr * .2, H[1] + hr * 1.05]].map(([u, v]) => [u, v]), { w: .25, hatch: { ang: 1.4, gap: .6, a: .5 } });
+  if (o.hair) P.poly([[H[0] - hr * 1.1, H[1] - hr * .1], [H[0] - hr * .6, H[1] - hr * 1.5], [H[0] + hr * .7, H[1] - hr * 1.4], [H[0] + hr * 1.1, H[1] - hr * .3]], { w: .3, hatch: { ang: .4, gap: .7, a: .55 } });
+  return { H, hr, T };
+}
+// a newt ("tapa"): bald round head, pear body, child's hands, fishy tail, sways as it walks
+function newt(P, x, y, h, o = {}) { const d = o.dir || 1, sway = o.sway || 0, T = ([u, v]) => { const uu = u + sway * v; return [x + uu * h * d, y - v * h]; };
+  P.curve([T([-.08, .3]), T([-.35, .18]), T([-.55, .04])], { w: .5 * h / 12, a: .8 });
+  P.poly([T([-.14, .62]), T([-.2, .32]), T([-.08, .08]), T([.1, .08]), T([.17, .34]), T([.12, .62])], { w: .32, fill: o.col || NEWT, fa: o.fa ?? .45, tone: o.dark ?? .2 });
+  P.curve([T([-.06, .1]), T([-.08, -.0])], { w: .4 * h / 12 }); P.curve([T([.06, .1]), T([.09, 0])], { w: .4 * h / 12 });
+  P.curve([T([.1, .55]), T([.25, .42]), T([.3, .3])], { w: .35 * h / 12 });
+  const H = T([.02, .78]); P.ell(H[0], H[1], .19 * h, .17 * h, { w: .35, fill: o.col || NEWT, fa: o.fa ?? .45, tone: o.dark ?? .2 });
+  if (o.eye !== false) { P.ell(H[0] + .09 * h * d, H[1] - .02 * h, .035 * h, .03 * h, { w: .2, fill: '#e8e3c8', fa: .8 }); P.stroke([[H[0] + .05 * h * d, H[1] - .005 * h], [H[0] + .13 * h * d, H[1] - .015 * h]], { w: .2, n: 1 }); }
+}
+// close-up face, three-quarter: o = {cap, beard, brows, mouth:'shut'|'open'|'shout', flush:color, dir}
+function face(P, x, y, r, o = {}) { const d = o.dir || 1;
+  P.ell(x, y, r * .92, r, { w: .45, fill: o.flush || SKIN, fa: o.flush ? .45 : .3 });
+  P.curve([[x + r * .55 * d, y - r * .1], [x + r * 1.02 * d, y + r * .22], [x + r * .62 * d, y + r * .32]], { w: .4 });
+  for (const ex of [.12, .58]) { const ey = y - r * .12; P.ell(x + ex * r * d, ey, r * .1, r * .07, { w: .3 }); P.ell(x + ex * r * d + r * .03 * d, ey, r * .03, r * .03, { w: .3, fill: '#222', fa: .8 }); }
+  if (o.brows !== false) for (const ex of [.12, .6]) { const k = o.brows === 'up' ? -1 : 1; P.poly([[x + (ex - .17) * r * d, y - r * (.3 + .06 * k)], [x + (ex + .15) * r * d, y - r * (.3 - .05 * k)], [x + (ex + .12) * r * d, y - r * .2], [x + (ex - .15) * r * d, y - r * .24]], { smooth: false, w: .3, hatch: { ang: .2, gap: .45, a: .7 } }); }
+  const my = y + r * .55; if (o.mouth === 'open' || o.mouth === 'shout') P.ell(x + r * .4 * d, my, r * (o.mouth === 'shout' ? .28 : .16), r * (o.mouth === 'shout' ? .2 : .12), { w: .35, fill: '#3a1a1a', fa: .6 }); else P.curve([[x + r * .15 * d, my], [x + r * .4 * d, my + r * .04], [x + r * .62 * d, my - r * .02]], { w: .35 });
+  if (o.beard) P.poly([[x - r * .3 * d, y + r * .35], [x + r * .1 * d, y + r * .45], [x + r * .8 * d, y + r * .4], [x + r * .55 * d, y + r * 1.15], [x - r * .05 * d, y + r * 1.05]], { w: .3, hatch: { ang: 1.35, gap: .55, a: .55 } });
+  if (o.cap) { P.poly([[x - r * 1.0, y - r * .45], [x + r * 1.0, y - r * .5], [x + r * .85, y - r * 1.25], [x - r * .85, y - r * 1.2]], { smooth: false, w: .45, fill: '#2f3a4a', fa: .6 }); P.stroke([[x - r * .3 * d, y - r * .45], [x + r * 1.6 * d, y - r * .35]], { w: .6 }); P.ell(x + r * .1 * d, y - r * .85, r * .15, r * .12, { w: .3, fill: '#d9b54a', fa: .6 }); }
+  if (o.hair) P.poly([[x - r * .95, y - r * .2], [x - r * .7, y - r * 1.05], [x + r * .6, y - r * 1.1], [x + r * .95, y - r * .45]], { w: .35, hatch: { ang: .5, gap: .6, a: .6 } });
+}
+function bigPearl(P, x, y, r) { P.ell(x, y, r, r, { w: .35, fill: '#e8d6dc', fa: .55 }); P.ell(x - r * .35, y - r * .35, r * .25, r * .2, { w: .15, fill: '#fff', fa: .9 }); }
+
+/* ---------- the shots ---------- */
+const VT = { cap: true, beard: true, belly: .1, sh: .17, hw: .12, shirt: '#e9e6dc' };
+const SEQS = [
+  { name: 'Off Tana Masa', note: 'The captain, his ship, his grudge' },
+  { name: 'The kampong', note: 'Sea devils and a negotiation' },
+  { name: 'Devil Bay by day', note: 'Two dives' },
+  { name: 'Devil Bay by night', note: 'The eccentricity begins' },
+];
+const SHOTS = [
+  { s: 0, size: 'EWS · insert', move: 'slow push-in', dur: 6, action: 'An old Dutch sea chart. A pencil circles a speck on the equator, west of Sumatra.', who: 'Narrator', line: 'If you were to look for the little island of Tana Masa on a map, you would find it right on the equator a little way west of Sumatra…',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], '#e3d6b4', .35); for (let x = 10; x < 160; x += 22) P.line(x, 0, x, 90, { w: .12, a: .35, n: 1 }); for (let y = 8; y < 90; y += 20) P.line(0, y, 160, y, { w: .12, a: .35, n: 1 });
+      P.poly([[62, 6], [80, 14], [98, 30], [118, 52], [134, 78], [126, 86], [104, 70], [86, 52], [70, 34], [56, 16]], { w: .4, fill: '#c9b98d', fa: .4 }); P.stroke([[0, 46], [40, 46]], { w: .25, a: .7, n: 1 }); for (let x = 44; x < 160; x += 5) P.stroke([[x, 46], [x + 2.5, 46]], { w: .25, a: .7, n: 1 });
+      P.ell(46, 47, 2.2, 1.4, { w: .35, fill: LEAF, fa: .5 }); P.ell(46, 47, 8, 6, { col: RED, w: .45, a: .9 }); P.note('TANA MASA', 34, 60, { col: GR, size: 3.6 }); P.note('EQUATOR', 4, 44, { col: GR, size: 2.6 }); P.note('SUMATRA', 92, 46, { col: GR, size: 3 });
+      P.frame(28, 34, 36, 24); P.arrow([[12, 14], [24, 26], [30, 34]]); } },
+  { s: 0, size: 'WS', move: 'locked off, heat shimmer', dur: 5, action: 'The steamer Kandong Bandoeng sits at anchor off a low green island. Dead calm, white heat.',
+    draw: P => { horizon(P, 52, { sky: SKY }); island(P, 118, 52, 64, 9, 5); ship(P, 54, 56, 1.9); P.stroke([[44, 58], [42, 66]], { w: .2, a: .6 }); for (let i = 0; i < 6; i++) P.curve([[20 + i * 22, 12], [24 + i * 22, 10], [28 + i * 22, 12], [32 + i * 22, 10]], { w: .15, a: .35, n: 1 }); P.ell(140, 16, 7, 7, { w: .2, a: .4, fill: '#f2e7b8', fa: .5 }); } },
+  { s: 0, size: 'MS', move: 'slow dolly in', dur: 14, action: 'Captain J. van Toch at the rail, mopping his neck with a sky-blue handkerchief, grumbling straight into the lens as if we had asked him.', who: 'Van Toch', line: '“Those fellows of ours in Amsterdam… pearls, they say, man, look around for some pearls.”',
+    draw: P => { horizon(P, 40, { sky: SKY, waves: 8 }); P.line(0, 66, 160, 64, { w: .5 }); P.line(0, 70, 160, 68, { w: .35 }); for (let x = 6; x < 160; x += 14) P.line(x, 64.5, x, 90, { w: .3 }); P.line(130, 0, 132, 64, { w: .3 }); P.line(132, 6, 160, 30, { w: .15, a: .5 });
+      const f = fig(P, 72, 150, 150, { re: [.2, .74], rh: [.1, .88], lh: [-.12, .5] }, { ...VT, dir: 1 }); P.ell(f.T([.1, .88])[0] + 2, f.T([.1, .88])[1] + 3, 4, 3, { w: .3, fill: '#7fb3e0', fa: .7 }); P.arrow([[22, 82], [30, 78], [38, 76]]); P.note('IN', 22, 88); } },
+  { s: 0, size: 'CU', move: 'static', dur: 4, action: 'He spits over the rail in disgust.', who: 'Van Toch', line: '“Sure, investing their cash in pearls! … And they call it a crisis, sir.”',
+    draw: P => { horizon(P, 50, { waves: 6 }); face(P, 54, 44, 24, { cap: true, beard: true, mouth: 'open', dir: 1 }); P.curve([[78, 58], [96, 52], [114, 60], [124, 76]], { w: .25, a: .6 }); P.ell(124, 77, 1.2, .8, { w: .25 }); P.line(0, 80, 160, 78, { w: .5 }); } },
+  { s: 0, size: 'MS', move: 'static', dur: 4, action: 'The two Sinhalese pearl divers sit idle on a hatch cover, hands on their own shoulders.', who: 'Van Toch (off)', line: '“The smaller scoundrel dives up to eighty meters… but pearls, no way!”',
+    draw: P => { P.line(0, 62, 160, 60, { w: .4 }); P.rect(30, 62, 100, 10, { w: .4, fill: WOOD, fa: .25 }); for (const [x, h] of [[62, 62], [98, 50]]) fig(P, x, 64, h, { hip: [0, .2], lk: [.2, .22], lf: [.22, -.1], rk: [.26, .2], rf: [.28, -.1], le: [.18, .62], lh: [-.08, .74], re: [-.16, .62], rh: [.1, .76] }, { bare: true, trunks: true, hair: true, sh: .11, hw: .09 });
+      P.rect(6, 40, 18, 22, { w: .35, fill: WOOD, fa: .3 }); P.line(6, 51, 24, 51, { w: .2 }); } },
+  { s: 0, size: 'WS · high', move: 'tilt down with the boat', dur: 5, action: 'From the deck: van Toch, sighing and cursing, is rowed to the kampong. Huts on stilts, palms, a corrugated-iron roof.',
+    draw: P => { horizon(P, 22, { sky: SKY, waves: 18 }); P.wash([[0, 22], [160, 22], [160, 30], [0, 30]], SAND, .4); for (const x of [96, 112, 128, 146]) hut(P, x, 26, 10, 9); P.rect(78, 18, 14, 6, { w: .3, hatch: { ang: 0, gap: .8, a: .4 } }); for (const x of [10, 30, 60, 152]) palm(P, x, 26, 14, P.J(.6));
+      rowboat(P, 70, 60, 1.6, { cap: true }); P.stroke([[58, 66], [50, 74], [40, 82]], { w: .2, a: .5 }); P.line(0, 86, 160, 84, { w: .5 }); P.arrow([[150, 40], [150, 56], [146, 66]]); P.note('TILT', 136, 38); } },
+
+  { s: 1, size: 'MS', move: 'static', dur: 6, action: 'Under a corrugated-iron veranda, the drunken agent pours palm wine. Scrawny yellow hens peck in the yard.', who: 'Agent', line: '“Sorry, Captain, but here on Tana Masa no shells grow.”',
+    draw: P => { P.poly([[0, 8], [160, 4], [160, 14], [0, 18]], { smooth: false, w: .4, hatch: { ang: 1.57, gap: 1.6, a: .4 } }); P.line(20, 18, 20, 90, { w: .5 }); P.line(140, 13, 140, 90, { w: .5 }); P.rect(46, 60, 64, 4, { w: .4, fill: WOOD, fa: .3 });
+      fig(P, 46, 96, 70, { hip: [0, .5], le: [.22, .55], lh: [.36, .5], rh: [.32, .46] }, { ...VT, dir: 1 }); fig(P, 108, 92, 64, { le: [-.1, .66], lh: [-.24, .72], re: [-.2, .64], rh: [-.32, .7] }, { dir: -1, skin: true, hair: true, shirt: '#e6e2d2' });
+      P.rect(80, 54, 3, 6, { w: .3 }); P.curve([[88, 44], [86, 50], [82, 55]], { w: .2, a: .6 }); for (const x of [28, 128, 150]) { P.ell(x, 84, 3, 2, { w: .3, fill: '#e1c45a', fa: .5 }); P.ell(x + 2.5, 81.5, 1.1, 1.1, { w: .3 }); } } },
+  { s: 1, size: 'OTS · CU', move: 'slow push on the agent', dur: 9, action: 'Over the captain\'s shoulder. The agent lowers his voice and won\'t meet his eye.', who: 'Agent', line: '“There are devils there, sir. Sea devils. The Bataks call it tapa.”',
+    draw: P => { P.poly([[0, 90], [0, 30], [16, 18], [44, 22], [56, 50], [62, 90]], { w: .5, tone: .55 }); P.poly([[4, 26], [14, 10], [42, 12], [48, 26]], { smooth: false, w: .4, tone: .65 });
+      face(P, 104, 44, 22, { hair: true, brows: 'up', mouth: 'open', dir: -1 }); P.line(70, 0, 70, 90, { w: .25, a: .4 }); P.arrow([[146, 80], [138, 74], [130, 70]]); } },
+  { s: 1, size: 'WS · flashback', move: 'static, then the eye', dur: 6, action: 'Memory, at night: the agent rowing home drunk. A big bald head rises out of the black water in front of him and blinks with its lower eyelids.', who: 'Agent', line: '“It has a noggin like a Batak, sir, but completely bald… it blinked at me with its lower eyelids.”',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], NIGHT, .45); horizon(P, 40, { seaCol: '#1f2e3a', seaA: .3, waves: 10 }); P.ell(28, 14, 5, 5, { w: .3, fill: '#f0ead0', fa: .7 }); rowboat(P, 40, 58, 1.2, { crew: 1 });
+      P.ell(108, 50, 15, 13, { w: .45, fill: NEWT, fa: .6, tone: .3 }); P.stroke([[92, 54], [124, 54]], { w: .3 }); P.ell(114, 47, 4, 2.6, { w: .35, fill: '#e8e3c8', fa: .85 }); P.poly([[110, 48.6], [118, 48.6], [118, 46.4], [110, 46.8]], { smooth: false, w: .3, fill: NEWT, fa: .9 }); for (let i = 0; i < 4; i++) P.ell(108, 58, 18 + i * 5, 2 + i, { w: .2, a: .4 }); } },
+  { s: 1, size: 'CU', move: 'static', dur: 6, action: 'Van Toch turns the glass in his thick fingers, then slaps the table with his palm.', who: 'Van Toch', line: '“Man, there are no devils. And if there were, they would have to look like Europeans.”',
+    draw: P => { face(P, 62, 36, 24, { cap: true, beard: true, dir: 1 }); P.rect(0, 70, 160, 20, { w: .4, fill: WOOD, fa: .3 }); P.ell(108, 66, 10, 4, { w: .45, fill: SKIN, fa: .4 }); for (let i = 0; i < 5; i++) { const a = -2.6 + i * .35; P.line(108 + Math.cos(a) * 12, 64 + Math.sin(a) * 8, 108 + Math.cos(a) * 18, 64 + Math.sin(a) * 12, { w: .3 }); }
+      P.rect(128, 54, 7, 14, { w: .35 }); P.wash([[129, 60], [134, 60], [134, 67], [129, 67]], '#d8c87a', .6); } },
+  { s: 1, size: 'WS', move: 'slow pan right along the village', dur: 7, action: 'The mayor, naked, elderly and thin, squats chewing sugar cane. Behind him at a proper distance the whole village squats too, waiting as if to be filmed.', who: 'Van Toch', line: '“Now listen here, boy, I would need a few big, strong, brave fellows to go hunting with me.”',
+    draw: P => { P.wash([[0, 40], [160, 40], [160, 90], [0, 90]], SAND, .35); for (const x of [36, 70, 104, 138]) hut(P, x, 40, 16, 16); palm(P, 12, 44, 30, .2); palm(P, 152, 44, 28, -.3);
+      for (let row = 0; row < 2; row++) for (let i = 0; i < 9; i++) { const x = 60 + i * 10 + row * 5, y = 56 + row * 6; fig(P, x, y, 9, { hip: [0, .25], lk: [.12, .3], lf: [.1, 0], rk: [.18, .28], rf: [.16, 0], lh: [.14, .4], rh: [.18, .42] }, { bare: true, dir: -1, lw: 1.2 }); }
+      fig(P, 52, 80, 22, { hip: [0, .25], lk: [.14, .32], lf: [.12, 0], rk: [.2, .3], rf: [.18, 0], le: [.16, .56], lh: [.2, .78], rh: [.2, .46] }, { bare: true, dir: -1 }); P.line(43, 62, 48, 64, { w: .5, col: '90,120,60' });
+      fig(P, 18, 92, 62, {}, { ...VT, dir: 1 }); P.arrow([[100, 84], [124, 84], [146, 83]]); P.note('PAN', 104, 81); } },
+  { s: 1, size: 'CU ×3', move: 'three hard cuts', dur: 10, action: 'Every round of haggling turns him a new color: red, purple, blue. It ends with the mayor holding up a petrol lighter as the fine.', who: 'Agent', line: '“They say, sir, that they will go to Padang to complain to the police… Offer them five.”',
+    draw: P => { const cols = ['#d46a55', '#8d5a9a', '#5a76b8']; for (let i = 0; i < 3; i++) { const x0 = 3 + i * 52; P.rect(x0, 6, 50, 70, { w: .4 }); face(P, x0 + 22, 42, 15 + i * 2, { cap: true, beard: true, mouth: i ? 'shout' : 'open', flush: cols[i], dir: 1 }); }
+      P.note('RED', 6, 84, { col: GR, size: 3 }); P.note('PURPLE', 58, 84, { col: GR, size: 3 }); P.note('BLUE', 110, 84, { col: GR, size: 3 }); P.rect(140, 64, 6, 9, { w: .35, fill: '#aaa', fa: .5 }); P.curve([[143, 63], [142, 60], [144, 57]], { w: .3, col: '200,120,40' }); } },
+
+  { s: 2, size: 'WS', move: 'static', dur: 6, action: 'Low tide in Devil Bay. The captain stands on the boulders with his watch. The crew\'s boat keeps watch for sharks a hundred meters out. Two divers wait with knives.', who: 'Van Toch', line: '“Right, now you.”',
+    draw: P => { horizon(P, 34, { sky: SKY }); P.curve([[0, 34], [30, 30], [60, 36]], { w: .3 }); P.curve([[110, 36], [140, 28], [160, 30]], { w: .3 }); palm(P, 146, 31, 14, -.2); rowboat(P, 92, 42, .9, { crew: 4 });
+      boulders(P, [[16, 78, 18, 10], [46, 84, 16, 8], [126, 80, 24, 11], [150, 66, 12, 7]]); fig(P, 40, 76, 34, { re: [.16, .66], rh: [.2, .66] }, { ...VT, dir: 1 }); for (const [x, h] of [[70, 32], [84, 26]]) fig(P, x, 72, h, { rh: [.18, .5] }, { bare: true, trunks: true, hair: true, dir: -1, sh: .11, hw: .08 }); } },
+  { s: 2, size: 'WS · underwater', move: 'follow him down', dur: 5, action: 'The taller diver sinks through green water toward a bank of shells among the stones.',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], '#5f8c80', .35); for (let i = 0; i < 6; i++) P.stroke([[30 + i * 22, 0], [10 + i * 26, 90]], { w: 2.5, a: .06, n: 1, col: '255,255,255' }); P.curve([[0, 4], [40, 2], [80, 5], [120, 2], [160, 4]], { w: .3, a: .6 });
+      fig(P, 76, 22, 34, { head: [0, .1], neck: [0, .2], hip: [0, .5], le: [-.15, .1], lh: [-.1, -.06], re: [.15, .1], rh: [.1, -.06], lk: [-.06, .75], lf: [-.12, .98], rk: [.08, .76], rf: [.12, 1] }, { bare: true, trunks: true, dir: 1, sh: .11, hw: .08 }); for (let i = 0; i < 6; i++) P.ell(80 + P.J(6), 16 - i * 3, .7, .7, { w: .2 });
+      boulders(P, [[30, 84, 26, 9], [92, 88, 30, 8], [148, 82, 20, 10]]); for (let i = 0; i < 10; i++) P.ell(50 + i * 7 + P.J(3), 79 + P.J(2), 2.2, 1.3, { w: .3, fill: '#c7b9a6', fa: .5 }); P.arrow([[100, 20], [104, 40], [100, 56]]); } },
+  { s: 2, size: 'ECU · insert', move: 'static', dur: 3, action: 'The captain\'s watch. Four minutes, twenty seconds.',
+    draw: P => { P.ell(80, 45, 30, 30, { w: .7, fill: '#d8c48a', fa: .35 }); P.ell(80, 45, 25, 25, { w: .35, fill: '#f6f1e2', fa: .6 }); for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283; P.line(80 + Math.sin(a) * 21, 45 - Math.cos(a) * 21, 80 + Math.sin(a) * 24, 45 - Math.cos(a) * 24, { w: .35 }); }
+      P.line(80, 45, 80 + Math.sin(2.1) * 19, 45 - Math.cos(2.1) * 19, { w: .6 }); P.line(80, 45, 80 + Math.sin(.42) * 14, 45 - Math.cos(.42) * 14, { w: .8 }); P.rect(76, 8, 8, 7, { w: .4 }); P.poly([[110, 90], [104, 64], [124, 56], [150, 90]], { w: .4, fill: SKIN, fa: .35 }); } },
+  { s: 2, size: 'MS', move: 'handheld', dur: 6, action: 'Sixty meters off, the diver breaks the surface and scrambles up the boulders in paralyzed haste, a knife in one hand and an oyster in the other.', who: 'Diver', line: '“Djins! Devils, sir. Thousands, thousands of devils!”',
+    draw: P => { horizon(P, 30, { waves: 6 }); boulders(P, [[40, 74, 34, 14], [110, 80, 34, 12], [150, 60, 14, 9]]); fig(P, 62, 72, 44, { head: [.18, .62], neck: [.12, .56], hip: [-.08, .36], le: [.32, .62], lh: [.44, .72], re: [.26, .3], rh: [.42, .2], lk: [.06, .1], lf: [-.04, -.02], rk: [-.26, .2], rf: [-.36, .02] }, { bare: true, trunks: true, hair: true, dir: 1 });
+      P.ell(87, 40, 2.6, 1.6, { w: .3, fill: '#c7b9a6', fa: .6 }); splash(P, 50, 76, 1.4); fig(P, 150, 100, 54, {}, { ...VT, dir: -1, noLegs: true }); motion(P, [[40, 40, 10], [36, 46, 8]]); } },
+  { s: 2, size: 'ECU · insert', move: 'static', dur: 4, action: 'His knife pries the shell. Inside: a pearl like a pea, round as a drop of mercury.',
+    draw: P => { P.poly([[36, 52], [70, 22], [116, 30], [132, 60], [90, 74]], { w: .5, fill: '#b8ab95', fa: .4 }); P.poly([[40, 56], [92, 76], [130, 64], [126, 84], [70, 88]], { w: .5, fill: '#9d917c', fa: .35 }); bigPearl(P, 88, 56, 7);
+      P.poly([[134, 10], [160, 2], [160, 14], [104, 46], [100, 42]], { smooth: false, w: .4, fill: '#ccd', fa: .5 }); P.poly([[0, 70], [30, 58], [44, 66], [12, 90], [0, 90]], { w: .4, fill: SKIN, fa: .35 }); } },
+  { s: 2, size: 'WS · underwater', move: 'slow circle around him', dur: 9, action: 'The second dive. Sixteen meters down the little diver cuts at shells. A touch on his back like small cold fingers. He turns: hundreds of them stand on the stones in a ring, watching.', who: 'Diver (later)', line: '“Like little children. They have a tail, sir… There was a whole circle of them.”',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], '#3f6b63', .45); for (let i = 0; i < 5; i++) P.stroke([[40 + i * 20, 0], [30 + i * 24, 60]], { w: 3, a: .05, n: 1, col: '255,255,255' }); boulders(P, [[80, 88, 70, 8]]);
+      const ring = [[22, 70, 12], [38, 62, 10], [56, 58, 9], [104, 58, 9], [122, 62, 10], [140, 70, 12], [10, 52, 8], [150, 52, 8], [70, 54, 7], [90, 54, 7]]; for (const [x, y, h] of ring) newt(P, x, y, h * 1.6, { dir: x < 80 ? 1 : -1, dark: .35, sway: P.J(.2) });
+      fig(P, 82, 80, 30, { hip: [0, .3], lk: [.18, .3], lf: [.2, 0], rk: [-.1, .25], rf: [-.18, 0], le: [.2, .55], lh: [.32, .38], re: [.18, .5], rh: [.3, .36] }, { bare: true, trunks: true, hair: true, dir: 1, sh: .11, hw: .08 });
+      newt(P, 66, 82, 20, { dir: 1, sway: .15, dark: .45 }); P.ell(74, 66, 3, 3, { col: RED, w: .35 }); P.note('touch', 72, 61); P.arrow([[20, 22], [80, 12], [140, 22]]); P.note('ORBIT', 70, 9); } },
+  { s: 2, size: 'MS', move: 'whip-pan with him', dur: 5, action: 'Hands grope at the rocks. The two-hundred-pound captain bounds across the boulders, catches one wrist at the last moment, and hauls the boy out.',
+    draw: P => { horizon(P, 26, { waves: 6 }); boulders(P, [[30, 80, 30, 12], [92, 76, 22, 10], [142, 82, 24, 10]]); fig(P, 78, 64, 46, { head: [.22, .84], neck: [.16, .76], hip: [0, .46], re: [.34, .56], rh: [.5, .44], le: [-.2, .74], lh: [-.34, .84], lk: [.2, .3], lf: [.14, .08], rk: [-.24, .26], rf: [-.42, .2] }, { ...VT, dir: 1 });
+      P.ell(104, 48, 2.5, 2, { w: .35, fill: SKIN, fa: .5 }); P.curve([[104, 50], [108, 58], [110, 66]], { w: .7 }); splash(P, 112, 68, 1.6); motion(P, [[54, 40, 16], [52, 48, 14], [56, 56, 12]]); P.arrow([[24, 16], [70, 12], [120, 16]]); } },
+  { s: 2, size: 'MS · insert', move: 'static', dur: 6, action: 'His cabin. Two pearls rolled out of a paper bag: one like a grain of sand, one like a pea, silver and pink. He takes out the Irish whisky.',
+    draw: P => { P.ell(132, 24, 12, 12, { w: .6 }); P.ell(132, 24, 9, 9, { w: .3, fill: SEA, fa: .3 }); P.rect(0, 56, 160, 34, { w: .4, fill: WOOD, fa: .3 }); P.poly([[24, 58], [50, 52], [56, 70], [28, 74]], { w: .35, fill: '#e3d7b9', fa: .5 }); bigPearl(P, 78, 66, 3); bigPearl(P, 92, 68, .9);
+      P.rect(108, 26, 12, 32, { w: .45, fill: '#8a6a3a', fa: .35 }); P.rect(111, 18, 6, 8, { w: .35 }); P.poly([[0, 90], [0, 64], [16, 60], [30, 78], [24, 90]], { w: .4, fill: SKIN, fa: .35 }); } },
+
+  { s: 3, size: 'MS', move: 'static', dur: 7, action: 'Dusk on the agent\'s veranda. Bloodshot, the captain hitches up his trousers and jabs a finger at the sky.', who: 'Van Toch', line: '“Hey, where is the damned northwest around here?” · “Where are you going, sir?” · “To hell. To have a look at Devil Bay.”',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], '#d9a77a', .3); P.poly([[0, 6], [160, 2], [160, 12], [0, 16]], { smooth: false, w: .4, hatch: { ang: 1.57, gap: 1.6, a: .4 } }); P.line(14, 16, 14, 90, { w: .5 });
+      fig(P, 58, 94, 76, { re: [.16, .82], rh: [.2, 1.02], lh: [-.1, .46] }, { ...VT, dir: 1 }); fig(P, 116, 92, 62, { re: [.1, .72], rh: [-.2, .82] }, { dir: -1, skin: true, hair: true }); P.stroke([[60, 92], [130, 86]], { w: 2.5, a: .12, n: 1 }); } },
+  { s: 3, size: 'WS', move: 'static', dur: 6, action: 'Sunset turns the sea red and gold. Jensen and Gudmundson hide their boat behind the boulders. Fins, sharp as small scythes, slide into the bay.', who: 'Jensen', line: '“Goddamn, there are a lot of sharks here.”',
+    draw: P => { horizon(P, 40, { sky: '#e0b07a', seaCol: '#c9876a', seaA: .25 }); P.ell(118, 38, 10, 10, { w: .3, fill: '#f0c060', fa: .6 }); for (let i = 0; i < 5; i++) P.stroke([[96, 44 + i * 4], [140, 44 + i * 4]], { w: .2, a: .4, n: 1 });
+      for (const [x, y, s] of [[70, 52, 1], [90, 48, .8], [104, 56, 1.2], [130, 52, .9], [56, 60, 1.3]]) fin(P, x, y, s); boulders(P, [[22, 80, 30, 14], [70, 88, 20, 6]]); rowboat(P, 30, 66, 1.4, { crew: 2, oars: false }); P.arrow([[150, 70], [120, 66], [94, 64]]); } },
+  { s: 3, size: 'WS · POV', move: 'locked off from the boat', dur: 12, action: 'Moonlight, half a furlong off. The captain sits on a boulder going ts-ts-ts, throwing them something. Shapes come out of the water between the stones and waddle around him like penguins.',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], NIGHT, .45); P.ell(124, 14, 6, 6, { w: .3, fill: '#efe8cc', fa: .75 }); horizon(P, 34, { seaCol: '#22313d', seaA: .25 }); P.stroke([[124, 36], [124, 60]], { w: 2, a: .12, n: 1, col: '255,255,240' });
+      boulders(P, [[78, 62, 36, 9]]); fig(P, 78, 60, 26, { hip: [0, .3], lk: [.18, .3], lf: [.18, 0], rk: [.12, .28], rf: [.1, 0], re: [.2, .58], rh: [.34, .64] }, { ...VT, dir: 1, dark: true });
+      for (const [x, y, h, d] of [[48, 64, 12, 1], [58, 68, 11, 1], [102, 64, 12, -1], [114, 68, 11, -1], [92, 70, 10, -1], [36, 70, 10, 1], [126, 62, 9, -1]]) newt(P, x, y, h, { dir: d, sway: d * .18, dark: .5, eye: false });
+      P.poly([[0, 90], [0, 78], [60, 84], [160, 80], [160, 90]], { w: .5, fill: WOOD, fa: .5, tone: .4 }); P.line(110, 82, 144, 60, { w: .9 }); } },
+  { s: 3, size: 'CU', move: 'static', dur: 2, action: 'Jensen\'s raised oar slips from his hand and slaps the water.',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], NIGHT, .4); horizon(P, 50, { seaCol: '#22313d', seaA: .3 }); P.line(30, 6, 96, 58, { w: 2 }); P.poly([[90, 52], [104, 58], [100, 66], [86, 60]], { w: .4, fill: WOOD, fa: .5 }); splash(P, 98, 62, 2.4); P.poly([[0, 90], [0, 70], [40, 66], [50, 90]], { w: .4, fill: SKIN, fa: .35, tone: .3 }); } },
+  { s: 3, size: 'MS', move: 'static', dur: 4, action: 'The captain stands, takes thirty paces to the water and fires his Browning at the boat. The whole bay explodes in swirls and slaps as a thousand somethings dive.',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], NIGHT, .45); horizon(P, 40, { seaCol: '#22313d', seaA: .3 }); fig(P, 70, 100, 76, { re: [.16, .8], rh: [.26, .82], lh: [-.14, .46] }, { ...VT, dir: 1, noLegs: true, dark: true });
+      const fx = 96, fy = 20; for (let i = 0; i < 10; i++) { const a = i / 10 * 6.28; P.line(fx + Math.cos(a) * 2, fy + Math.sin(a) * 2, fx + Math.cos(a) * (6 + (i % 2) * 5), fy + Math.sin(a) * (6 + (i % 2) * 5), { w: .4, col: '210,160,60' }); }
+      for (const [x, y] of [[20, 52], [36, 60], [120, 50], [140, 58], [128, 70], [10, 66]]) splash(P, x, y, 1); } },
+  { s: 3, size: 'CU · two-shot', move: 'static', dur: 8, action: 'Dawn at the ship\'s ladder. Jensen helps him aboard. Two pairs of blue eyes meet, cold and searching.', who: 'Van Toch / Jensen', line: '“Jensen.” “Yes, sir.” “We sail today.” “Yes, sir.” “In Surabaya you will get your book.” “Yes, sir.”',
+    draw: P => { P.wash([[0, 0], [160, 0], [160, 90], [0, 90]], '#e8c9a8', .3); face(P, 46, 50, 26, { cap: true, beard: true, dir: 1 }); face(P, 116, 40, 25, { hair: true, dir: -1 }); for (const [x, y] of [[54, 45], [62, 45], [108, 35], [100, 35]]) P.ell(x, y, 1.6, 1.2, { w: .2, fill: '#5d8fc8', fa: .8 }); P.line(150, 0, 146, 90, { w: .5 }); } },
+  { s: 3, size: 'MS', move: 'slow push-in', dur: 6, action: 'Padang harbor. A Dayak from Borneo the English hire to hunt sharks with only a long knife: skin scraped raw by shark hide, shark teeth through his nose and ears. Five pounds a shark. They call him Shark.', who: 'Narrator', line: '“With this Dayak, Captain J. van Toch moved to the island of Tana Masa.”',
+    draw: P => { P.line(0, 54, 160, 54, { w: .3 }); ship(P, 128, 50, 1.3, -1); for (let x = 0; x < 160; x += 16) P.line(x, 60, x + 6, 90, { w: .25, a: .5 });
+      const f = fig(P, 78, 96, 84, { le: [-.16, .58], lh: [-.18, .4], re: [.18, .58], rh: [.22, .4] }, { bare: true, trunks: true, hair: true, dir: 1, sh: .15 }); P.line(f.T([.22, .4])[0], f.T([.22, .4])[1], f.T([.2, .02])[0], f.T([.2, .02])[1], { w: .5 });
+      P.hatch([f.T([-.2, .74]), f.T([.2, .74]), f.T([.16, .5]), f.T([-.16, .5])], { ang: .3, gap: .7, a: .5 }); for (const k of [-1, 1]) { const H = f.H; P.poly([[H[0] + k * f.hr, H[1]], [H[0] + k * f.hr * 1.15, H[1] + 2.5], [H[0] + k * f.hr * .85, H[1] + 1]], { smooth: false, w: .3 }); }
+      fig(P, 18, 96, 62, {}, { ...VT, dir: 1 }); P.arrow([[140, 82], [128, 78], [116, 76]]); } },
+];
+
+/* ---------- render ---------- */
+const totalSec = SHOTS.reduce((s, x) => s + x.dur, 0);
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+void`<span><b>${SHOTS.length}</b> shots</span><span><b>${SEQS.length}</b> sequences</span><span>about <b>${fmt(totalSec)}</b> running time</span><span>average shot <b>${(totalSec / SHOTS.length).toFixed(1)} s</b></span>`;
+const boards = document.getElementById('boards');
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+SEQS.forEach((q, si) => {
+  const shots = SHOTS.map((s, i) => ({ ...s, n: i + 1 })).filter(s => s.s === si), secs = shots.reduce((a, s) => a + s.dur, 0);
+  const sec = document.createElement('section'); sec.className = 'seq';
+  sec.innerHTML = `<div class="seq-head"><h2>${esc(q.name)}</h2><span class="eyebrow">Shots ${shots[0].n}–${shots[shots.length - 1].n} · ${fmt(secs)}</span></div><div class="grid"></div>`;
+  const grid = sec.querySelector('.grid');
+  for (const s of shots) {
+    const f = document.createElement('figure'); f.id = `shot-${s.n}`;
+    f.innerHTML = `<div class="meta"><span class="num">${String(s.n).padStart(2, '0')}</span><span class="size">${esc(s.size)}</span><span class="move">${esc(s.move)}</span><span class="dur">${s.dur}s</span></div>
+      <img src="panels/p${String(s.n).padStart(2, '0')}.jpg" alt="Storyboard panel for shot ${s.n}: ${esc(s.action)}" loading="lazy" width="1600" height="900">
+      <figcaption><p class="action">${esc(s.action)}</p>${s.line ? `<p class="line"><span class="who">${esc(s.who || '')}</span>${esc(s.line)}</p>` : ''}</figcaption>`;
+    grid.appendChild(f);
+  }
+  boards.appendChild(sec);
+});
+/* ---------- characters tab ---------- */
+const CHARS = [
+  ['vantoch', 'Captain J. van Toch', 'Heavy Dutch sea captain, about two hundred pounds. Grizzled grey beard, pale blue eyes, white cap and buttoned white tropical jacket.'],
+  ['agent', 'The agent', 'Thin, stubbled trading-post agent on Tana Masa. Bloodshot eyes, grubby singlet, checked sarong, never far from the palm wine.'],
+  ['tall-diver', 'The tall diver', 'Lean Sinhalese pearl diver. Goes down first and comes up shouting "Djins!"'],
+  ['small-diver', 'The small diver', 'Shorter, wiry Sinhalese diver in his thirties: cropped hair, thin moustache, indigo loincloth, shell beads. Dives deep and meets the ring of newts.'],
+  ['jensen', 'Jensen', 'Tall, taciturn Scandinavian sailor in a striped shirt. Watches the captain from the boat at night.'],
+  ['gudmundson', 'Gudmundson', 'Stocky Icelandic sailor with a ginger beard and knitted cap. Jensen\'s partner in the boat.'],
+  ['mayor', 'The mayor', 'Elderly, thin village headman with a stick of sugar cane. Haggles the captain into every colour.'],
+  ['shark', 'Shark', 'Dayak shark hunter from Borneo, hired in Padang. Scars from shark hide, shark teeth through ears and nose.'],
+  ['newt', 'The newt', 'Black felt, child height, big round bald head, dark bead eyes, long finless tail. Blinks with its lower eyelids.'],
+];
+const EMOS = ['neutral', 'happy', 'sad', 'angry', 'surprised', 'afraid', 'disgusted', 'suspicious'];
+const charsEl = document.getElementById('chars'), filtersEl = document.getElementById('filters');
+for (const [id, name, desc] of CHARS) {
+  const sec = document.createElement('section'); sec.className = 'char'; sec.id = `char-${id}`;
+  sec.innerHTML = `<div class="seq-head"><h2>${esc(name)}</h2></div><p>${esc(desc)}</p>
+    <figure class="turn"><img src="chars/${id}-turn.jpg" alt="${esc(name)} turnaround: front, three-quarter, side and back" loading="lazy" width="1600" height="900"></figure>
+    <div class="emos">${EMOS.map(e => `<figure data-emo="${e}"><img src="chars/${id}-${e}.jpg" alt="${esc(name)}, ${e}" loading="lazy" width="560" height="560"><span class="tag">${e}</span></figure>`).join('')}</div>`;
+  charsEl.appendChild(sec);
+}
+filtersEl.innerHTML = ['all', ...EMOS].map(e => `<button type="button" data-emo="${e}" aria-pressed="${e === 'all'}">${e}</button>`).join('');
+filtersEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const emo = b.dataset.emo;
+  filtersEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  charsEl.classList.toggle('only', emo !== 'all');
+  charsEl.querySelectorAll('.emos figure').forEach(f => { f.hidden = emo !== 'all' && f.dataset.emo !== emo; });
+});
+/* tabs: remembered in the URL hash */
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function showTab(btn, focus) {
+  for (const t of tabs) { const on = t === btn; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; document.getElementById(t.getAttribute('aria-controls')).hidden = !on; }
+  if (focus) btn.focus();
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => { showTab(t); history.replaceState(null, '', t.id === 't-chars' ? '#characters' : location.pathname + location.search); });
+  t.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (d) { const n = tabs[(i + d + tabs.length) % tabs.length]; showTab(n, true); n.click(); } });
+});
+if (location.hash === '#characters' || location.hash.startsWith('#char-')) showTab(tabs[1]);
+/* click any image to view it large */
+const dlg = document.createElement('dialog'), big = document.createElement('img'); dlg.appendChild(big); document.body.appendChild(dlg);
+dlg.addEventListener('click', () => dlg.close());
+document.addEventListener('click', e => { const im = e.target.closest('figure img'); if (!im) return; big.src = im.src; big.alt = im.alt; dlg.showModal(); });
+</script>
+
+</body>
+</html>
