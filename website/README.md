@@ -31,6 +31,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Production uses the `azalea-website` Vercel project, root directory `website`,
+and Git pushes to `main`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Follow the [production deployment instructions](../CLAUDE.md#production-deployments),
+including verification that `azalea-labs.com`, `www.azalea-labs.com`, and
+`publishing.azalea-labs.com` all follow the new deployment. Do not manually
+assign these custom domains with `vercel alias set`. Promotion and Instant
+Rollback are reserved for intentional release selection or recovery.
