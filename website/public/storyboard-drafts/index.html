@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <base href="/storyboard-drafts/">
-<title>Storyboard Drafts</title>
+<title>War with the Newts, Chapter 1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a production storyboard sheet — header, compact shot list, then sequences of numbered panels with notes beneath */
@@ -103,7 +103,8 @@ footer { color: var(--muted); font-size: 13px; max-width: 70ch; border-top: 1px 
 
 <div class="wrap">
   <header>
-    <h1>War with the Newts<em>The Eccentricity of Captain Van Toch</em></h1>
+    <h1>War with the Newts, Chapter 1</h1>
+    <div class="facts" id="facts"></div>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Page sections">
@@ -349,7 +350,7 @@ const SHOTS = [
 /* ---------- render ---------- */
 const totalSec = SHOTS.reduce((s, x) => s + x.dur, 0);
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
-void`<span><b>${SHOTS.length}</b> shots</span><span><b>${SEQS.length}</b> sequences</span><span>about <b>${fmt(totalSec)}</b> running time</span><span>average shot <b>${(totalSec / SHOTS.length).toFixed(1)} s</b></span>`;
+document.getElementById('facts').innerHTML = `<span>Estimated runtime <b>${fmt(totalSec)}</b></span><span><b>${SHOTS.length}</b> shots</span>`;
 const boards = document.getElementById('boards');
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 SEQS.forEach((q, si) => {
