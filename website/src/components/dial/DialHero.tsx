@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
-  Datamosh,
+  ContinuousSweep,
   DEFAULT_DIAL_SETTINGS,
   type DialSettings,
 } from "./dial-engine";
@@ -41,7 +42,7 @@ const CONTROLS: Control[] = [
   },
   {
     key: "perspective",
-    label: "Column spread",
+    label: "Sweep curve",
     min: 1,
     max: 2,
     step: 0.05,
@@ -57,15 +58,6 @@ const CONTROLS: Control[] = [
     format: (value) => `${value.toFixed(2)} sec`,
   },
   {
-    key: "cols",
-    label: "Segments",
-    min: 4,
-    max: 12,
-    step: 1,
-    format: (value) => `${value}`,
-    hint: "Fewer is wider",
-  },
-  {
     key: "tiles",
     label: "Bands",
     min: 9,
@@ -75,9 +67,9 @@ const CONTROLS: Control[] = [
   },
   {
     key: "offset",
-    label: "Column lag",
+    label: "Sweep lag",
     min: 0,
-    max: 0.2,
+    max: 0.08,
     step: 0.01,
     format: (value) => value.toFixed(2),
   },
@@ -93,7 +85,7 @@ const CONTROLS: Control[] = [
 
 export default function DialHero() {
   const hostRef = useRef<HTMLDivElement>(null);
-  const engineRef = useRef<Datamosh | null>(null);
+  const engineRef = useRef<ContinuousSweep | null>(null);
   const [settings, setSettings] = useState<DialSettings>(DEFAULT_DIAL_SETTINGS);
   const [tunerOpen, setTunerOpen] = useState(false);
   const showTuner = process.env.NODE_ENV !== "production";
@@ -134,11 +126,15 @@ export default function DialHero() {
     const story = document.querySelector<HTMLElement>(
       "[data-publishing-story]",
     );
-    const reducedMotion = window.matchMedia(
+    const motionPreference = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const engine = new Datamosh(host);
-    if (!engine.ok) return;
+    );
+    let reducedMotion = motionPreference.matches;
+    const engine = new ContinuousSweep(host);
+    if (!engine.ok) {
+      engine.destroy();
+      return;
+    }
     engineRef.current = engine;
 
     let onScreen = false;
@@ -155,7 +151,8 @@ export default function DialHero() {
         0,
         Math.min(1, (stageProgress - 0.42) / 0.3),
       );
-      engine.setResolve(resolveProgress);
+      if (reducedMotion) engine.renderFinal();
+      else engine.setResolve(resolveProgress);
 
       const collapseRaw = Math.max(
         0,
@@ -235,12 +232,19 @@ export default function DialHero() {
 
     const sync = () => {
       if (reducedMotion) {
+        engine.stop();
         engine.renderFinal();
       } else if (onScreen && !document.hidden) {
         engine.start();
       } else {
         engine.stop();
       }
+    };
+
+    const onMotionPreferenceChange = () => {
+      reducedMotion = motionPreference.matches;
+      updateResolve();
+      sync();
     };
 
     const observer = new IntersectionObserver(
@@ -256,6 +260,7 @@ export default function DialHero() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     document.addEventListener("visibilitychange", sync);
+    motionPreference.addEventListener("change", onMotionPreferenceChange);
 
     return () => {
       engineRef.current = null;
@@ -263,6 +268,7 @@ export default function DialHero() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       document.removeEventListener("visibilitychange", sync);
+      motionPreference.removeEventListener("change", onMotionPreferenceChange);
       if (scrollFrame) cancelAnimationFrame(scrollFrame);
       engine.destroy();
     };
@@ -300,8 +306,13 @@ export default function DialHero() {
         ref={hostRef}
         className={styles.datamosh}
         role="img"
-        aria-label="The Azalea Labs logo and multilingual versions of the name roll upward through fixed columns in a weighted left-to-right wave, briefly align as a clean line in the centre, then continue onward before resolving in English and moving up into the page header."
-      />
+        aria-label="The Azalea Labs logo and multilingual versions of the name roll upward in a smooth, continuous left-to-right sweep before resolving in English and moving into the page header."
+      >
+        <div className={styles.dialFallback} aria-hidden="true">
+          <Image src="/azalea-icon.webp" alt="" width={40} height={40} unoptimized />
+          <span>Azalea Labs</span>
+        </div>
+      </div>
 
       {showTuner &&
         (tunerOpen ? (
