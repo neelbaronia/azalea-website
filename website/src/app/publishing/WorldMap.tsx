@@ -114,17 +114,6 @@ export default function WorldMap() {
     return [...countryShapes, ...smallCountries];
   }, []);
 
-  function tooltipLabel(country: MapCountry) {
-    const listenerStatus = country.isActive
-      ? "active readers and listeners"
-      : `no recorded readers or listeners in ${LISTENER_FOOTPRINT_PERIOD}`;
-    const catalogStatus = country.catalogPlatforms.length
-      ? "catalog available"
-      : "no catalog availability listed";
-
-    return `${country.label} · ${listenerStatus} · ${catalogStatus}`;
-  }
-
   function isHighlighted(country: MapCountry) {
     return country.isActive || country.catalogPlatforms.length > 0;
   }
@@ -135,7 +124,7 @@ export default function WorldMap() {
 
     const bounds = element.getBoundingClientRect();
     setTooltip({
-      label: tooltipLabel(country),
+      label: country.label,
       left: ((clientX - bounds.left) / bounds.width) * 100,
       top: ((clientY - bounds.top) / bounds.height) * 100,
     });
@@ -143,7 +132,7 @@ export default function WorldMap() {
 
   function showFromCentroid(country: MapCountry) {
     setTooltip({
-      label: tooltipLabel(country),
+      label: country.label,
       left: (country.x / WIDTH) * 100,
       top: (country.y / HEIGHT) * 100,
     });
@@ -186,7 +175,7 @@ export default function WorldMap() {
                   : undefined,
                 tabIndex: isHighlighted(country) ? 0 : undefined,
                 role: isHighlighted(country) ? ("img" as const) : undefined,
-                "aria-label": tooltipLabel(country),
+                "aria-label": country.label,
                 onMouseEnter: (event: { clientX: number; clientY: number }) =>
                   showFromPointer(country, event.clientX, event.clientY),
                 onMouseMove: (event: { clientX: number; clientY: number }) =>

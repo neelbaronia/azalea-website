@@ -168,19 +168,9 @@ export default function FullWorldMap({
   }, []);
 
   function tooltipFor(country: MapCountry, left: number, top: number): Tooltip {
-    const listenerStatus = country.isActive
-      ? "active readers and listeners"
-      : `no recorded readers or listeners in ${LISTENER_FOOTPRINT_PERIOD}`;
-    const catalogStatus = country.catalogPlatforms.length
-      ? "catalog available"
-      : "no catalog availability listed";
-
     return {
       color: scope === "worldwide" ? "#9b8ac5" : country.color ?? "#14101f",
-      label:
-        scope === "worldwide"
-          ? country.label
-          : `${country.label} · ${listenerStatus} · ${catalogStatus}`,
+      label: country.label,
       left,
       top,
     };
