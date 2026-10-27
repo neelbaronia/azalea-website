@@ -9,8 +9,14 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import WaitlistForm from "@/app/unlimited/waitlist-form";
+import { sendWaitlistSignupConversion } from "@/app/unlimited/google-ads";
+
+vi.mock("@/app/unlimited/google-ads", () => ({
+  sendWaitlistSignupConversion: vi.fn(),
+}));
 
 afterEach(() => {
+  vi.clearAllMocks();
   cleanup();
   vi.unstubAllGlobals();
   delete (window as Window & { dataLayer?: unknown[] }).dataLayer;
@@ -89,6 +95,7 @@ it("saves an email, confirms success, and emits a conversion without email", asy
     { event: "azalea_waitlist_signup", product: "unlimited" },
   ]);
   expect(JSON.stringify(events)).not.toContain("reader@example.com");
+  expect(sendWaitlistSignupConversion).toHaveBeenCalledTimes(1);
   await waitFor(() =>
     expect(document.activeElement).toBe(screen.getByRole("status")),
   );
@@ -108,6 +115,7 @@ it("does not count a repeat signup as a new conversion", async () => {
   expect(
     (window as Window & { dataLayer?: unknown[] }).dataLayer,
   ).toBeUndefined();
+  expect(sendWaitlistSignupConversion).not.toHaveBeenCalled();
 });
 
 it("keeps a saved signup successful even if analytics fails", async () => {

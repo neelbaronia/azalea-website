@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Check, LoaderCircle } from "lucide-react";
 import styles from "./unlimited.module.css";
+import { sendWaitlistSignupConversion } from "./google-ads";
 
 export default function WaitlistForm({
   compact = false,
@@ -53,7 +54,7 @@ export default function WaitlistForm({
       }
 
       setStatus("success");
-      // A measurement hook, not an installed ad pixel. Never send email to analytics.
+      // Only new saved signups are conversions. Never send email to analytics.
       if (!result.alreadySubscribed) {
         try {
           const analyticsWindow = window as Window & {
@@ -78,6 +79,7 @@ export default function WaitlistForm({
             product: "unlimited",
             ...campaign,
           });
+          sendWaitlistSignupConversion();
         } catch {
           // An analytics/consent integration must never undo a saved signup.
         }

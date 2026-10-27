@@ -29,10 +29,18 @@ provide a global guarantee across serverless instances.
 
 A successful **new** signup pushes `azalea_waitlist_signup` to `window.dataLayer`,
 with `product: unlimited` and any of the five standard `utm_*` campaign values
-present in the landing URL. Email is never included in that event. This is a
-measurement hook, not a configured Google/Meta pixel, conversion destination,
-or consent manager. Configure the chosen ad platform and applicable consent
-before spending. No ads, trackers, or advertising accounts are created here.
+present in the landing URL. Email is never included in that event. On October
+27, the dedicated Google Ads Sign-up action **Azalea Unlimited Waitlist Signup**
+was connected to new successful saves only, counting one conversion per
+interaction with zero monetary value. Duplicates, page views and failures do
+not trigger it. The public destination in `src/app/unlimited/google-ads.ts` is
+distinct from SpotifyClick. The tag is scoped to `/unlimited` and loads after
+hydration without changing the visible page. Enhanced conversions and ad
+personalization are disabled. Storage and advertising-user-data consent default
+to denied; no implicit grant or cookie banner was added. Cookieless Google
+measurement can be incomplete or modeled and is not an exact signup ledger or
+a substitute for reviewing applicable consent requirements. No form field is
+passed to Google. The Supabase table remains the signup source of truth.
 Campaign attribution is not stored in the existing email-only database table.
 
 ## Ornamental comparison
