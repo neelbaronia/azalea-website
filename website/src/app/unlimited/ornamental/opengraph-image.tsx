@@ -1,11 +1,20 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 export const alt =
-  "Azalea Audio — Unlimited audiobooks. 1,000s of titles. $9/mo. Coming early 2027.";
+  "The Azalea Audio app — Unlimited audiobooks. 1,000s of titles. $9/mo. Coming early 2027.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function CompactOpenGraphImage() {
+// Embed the exact shared app asset, without fetching another deployment at build time.
+const appIconDataUrl = readFile(
+  join(process.cwd(), "public", AUDIO_APP_ICON),
+).then((icon) => `data:image/png;base64,${icon.toString("base64")}`);
+
+export default async function CompactOpenGraphImage() {
+  const appIcon = await appIconDataUrl;
   return new ImageResponse(
     (
       <div
@@ -40,22 +49,15 @@ export default function CompactOpenGraphImage() {
             marginTop: 70,
           }}
         >
-          <div
+          <img
+            src={appIcon}
+            alt="Azalea Audio app icon"
+            width={177}
+            height={177}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 154,
-              height: 177,
-              background: "#3566ff",
-              color: "#ffcf00",
-              border: "5px solid #ec4978",
-              fontFamily: "serif",
-              fontSize: 144,
+              borderRadius: 34,
             }}
-          >
-            U
-          </div>
+          />
           <div
             style={{
               display: "flex",
@@ -66,7 +68,7 @@ export default function CompactOpenGraphImage() {
               letterSpacing: -3,
             }}
           >
-            <span>nlimited</span>
+            <span>Unlimited</span>
             <span style={{ color: "#3566ff" }}>audiobooks.</span>
           </div>
         </div>

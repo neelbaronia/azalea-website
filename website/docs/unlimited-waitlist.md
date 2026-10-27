@@ -123,6 +123,12 @@ this asset and its provenance test together. Local
 catalog covers are reused; the page states that the subscription collection
 and experience may change. Next.js delivers responsive image sizes.
 
+Both waitlist routes' 1200×630 shared-link thumbnails embed the same current
+app icon directly from the local asset, without requesting a remote deployment.
+The full "Unlimited audiobooks" headline, price, title count, and launch timing
+remain on the card. Open Graph and Twitter metadata point to the generated
+thumbnail; changing both image routes refreshes their generated image URLs.
+
 ## Checks
 
 `npm test` covers route validation, duplicates, failures, spam controls, and
