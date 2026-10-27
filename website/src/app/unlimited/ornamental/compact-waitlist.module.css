@@ -230,9 +230,6 @@
 .library > div {
   min-width: 0;
 }
-.page .libraryTitle {
-  --ornament-heading-accent: #a64e45;
-}
 .page .libraryTitle h2 {
   margin: 0;
   font-weight: 400;

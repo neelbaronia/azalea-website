@@ -36,7 +36,7 @@ it("renders an accessible catalog section initial alongside the hero without sha
   expect(screen.queryByRole("button")).toBeNull();
 });
 
-it("gives the catalog E its own drawn copperplate artwork without changing the botanical U", () => {
+it("gives the catalog E the same botanical frame, lettering style, and decoration as the U", () => {
   const view = render(
     <>
       <OrnamentalHeading variant="unlimited" replayable={false} />
@@ -47,11 +47,19 @@ it("gives the catalog E its own drawn copperplate artwork without changing the b
   const catalog = view.container.querySelector("#bookshelf-title svg");
   expect(hero?.getAttribute("data-ornament-style")).toBe("botanical");
   expect(hero?.querySelector("text")?.textContent).toBe("U");
-  expect(catalog?.getAttribute("data-ornament-style")).toBe("copperplate");
-  expect(
-    catalog?.querySelector("[data-catalog-letter]")?.getAttribute("d"),
-  ).toBeTruthy();
-  expect(catalog?.querySelector("text")).toBeNull();
+  expect(catalog?.getAttribute("data-ornament-style")).toBe("botanical");
+  expect(catalog?.querySelector("text")?.textContent).toBe("E");
+  expect(catalog?.getAttribute("viewBox")).toBe(hero?.getAttribute("viewBox"));
+  expect(catalog?.querySelector("text")?.getAttribute("class")).toBe(
+    hero?.querySelector("text")?.getAttribute("class"),
+  );
+  const decoration = (svg: Element | null) =>
+    Array.from(svg?.querySelectorAll("path") ?? []).map((path) => ({
+      shape: path.getAttribute("d"),
+      style: path.getAttribute("class"),
+    }));
+  expect(decoration(catalog)).toEqual(decoration(hero));
+  expect(catalog?.querySelector("[data-catalog-letter]")).toBeNull();
   expect(catalog?.getAttribute("aria-hidden")).toBe("true");
 });
 

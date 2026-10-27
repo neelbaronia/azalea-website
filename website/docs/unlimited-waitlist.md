@@ -46,9 +46,10 @@ geometry and an engraved Garamond initial. No artwork or code
 was copied from the reference. Branches, leaves, and rosettes draw once in
 under four seconds. The compact headline uses an illuminated U; the shared
 component still supports its original O and optional replay control. The
-catalog section uses a smaller, distinct copperplate-inspired E: an original
-drawn letter with pen flourishes, an ivory cartouche, coral ink, muted teal trim,
-and fine gold details. The U retains its bright blue floral treatment. Both
+catalog section uses a smaller illuminated E with the same rectangular frame,
+Garamond capital, botanical artwork, and one-shot animation as the U. Both use
+the bright blue background, yellow lettering, green leaves, and pink flowers;
+the catalog word accent also matches the hero's blue. Both
 initials respect reduced-motion preferences. The catalog remains an accessible h2 named
 "Explore the catalog"; SVG pattern IDs are unique for each initial. The letter and readable
 headline are present immediately, and reduced-motion users get a fully
