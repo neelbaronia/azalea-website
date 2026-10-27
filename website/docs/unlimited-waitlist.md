@@ -112,7 +112,14 @@ locally, so no third-party request is added to page load.
 unchanged from the existing subscription-preview checkout. They are actual
 September 2026 iOS app captures from
 `azalea-audio-interactive-live-browse-to-transcript-20260915.mp4` (00:02 and
-00:16). The app icon is the existing iOS icon, not a redesigned logo. Local
+00:16). The app icon is the current iOS Quiet Corners artwork, copied without
+modification from `cc-audiobook-player/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`
+in the `cc-audiobook-player` repository (branding commit `8943ff2`). Its SHA-256 is
+`14c5cfb033b08b1b829bade5afe8d3db798adb3e4e0aaa1eaaad6ec44d668a58`.
+`src/lib/audio-branding.ts` shares the versioned icon URL between all landing
+headers and both routes' favicon/Apple touch icon metadata. The new filename
+avoids cached copies of the older icon; future app branding updates should refresh
+this asset and its provenance test together. Local
 catalog covers are reused; the page states that the subscription collection
 and experience may change. Next.js delivers responsive image sizes.
 

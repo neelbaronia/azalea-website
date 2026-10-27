@@ -3,13 +3,31 @@ import React from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import UnlimitedLandingPage from "@/app/unlimited/landing-page";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 vi.mock("next/image", () => ({
-  default: ({ alt }: { alt: string }) => (
-    <span role={alt ? "img" : undefined} aria-label={alt || undefined} />
+  default: ({ alt, src }: { alt: string; src: string }) => (
+    <span
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+      data-image-src={src}
+    />
   ),
 }));
 afterEach(cleanup);
+
+it.each([false, true])(
+  "keeps the current app icon in the retained landing design (ornamental=%s)",
+  (ornamental) => {
+    render(<UnlimitedLandingPage ornamental={ornamental} />);
+    expect(
+      screen
+        .getByRole("link", { name: "Azalea Audio home" })
+        .querySelector("[data-image-src]")
+        ?.getAttribute("data-image-src"),
+    ).toBe(AUDIO_APP_ICON);
+  },
+);
 
 it("replays the ornament without clearing an email being entered", () => {
   render(<UnlimitedLandingPage ornamental />);

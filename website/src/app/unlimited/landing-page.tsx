@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import {
   ArrowUpRight,
   BookOpen,
@@ -85,7 +86,7 @@ export default function UnlimitedLandingPage({
       <header className={styles.header}>
         <Link href="/" className={styles.brand} aria-label="Azalea Audio home">
           <Image
-            src="/subscription-preview/azalea-audio-icon.png"
+            src={AUDIO_APP_ICON}
             alt=""
             width={48}
             height={48}

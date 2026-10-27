@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import CompactWaitlist from "./ornamental/compact-waitlist";
 
 export const metadata: Metadata = {
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/unlimited" },
   robots: { index: true, follow: true },
   icons: {
-    icon: "/subscription-preview/azalea-audio-icon.png",
-    apple: "/subscription-preview/azalea-audio-icon.png",
+    icon: AUDIO_APP_ICON,
+    apple: AUDIO_APP_ICON,
   },
   openGraph: {
     title: "Unlimited audiobooks. $9/mo. | Azalea Audio",

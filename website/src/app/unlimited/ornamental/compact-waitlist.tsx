@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import WaitlistForm from "../waitlist-form";
 import OrnamentalHeading from "./ornamental-heading";
 import BookshelfCarousel from "./bookshelf-carousel";
@@ -20,7 +21,7 @@ export default function CompactWaitlist() {
       <header className={styles.header}>
         <Link href="/" className={base.brand} aria-label="Azalea Audio home">
           <Image
-            src="/subscription-preview/azalea-audio-icon.png"
+            src={AUDIO_APP_ICON}
             alt=""
             width={44}
             height={44}

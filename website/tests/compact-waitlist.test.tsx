@@ -4,13 +4,35 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import CompactWaitlist from "@/app/unlimited/ornamental/compact-waitlist";
 import UnlimitedPage, { metadata } from "@/app/unlimited/page";
+import { metadata as ornamentalMetadata } from "@/app/unlimited/ornamental/page";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 vi.mock("next/image", () => ({
-  default: ({ alt }: { alt: string }) => (
-    <span role={alt ? "img" : undefined} aria-label={alt || undefined} />
+  default: ({ alt, src }: { alt: string; src: string }) => (
+    <span
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+      data-image-src={src}
+    />
   ),
 }));
 afterEach(cleanup);
+
+it("uses the current app icon in the header and both routes' browser/home-screen metadata", () => {
+  render(<CompactWaitlist />);
+  expect(
+    screen
+      .getByRole("link", { name: "Azalea Audio home" })
+      .querySelector("[data-image-src]")
+      ?.getAttribute("data-image-src"),
+  ).toBe(AUDIO_APP_ICON);
+  for (const route of [metadata, ornamentalMetadata]) {
+    expect(route.icons).toEqual({
+      icon: AUDIO_APP_ICON,
+      apple: AUDIO_APP_ICON,
+    });
+  }
+});
 
 it("shows the iOS App Store platform at the top without offering a download before launch", () => {
   render(<CompactWaitlist />);

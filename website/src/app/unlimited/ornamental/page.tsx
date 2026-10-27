@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import CompactWaitlist from "./compact-waitlist";
 
 export const metadata: Metadata = {
@@ -7,8 +8,8 @@ export const metadata: Metadata = {
   description:
     "Unlimited audiobooks with exclusive titles from around the world, across fiction and nonfiction. 1,000s of titles. $9/mo. Coming early 2027. Join the waitlist.",
   icons: {
-    icon: "/subscription-preview/azalea-audio-icon.png",
-    apple: "/subscription-preview/azalea-audio-icon.png",
+    icon: AUDIO_APP_ICON,
+    apple: AUDIO_APP_ICON,
   },
   alternates: { canonical: "/unlimited" },
   robots: { index: false, follow: true },
