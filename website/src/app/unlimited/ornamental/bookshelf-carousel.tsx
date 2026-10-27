@@ -155,9 +155,6 @@ export default function BookshelfCarousel() {
       }}
     >
       <div className={styles.toolbar}>
-        <span className={styles.count}>
-          {featuredBooks.length} featured titles
-        </span>
         <div
           className={styles.controls}
           role="group"

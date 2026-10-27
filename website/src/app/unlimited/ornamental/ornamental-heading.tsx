@@ -9,26 +9,48 @@ const vines = createBotanicalOrnament();
 const delayStyle = (seconds: number) =>
   ({ "--grow-delay": `${seconds}s` }) as CSSProperties;
 
+const headingCopy = {
+  chapters: {
+    label: "One more chapter. No more limits.",
+    initial: "O",
+    opening: "ne more",
+    accent: "chapter.",
+  },
+  unlimited: {
+    label: "Unlimited audiobooks.",
+    initial: "U",
+    opening: "nlimited",
+    accent: "audiobooks.",
+  },
+  catalog: {
+    label: "Explore the catalog",
+    initial: "E",
+    opening: "xplore the",
+    accent: "catalog",
+  },
+} as const;
+
 export default function OrnamentalHeading({
   variant = "chapters",
   replayable = true,
   className = "",
 }: {
-  variant?: "chapters" | "unlimited";
+  variant?: "chapters" | "unlimited" | "catalog";
   replayable?: boolean;
   className?: string;
 }) {
   const [edition, setEdition] = useState(0);
   const patternId = `ornament-hatch-${useId().replaceAll(":", "")}`;
+  const copy = headingCopy[variant];
+  const Heading = variant === "catalog" ? "h2" : "h1";
 
   return (
     <div className={`${styles.headingBlock} ${className}`}>
-      <h1 id="unlimited-title" className={styles.heading}>
-        <span className={styles.srOnly}>
-          {variant === "unlimited"
-            ? "Unlimited audiobooks."
-            : "One more chapter. No more limits."}
-        </span>
+      <Heading
+        id={variant === "catalog" ? "bookshelf-title" : "unlimited-title"}
+        className={styles.heading}
+      >
+        <span className={styles.srOnly}>{copy.label}</span>
         <span
           className={styles.titleComposition}
           aria-hidden="true"
@@ -115,20 +137,20 @@ export default function OrnamentalHeading({
                 y="168"
                 textAnchor="middle"
               >
-                {variant === "unlimited" ? "U" : "O"}
+                {copy.initial}
               </text>
               <path className={styles.gildedRule} d="M18 196Q100 202 183 196" />
             </svg>
           </span>
           <span className={styles.openingWords} data-ornamental-part="words">
-            <span>{variant === "unlimited" ? "nlimited" : "ne more"}</span>
-            <em>{variant === "unlimited" ? "audiobooks." : "chapter."}</em>
+            <span>{copy.opening}</span>
+            <em>{copy.accent}</em>
           </span>
           {variant === "chapters" ? (
             <span className={styles.closingWords}>No more limits.</span>
           ) : null}
         </span>
-      </h1>
+      </Heading>
       {replayable ? (
         <button
           className={styles.replay}

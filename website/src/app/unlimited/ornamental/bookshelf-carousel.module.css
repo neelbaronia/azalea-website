@@ -3,15 +3,10 @@
 }
 .toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-}
-.count {
-  font-size: 9px;
-  letter-spacing: 0.4px;
-  color: var(--muted);
 }
 .controls {
   display: flex;

@@ -12,6 +12,20 @@ vi.mock("next/image", () => ({
 }));
 afterEach(cleanup);
 
+it("shows the iOS App Store platform at the top without offering a download before launch", () => {
+  render(<CompactWaitlist />);
+  const platform = screen.getByText("iOS App Store");
+  expect(platform.closest("header")).toBeTruthy();
+  expect(platform.closest("a")).toBeNull();
+  expect(
+    platform.parentElement?.parentElement
+      ?.querySelector("svg")
+      ?.getAttribute("aria-hidden"),
+  ).toBe("true");
+  expect(screen.getByText("Coming early 2027").closest("header")).toBeTruthy();
+  expect(screen.queryByText(/Download on the|Pre-order/)).toBeNull();
+});
+
 it("publishes the approved design at the canonical waitlist URL", () => {
   const view = render(<UnlimitedPage />);
   expect(
@@ -72,11 +86,18 @@ it("shows twenty real catalog covers without promising the launch selection", ()
   ).toBeTruthy();
 });
 
-it("uses a simple catalog heading without the old promotional introduction", () => {
-  render(<CompactWaitlist />);
+it("matches the hero's ornamental lettering without the old promotional introduction", () => {
+  const view = render(<CompactWaitlist />);
   expect(
     screen.getByRole("heading", { level: 2, name: "Explore the catalog" }),
   ).toBeTruthy();
+  expect(
+    view.container.querySelector("#bookshelf-title svg text")?.textContent,
+  ).toBe("E");
+  expect(
+    view.container.querySelector("#unlimited-title svg text")?.textContent,
+  ).toBe("U");
+  expect(view.container.querySelectorAll("h1")).toHaveLength(1);
   expect(screen.queryByText("THE AZALEA BOOKSHELF")).toBeNull();
   expect(screen.queryByText(/A little taste of/)).toBeNull();
   expect(screen.queryByText(/Fiction, history, and ideas worth/)).toBeNull();

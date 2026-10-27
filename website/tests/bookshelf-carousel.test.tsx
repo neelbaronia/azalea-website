@@ -125,7 +125,7 @@ it("exposes 20 unique titles and hides the seamless visual copy from assistive t
   expect(new Set(featuredBooks.map((book) => book.id)).size).toBe(20);
   expect(screen.getAllByRole("img")).toHaveLength(20);
   expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(20);
-  expect(screen.getByText("20 featured titles")).toBeTruthy();
+  expect(screen.queryByText(/featured titles/)).toBeNull();
   expect(
     track.querySelectorAll(':scope > [data-carousel-copy="original"]'),
   ).toHaveLength(20);

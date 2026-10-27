@@ -7,6 +7,35 @@ import { createBotanicalOrnament } from "@/app/unlimited/ornamental/botanical-ge
 
 afterEach(cleanup);
 
+it("renders an accessible catalog section initial alongside the hero without shared SVG IDs", () => {
+  const view = render(
+    <>
+      <OrnamentalHeading variant="unlimited" replayable={false} />
+      <OrnamentalHeading variant="catalog" replayable={false} />
+    </>,
+  );
+  expect(
+    screen.getByRole("heading", { name: "Unlimited audiobooks.", level: 1 }).id,
+  ).toBe("unlimited-title");
+  expect(
+    screen.getByRole("heading", { name: "Explore the catalog", level: 2 }).id,
+  ).toBe("bookshelf-title");
+  expect(
+    [...view.container.querySelectorAll("svg text")].map(
+      (node) => node.textContent,
+    ),
+  ).toEqual(["U", "E"]);
+  const patterns = [...view.container.querySelectorAll("svg pattern")].map(
+    (node) => node.id,
+  );
+  expect(new Set(patterns).size).toBe(2);
+  for (const pattern of patterns)
+    expect(
+      view.container.querySelector(`path[fill="url(#${pattern})"]`),
+    ).toBeTruthy();
+  expect(screen.queryByRole("button")).toBeNull();
+});
+
 it("keeps the complete headline accessible, without spelling out decorative fragments", () => {
   render(<OrnamentalHeading />);
   expect(

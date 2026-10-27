@@ -45,7 +45,10 @@ https://x.com/azlenelza/status/2114559456763883871, it uses original SVG botanic
 geometry and an engraved Garamond initial. No artwork or code
 was copied from the reference. Branches, leaves, and rosettes draw once in
 under four seconds. The compact headline uses an illuminated U; the shared
-component still supports its original O and optional replay control. The letter and readable
+component still supports its original O and optional replay control. The
+catalog section now uses a smaller matching E, with the same botanical SVG,
+bright palette, and reduced-motion behavior. It remains an accessible h2 named
+"Explore the catalog"; SVG pattern IDs are unique for each initial. The letter and readable
 headline are present immediately, and reduced-motion users get a fully
 rendered, static ornament with no replay control. The ornament itself has no
 animation loop, canvas, or per-frame JavaScript. No signup data is sent to the
@@ -92,6 +95,12 @@ swatches, with the same off-white paper and dark-purple ink. Its SVG lettering
 and signup action carry those colors. The two phone screenshots sit directly on
 the page, without a colored panel, rings, frame, or caption. Theme variables
 are scoped to the compact page; the original editorial page is unchanged.
+
+The header includes a small App Store platform mark with "iOS App Store" and
+"Coming early 2027". This is a non-clickable platform indicator, not a live
+download or pre-order offer. The vector mark is sourced from Simple Icons 16
+(`https://cdn.jsdelivr.net/npm/simple-icons@16/icons/appstore.svg`) and embedded
+locally, so no third-party request is added to page load.
 
 ## Images
 
