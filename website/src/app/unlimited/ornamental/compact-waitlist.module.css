@@ -1,0 +1,518 @@
+.page[data-waitlist-design="compact-ornamental"] {
+  /* Exact bright swatches from the home page's dial-engine.ts palette. */
+  --dial-blue: #3566ff;
+  --dial-yellow: #ffcf00;
+  --dial-pink: #ec4978;
+  --dial-orange: #ff9900;
+  --dial-green: #00dd33;
+  --dial-mint: #00ef82;
+  --paper: #f5f5f0;
+  --ink: #282142;
+  --muted: #635f70;
+  --line: #28214233;
+  --ornament-ground: var(--dial-blue);
+  --ornament-frame: #ffffff;
+  --ornament-vine: var(--dial-mint);
+  --ornament-leaf: var(--dial-green);
+  --ornament-leaf-vein: #282142;
+  --ornament-petal: var(--dial-pink);
+  --ornament-flower-center: var(--dial-orange);
+  --ornament-letter: var(--dial-yellow);
+  --ornament-letter-outline: #282142;
+  --ornament-rule: var(--dial-mint);
+  --ornament-heading-accent: var(--dial-blue);
+  background-image: none;
+}
+.page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 24px 48px 20px;
+}
+.page::before {
+  border-color: var(--line);
+}
+.page :where(a, button, input):focus-visible {
+  outline-color: var(--dial-blue);
+}
+.page .header {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 22px;
+}
+.page .header::after {
+  left: 0;
+  right: 0;
+  border-color: var(--dial-blue);
+}
+.coming {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.coming > span {
+  width: 5px;
+  height: 5px;
+  background: var(--dial-pink);
+  transform: rotate(45deg);
+}
+.main {
+  width: 100%;
+  max-width: 1180px;
+  margin: auto;
+  padding: 28px 0;
+}
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(35px, 6vw, 86px);
+}
+.copy {
+  min-width: 0;
+}
+.page .title h1 {
+  margin: 0;
+  letter-spacing: -2.4px;
+}
+.page .title [data-ornamental-part="composition"] {
+  grid-template-columns: 138px minmax(0, 1fr);
+  gap: 16px;
+}
+.page .title [data-ornamental-part="initial"] {
+  width: 138px;
+}
+.page .title [data-ornamental-part="words"] {
+  font-size: clamp(55px, 5.6vw, 76px);
+  line-height: 0.96;
+  gap: 3px;
+  padding: 0;
+}
+.description {
+  max-width: 430px;
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.description strong {
+  display: block;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.description > span {
+  display: block;
+  margin-top: 6px;
+}
+.offer {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-top: 29px;
+}
+.price {
+  font-family: var(--font-garamond), Georgia, serif;
+  font-size: 77px;
+  letter-spacing: -3.5px;
+  line-height: 1;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.price > span {
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 16px;
+  letter-spacing: -0.4px;
+  color: var(--muted);
+}
+.offerRule {
+  display: block;
+  height: 38px;
+  border-left: 1px solid var(--line);
+}
+.catalog {
+  font-size: 16px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.signup {
+  margin-top: 27px;
+  scroll-margin-top: 25px;
+  max-width: 465px;
+}
+.page .signup input[type="email"] {
+  font-size: 15px;
+}
+.page .signup input[type="email"]::placeholder {
+  color: var(--muted);
+}
+.page .signup form > div:first-of-type {
+  border-radius: 3px;
+  border-color: var(--line);
+  background: #ffffff;
+}
+.page .signup form > div:first-of-type:focus-within {
+  border-color: var(--dial-blue);
+  box-shadow: 0 0 0 3px #3566ff1a;
+}
+.page .signup button[type="submit"] {
+  font-size: 12px;
+  background: var(--dial-blue);
+  color: #ffffff;
+}
+.page .signup button[type="submit"]:hover {
+  background: #192aff;
+}
+.page .showcase {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  height: clamp(370px, 66svh, 520px);
+  background: transparent;
+}
+.phoneFront,
+.phoneBack {
+  position: absolute;
+  overflow: hidden;
+  border: 5px solid var(--ink);
+  background: var(--ink);
+  border-radius: 29px;
+  box-shadow: 10px 15px 28px #28214233;
+}
+.phoneFront img,
+.phoneBack img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 23px;
+}
+.phoneFront {
+  width: 210px;
+  left: calc(50% - 210px);
+  top: calc(50% - 225px);
+  transform: rotate(-8deg);
+  z-index: 2;
+}
+.phoneBack {
+  width: 195px;
+  right: calc(50% - 210px);
+  top: calc(50% - 202px);
+  transform: rotate(9deg);
+  z-index: 1;
+}
+.library {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 35px;
+  margin-top: 38px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.library > div {
+  min-width: 0;
+}
+.libraryIntro h2 {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.45px;
+}
+.catalogNote {
+  margin-top: 14px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.page .footer {
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 7px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+.footer a {
+  color: inherit;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 1100px) {
+  .page {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .hero {
+    gap: 35px;
+  }
+  .page .title [data-ornamental-part="composition"] {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .page .title [data-ornamental-part="initial"] {
+    width: 112px;
+  }
+  .page .title [data-ornamental-part="words"] {
+    font-size: 61px;
+  }
+  .offer {
+    gap: 18px;
+    margin-top: 22px;
+  }
+  .price {
+    font-size: 68px;
+  }
+  .catalog {
+    font-size: 14px;
+  }
+  .phoneFront {
+    width: 180px;
+    left: calc(50% - 171px);
+    top: calc(50% - 193px);
+  }
+  .phoneBack {
+    width: 169px;
+    right: calc(50% - 176px);
+    top: calc(50% - 170px);
+  }
+}
+@media (min-width: 761px) and (max-width: 960px) {
+  .page .title [data-ornamental-part="composition"] {
+    grid-template-columns: 101px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .page .title [data-ornamental-part="initial"] {
+    width: 101px;
+  }
+  .page .title [data-ornamental-part="words"] {
+    font-size: 56px;
+  }
+  .page .showcase {
+    height: 440px;
+  }
+  .phoneFront {
+    width: 150px;
+    left: calc(50% - 150px);
+    top: calc(50% - 165px);
+  }
+  .phoneBack {
+    width: 140px;
+    right: calc(50% - 154px);
+    top: calc(50% - 142px);
+  }
+  .library {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+@media (min-width: 761px) and (max-height: 700px) {
+  .page {
+    padding-top: 18px;
+    padding-bottom: 16px;
+  }
+  .page .header {
+    padding-bottom: 16px;
+  }
+  .main {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .page .showcase {
+    height: 390px;
+  }
+  .phoneFront {
+    width: 170px;
+    left: calc(50% - 168px);
+    top: 15px;
+  }
+  .phoneBack {
+    width: 160px;
+    right: calc(50% - 166px);
+    top: 36px;
+  }
+}
+@media (max-width: 760px) {
+  .page {
+    padding: 21px 24px 16px;
+  }
+  .page .header {
+    padding-bottom: 17px;
+  }
+  .page .header img {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  .coming {
+    font-size: 9px;
+    letter-spacing: 0.3px;
+    gap: 6px;
+  }
+  .main {
+    padding: 24px 0 15px;
+    max-width: 470px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 23px;
+  }
+  .page .title h1 {
+    letter-spacing: -1.5px;
+  }
+  .page .title [data-ornamental-part="composition"] {
+    grid-template-columns: 101px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .page .title [data-ornamental-part="initial"] {
+    width: 101px;
+  }
+  .page .title [data-ornamental-part="words"] {
+    font-size: clamp(48px, 13.5vw, 67px);
+    line-height: 0.98;
+  }
+  .description {
+    margin-top: 18px;
+    font-size: 14px;
+    max-width: 330px;
+  }
+  .description strong {
+    font-size: 17px;
+  }
+  .offer {
+    margin-top: 18px;
+    gap: 22px;
+  }
+  .price {
+    font-size: 65px;
+    letter-spacing: -2.6px;
+  }
+  .price > span {
+    font-size: 14px;
+  }
+  .offerRule {
+    height: 30px;
+  }
+  .catalog {
+    font-size: 14px;
+  }
+  .signup {
+    margin-top: 20px;
+    max-width: none;
+  }
+  .page .signup input[type="email"] {
+    font-size: 16px;
+    padding-left: 9px;
+    padding-right: 4px;
+  }
+  .page .signup button[type="submit"] {
+    font-size: 11px;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 8px;
+  }
+  .page .showcase {
+    height: 235px;
+    width: 100%;
+    max-width: none;
+  }
+  .phoneFront,
+  .phoneBack {
+    border-width: 3px;
+    border-radius: 16px;
+    box-shadow: 7px 8px 14px #302c2626;
+  }
+  .phoneFront img,
+  .phoneBack img {
+    border-radius: 12px;
+  }
+  .phoneFront {
+    width: 105px;
+    top: 10px;
+    left: calc(50% - 111px);
+  }
+  .phoneBack {
+    width: 98px;
+    top: 22px;
+    right: calc(50% - 111px);
+  }
+  .library {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 33px;
+    padding-top: 24px;
+  }
+  .catalogNote {
+    margin-top: 18px;
+  }
+  .page .footer {
+    font-size: 8px;
+    padding-top: 3px;
+  }
+}
+@media (max-width: 370px) {
+  .page {
+    padding: 18px 18px 14px;
+  }
+  .main {
+    padding-top: 21px;
+  }
+  .hero {
+    gap: 20px;
+  }
+  .page .title [data-ornamental-part="composition"] {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .page .title [data-ornamental-part="initial"] {
+    width: 88px;
+  }
+  .page .title [data-ornamental-part="words"] {
+    font-size: 44px;
+  }
+  .price {
+    font-size: 58px;
+  }
+  .offer {
+    gap: 16px;
+    margin-top: 15px;
+  }
+  .catalog {
+    font-size: 12px;
+  }
+  .signup {
+    margin-top: 17px;
+  }
+  .page .signup form > div:first-of-type {
+    flex-direction: row;
+  }
+  .page .signup button[type="submit"] {
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 5px;
+    font-size: 10px;
+  }
+  .page .showcase {
+    height: 216px;
+  }
+  .phoneFront {
+    width: 96px;
+    top: 10px;
+    left: calc(50% - 102px);
+  }
+  .phoneBack {
+    width: 90px;
+    top: 20px;
+    right: calc(50% - 102px);
+  }
+}

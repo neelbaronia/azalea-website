@@ -1,0 +1,128 @@
+.carousel {
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.count {
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+}
+.controls {
+  display: flex;
+  gap: 7px;
+}
+.controls button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 160ms,
+    color 160ms,
+    border-color 160ms;
+}
+.controls button:hover {
+  background: var(--dial-blue);
+  border-color: var(--dial-blue);
+  color: #ffffff;
+}
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 54px) / 4);
+  gap: 18px;
+  list-style: none;
+  padding: 5px 0 12px;
+  margin: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.track::-webkit-scrollbar {
+  display: none;
+}
+.slide {
+  min-width: 0;
+}
+.book img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  box-shadow: 0 5px 12px #2821421a;
+  user-select: none;
+}
+.book figcaption {
+  margin-top: 10px;
+}
+.bookTitle {
+  min-height: 39px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.categoryLabel {
+  margin-top: 9px;
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+}
+.categories li {
+  max-width: 100%;
+  border: 1px solid #3566ff26;
+  border-radius: 3px;
+  padding: 3px 6px;
+  background: #3566ff0a;
+  color: #282142;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.description {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+@media (max-width: 760px) {
+  .track {
+    grid-auto-columns: calc((100% - 14px) / 1.35);
+    gap: 14px;
+  }
+  .controls button {
+    width: 44px;
+    height: 44px;
+  }
+  .book figcaption {
+    margin-top: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .controls button {
+    transition: none;
+  }
+}
