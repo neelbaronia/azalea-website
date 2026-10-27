@@ -1,16 +1,19 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 export const alt =
   "The Azalea Audio app — Unlimited audiobooks. 1,000s of titles. $9/mo. Coming early 2027.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Embed the exact shared app asset, without fetching another deployment at build time.
+// Use a literal path so server-file tracing includes only the app icon, not all of public/.
+// The thumbnail test verifies this stays byte-identical to AUDIO_APP_ICON.
 const appIconDataUrl = readFile(
-  join(process.cwd(), "public", AUDIO_APP_ICON),
+  join(
+    process.cwd(),
+    "public/subscription-preview/azalea-audio-icon-quiet-corners.png",
+  ),
 ).then((icon) => `data:image/png;base64,${icon.toString("base64")}`);
 
 export default async function CompactOpenGraphImage() {

@@ -128,6 +128,10 @@ app icon directly from the local asset, without requesting a remote deployment.
 The full "Unlimited audiobooks" headline, price, title count, and launch timing
 remain on the card. Open Graph and Twitter metadata point to the generated
 thumbnail; changing both image routes refreshes their generated image URLs.
+The thumbnail reader deliberately uses a literal file path: resolving the imported
+URL inside a filesystem join makes server-file tracing include the entire public
+directory. Verify each thumbnail route's `.nft.json` traces only the one icon file
+from `public/` before release.
 
 ## Checks
 
