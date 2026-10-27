@@ -46,8 +46,10 @@ geometry and an engraved Garamond initial. No artwork or code
 was copied from the reference. Branches, leaves, and rosettes draw once in
 under four seconds. The compact headline uses an illuminated U; the shared
 component still supports its original O and optional replay control. The
-catalog section now uses a smaller matching E, with the same botanical SVG,
-bright palette, and reduced-motion behavior. It remains an accessible h2 named
+catalog section uses a smaller, distinct copperplate-inspired E: an original
+drawn letter with pen flourishes, an ivory cartouche, coral ink, muted teal trim,
+and fine gold details. The U retains its bright blue floral treatment. Both
+initials respect reduced-motion preferences. The catalog remains an accessible h2 named
 "Explore the catalog"; SVG pattern IDs are unique for each initial. The letter and readable
 headline are present immediately, and reduced-motion users get a fully
 rendered, static ornament with no replay control. The ornament itself has no
@@ -59,9 +61,11 @@ carousel beneath its two actual app screenshots. Covers come from existing
 local Azalea assets and the allowed public R2 catalog, with an explicit note that
 launch titles may differ. All twenty are unique books, not a repeated six-title list.
 There are still only two sections and one signup form; no FAQs or repeated pitches.
+The catalog heading and browsing controls sit above the full-width book row,
+not in a sidebar that narrows or masks the left edge of the carousel.
 
-The bookshelf drifts continuously at 14 pixels per second, about 16–18 seconds
-per cover at typical widths. A second, assistive-technology-hidden and inert
+The bookshelf drifts continuously at 14 pixels per second, about 20–22 seconds
+per cover at typical desktop widths. A second, assistive-technology-hidden and inert
 visual copy lets it loop without an end-to-start rewind.
 Previous/next buttons, native touch scrolling, and arrow keys support manual
 browsing. Manual browsing pauses automatic rotation until resumed. Hover and

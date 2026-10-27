@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { featuredBooks } from "./featured-books";
 import styles from "./bookshelf-carousel.module.css";
 
@@ -19,7 +26,11 @@ function measureTrack(track: HTMLUListElement) {
   return { step, loopWidth: step * featuredBooks.length };
 }
 
-export default function BookshelfCarousel() {
+export default function BookshelfCarousel({
+  heading,
+}: {
+  heading?: ReactNode;
+}) {
   const trackId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
@@ -155,6 +166,7 @@ export default function BookshelfCarousel() {
       }}
     >
       <div className={styles.toolbar}>
+        {heading}
         <div
           className={styles.controls}
           role="group"
@@ -230,7 +242,7 @@ export default function BookshelfCarousel() {
                   alt={isCopy ? "" : `${book.title} audiobook cover`}
                   width={280}
                   height={280}
-                  sizes="(max-width: 760px) 68vw, (max-width: 960px) 22vw, 230px"
+                  sizes="(max-width: 760px) 68vw, (max-width: 1250px) 23vw, 282px"
                   draggable={false}
                 />
                 <figcaption>

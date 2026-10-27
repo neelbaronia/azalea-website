@@ -86,13 +86,15 @@ it("shows twenty real catalog covers without promising the launch selection", ()
   ).toBeTruthy();
 });
 
-it("matches the hero's ornamental lettering without the old promotional introduction", () => {
+it("uses an ornamental catalog heading without the old promotional introduction", () => {
   const view = render(<CompactWaitlist />);
   expect(
     screen.getByRole("heading", { level: 2, name: "Explore the catalog" }),
   ).toBeTruthy();
   expect(
-    view.container.querySelector("#bookshelf-title svg text")?.textContent,
+    view.container
+      .querySelector("#bookshelf-title svg")
+      ?.getAttribute("data-ornamental-letter"),
   ).toBe("E");
   expect(
     view.container.querySelector("#unlimited-title svg text")?.textContent,
@@ -101,6 +103,22 @@ it("matches the hero's ornamental lettering without the old promotional introduc
   expect(screen.queryByText("THE AZALEA BOOKSHELF")).toBeNull();
   expect(screen.queryByText(/A little taste of/)).toBeNull();
   expect(screen.queryByText(/Fiction, history, and ideas worth/)).toBeNull();
+});
+
+it("places the catalog heading and controls together above the book row", () => {
+  render(<CompactWaitlist />);
+  const heading = screen.getByRole("heading", {
+    level: 2,
+    name: "Explore the catalog",
+  });
+  const controls = screen.getByRole("group", { name: "Bookshelf controls" });
+  const track = screen.getByRole("list", {
+    name: "A selection from our existing catalog",
+  });
+  const toolbar = controls.parentElement;
+  expect(toolbar?.contains(heading)).toBe(true);
+  expect(toolbar?.nextElementSibling).toBe(track);
+  expect(track.parentElement?.parentElement?.tagName).toBe("SECTION");
 });
 
 it("emphasizes international exclusives across fiction and nonfiction near signup", () => {

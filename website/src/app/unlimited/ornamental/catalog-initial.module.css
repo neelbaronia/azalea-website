@@ -1,0 +1,61 @@
+.ornament {
+  --catalog-paper: #fff0d9;
+  --catalog-ink: #a64e45;
+  --catalog-trim: #416b61;
+  --catalog-gold: #b1874d;
+}
+.paper {
+  fill: var(--catalog-paper);
+  stroke: var(--catalog-gold);
+  stroke-width: 1.8;
+}
+.grain {
+  fill: var(--catalog-gold);
+  opacity: 0.24;
+}
+.innerFrame {
+  fill: none;
+  stroke: var(--catalog-gold);
+  stroke-width: 0.7;
+  opacity: 0.65;
+}
+.letter {
+  fill: var(--catalog-ink);
+}
+.flourishes path {
+  fill: none;
+  stroke: var(--catalog-trim);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: unroll 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) both;
+}
+.flourishes path:nth-child(even) {
+  animation-delay: 0.18s;
+}
+.hairline {
+  fill: none;
+  stroke: var(--catalog-paper);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  opacity: 0.65;
+}
+.diamonds {
+  fill: var(--catalog-gold);
+}
+@keyframes unroll {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flourishes path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

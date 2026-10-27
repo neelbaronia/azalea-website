@@ -104,17 +104,18 @@ export default function CompactWaitlist() {
         </div>
 
         <section className={styles.library} aria-labelledby="bookshelf-title">
-          <OrnamentalHeading
-            variant="catalog"
-            replayable={false}
-            className={styles.libraryTitle}
+          <BookshelfCarousel
+            heading={
+              <OrnamentalHeading
+                variant="catalog"
+                replayable={false}
+                className={styles.libraryTitle}
+              />
+            }
           />
-          <div>
-            <BookshelfCarousel />
-            <p className={styles.catalogNote}>
-              From our existing catalog. Subscription launch titles may differ.
-            </p>
-          </div>
+          <p className={styles.catalogNote}>
+            From our existing catalog. Subscription launch titles may differ.
+          </p>
         </section>
       </main>
       <footer className={styles.footer}>

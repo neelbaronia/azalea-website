@@ -21,8 +21,8 @@ it("renders an accessible catalog section initial alongside the hero without sha
     screen.getByRole("heading", { name: "Explore the catalog", level: 2 }).id,
   ).toBe("bookshelf-title");
   expect(
-    [...view.container.querySelectorAll("svg text")].map(
-      (node) => node.textContent,
+    [...view.container.querySelectorAll("svg[data-ornamental-letter]")].map(
+      (node) => node.getAttribute("data-ornamental-letter"),
     ),
   ).toEqual(["U", "E"]);
   const patterns = [...view.container.querySelectorAll("svg pattern")].map(
@@ -34,6 +34,25 @@ it("renders an accessible catalog section initial alongside the hero without sha
       view.container.querySelector(`path[fill="url(#${pattern})"]`),
     ).toBeTruthy();
   expect(screen.queryByRole("button")).toBeNull();
+});
+
+it("gives the catalog E its own drawn copperplate artwork without changing the botanical U", () => {
+  const view = render(
+    <>
+      <OrnamentalHeading variant="unlimited" replayable={false} />
+      <OrnamentalHeading variant="catalog" replayable={false} />
+    </>,
+  );
+  const hero = view.container.querySelector("#unlimited-title svg");
+  const catalog = view.container.querySelector("#bookshelf-title svg");
+  expect(hero?.getAttribute("data-ornament-style")).toBe("botanical");
+  expect(hero?.querySelector("text")?.textContent).toBe("U");
+  expect(catalog?.getAttribute("data-ornament-style")).toBe("copperplate");
+  expect(
+    catalog?.querySelector("[data-catalog-letter]")?.getAttribute("d"),
+  ).toBeTruthy();
+  expect(catalog?.querySelector("text")).toBeNull();
+  expect(catalog?.getAttribute("aria-hidden")).toBe("true");
 });
 
 it("keeps the complete headline accessible, without spelling out decorative fragments", () => {
