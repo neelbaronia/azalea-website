@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { deletePendingPaymentAccount } from "@/lib/membership-access";
 import Stripe from "stripe";
 
 function getStripe() {
@@ -132,29 +133,12 @@ async function deletePendingUserForCustomer(
   admin: ReturnType<typeof createAdminClient>,
   customerId: string
 ) {
-  const { data: profile } = await admin
+  const { data: profile, error } = await admin
     .from("profiles")
     .select("id")
     .eq("stripe_customer_id", customerId)
-    .single();
+    .maybeSingle();
 
-  if (!profile) return;
-
-  const { data: activeSubscription } = await admin
-    .from("subscriptions")
-    .select("id")
-    .eq("user_id", profile.id)
-    .in("status", ["active", "trialing"])
-    .single();
-
-  if (activeSubscription) return;
-
-  const { data: authUser } = await admin.auth.admin.getUserById(profile.id);
-
-  if (authUser.user?.user_metadata?.pending_payment === true) {
-    const { error } = await admin.auth.admin.deleteUser(profile.id);
-    if (error) {
-      console.error("Error deleting pending unpaid user:", error);
-    }
-  }
+  if (error) throw new Error("Unable to resolve pending account for Stripe customer");
+  if (profile) await deletePendingPaymentAccount(admin, profile.id);
 }
