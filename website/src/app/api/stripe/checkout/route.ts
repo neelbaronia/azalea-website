@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getMembershipAccess } from "@/lib/membership-access";
 import Stripe from "stripe";
 
 function getStripe() {
@@ -18,7 +19,6 @@ function getStripe() {
 }
 
 export async function POST() {
-  const stripe = getStripe();
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,9 +28,21 @@ export async function POST() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  try {
+    if ((await getMembershipAccess(supabase)).has_access) {
+      return NextResponse.json({ url: "/account" });
+    }
+  } catch (error) {
+    console.error("Error verifying membership before checkout:", error);
+    return NextResponse.json(
+      { error: "Unable to verify membership access. Please try again." },
+      { status: 503 },
+    );
+  }
+
   // Get or create Stripe customer
   const admin = createAdminClient();
-  const { data: existingSubscription } = await admin
+  const { data: existingSubscription, error: subscriptionError } = await admin
     .from("subscriptions")
     .select("id")
     .eq("user_id", user.id)
@@ -38,12 +50,14 @@ export async function POST() {
     .limit(1)
     .maybeSingle();
 
+  if (subscriptionError) {
+    return NextResponse.json({ error: "Unable to verify billing status" }, { status: 503 });
+  }
   if (existingSubscription) {
-    return NextResponse.json({
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/account`,
-    });
+    return NextResponse.json({ url: "/account" });
   }
 
+  const stripe = getStripe();
   const priceId = process.env.STRIPE_PRICE_ID;
   if (!priceId) {
     throw new Error("STRIPE_PRICE_ID is not configured");
@@ -57,11 +71,15 @@ export async function POST() {
     throw new Error("Production checkout cannot use a Stripe test price");
   }
 
-  const { data: profile } = await admin
+  const { data: profile, error: profileError } = await admin
     .from("profiles")
     .select("stripe_customer_id")
     .eq("id", user.id)
     .single();
+
+  if (profileError || !profile) {
+    return NextResponse.json({ error: "Unable to verify billing profile" }, { status: 503 });
+  }
 
   let customerId = profile?.stripe_customer_id;
 
@@ -72,10 +90,13 @@ export async function POST() {
     });
     customerId = customer.id;
 
-    await admin
+    const { error: updateError } = await admin
       .from("profiles")
       .update({ stripe_customer_id: customerId })
       .eq("id", user.id);
+    if (updateError) {
+      return NextResponse.json({ error: "Unable to save billing profile" }, { status: 503 });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

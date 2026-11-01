@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AccountActions({
-  hasSubscription,
-  isActive,
+  hasBillingAccount,
+  hasAccess,
 }: {
-  hasSubscription: boolean;
-  isActive: boolean;
+  hasBillingAccount: boolean;
+  hasAccess: boolean | null;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -36,17 +36,17 @@ export default function AccountActions({
 
   return (
     <div className="mt-6 space-y-3">
-      {hasSubscription && (
+      {hasBillingAccount && (
         <button
           onClick={handleManageSubscription}
           disabled={loading}
           className="h-[56px] w-full rounded-xl bg-black px-5 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(0,0,0,0.14)] transition-colors hover:bg-gray-800 disabled:opacity-50 font-[family-name:var(--font-geist-sans)]"
         >
-          {loading ? "Loading..." : "Manage Subscription"}
+          {loading ? "Loading..." : "Manage Billing"}
         </button>
       )}
 
-      {!isActive && (
+      {hasAccess === false && (
         <Link
           href="/subscribe"
           className="flex h-[56px] w-full items-center justify-center rounded-xl bg-[#1f6b4e] px-5 text-center text-sm font-semibold text-white shadow-[0_16px_42px_rgba(31,107,78,0.18)] transition-colors hover:bg-[#184f3a] font-[family-name:var(--font-geist-sans)]"

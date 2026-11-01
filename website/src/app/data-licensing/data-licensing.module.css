@@ -1,13 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap");
 
-:global(*) { box-sizing: border-box; }
-:global(body) { margin: 0; background: #e5e7e4; color: #202421; font-family: "DM Sans", Arial, sans-serif; }
+.page, .page * { box-sizing: border-box; }
 
 .page {
   min-height: 100vh;
   padding: 16px;
   background: linear-gradient(rgba(39, 50, 45, 0.045) 1px, transparent 1px), #e5e7e4;
   background-size: 100% 5px;
+  color: #202421;
+  font-family: "DM Sans", Arial, sans-serif;
 }
 
 .header {

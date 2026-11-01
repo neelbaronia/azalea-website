@@ -290,7 +290,7 @@ it("shows category names and concise descriptions without numeric BISAC codes", 
   render(<BookshelfCarousel />);
   for (const book of featuredBooks) {
     const originalCard = screen
-      .getByRole("heading", { level: 3, name: book.title, exact: true })
+      .getByRole("heading", { level: 3, name: book.title })
       .closest("figure")!;
     const categories = within(originalCard).getByRole("list");
     expect(categories.children).toHaveLength(book.categories.length);
