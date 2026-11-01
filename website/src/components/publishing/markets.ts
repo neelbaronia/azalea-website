@@ -1,9 +1,16 @@
-// Countries with any Spotify listener activity in the available analytics
-// history, December 2025 through October 2026. Shared by all site maps.
-export const LISTENER_FOOTPRINT_PERIOD = "December 2025–October 2026";
+// Countries with any Spotify listener activity across the full Monthly Digest,
+// November 2025 through October 2026. Shared by all site maps.
+// Checked 2026-11-01, including the report with Period Ending 20261101.
+// Period Ending is the next month's reporting date; Month is the activity month.
+// Source: https://docs.google.com/spreadsheets/d/1ldPZ9RztLMnNbu_yHiywQj8rWZ_Pn2xi1iBGHZoQ5hE/edit#gid=797996440
+export const LISTENER_FOOTPRINT_PERIOD = "November 2025–October 2026";
 
 export const LISTENER_FOOTPRINT = [
-  { name: "United States of America", label: "United States", color: "#5d5df5" },
+  {
+    name: "United States of America",
+    label: "United States",
+    color: "#5d5df5",
+  },
   { name: "United Kingdom", label: "United Kingdom", color: "#ec4978" },
   { name: "Canada", label: "Canada", color: "#ff9900" },
   { name: "Ireland", label: "Ireland", color: "#00ef82" },
@@ -19,6 +26,13 @@ export const LISTENER_FOOTPRINT = [
   { name: "Finland", label: "Finland", color: "#2a9d8f" },
   { name: "France", label: "France", color: "#8d5fd3" },
   { name: "Monaco", label: "Monaco", color: "#d65a31" },
+  { name: "Norway", label: "Norway", color: "#25c6b5" },
+  { name: "Poland", label: "Poland", color: "#ff6b6b" },
+  { name: "Mexico", label: "Mexico", color: "#e9a522" },
+  { name: "Brazil", label: "Brazil", color: "#20b565" },
+  { name: "Spain", label: "Spain", color: "#f4a261" },
+  { name: "Chile", label: "Chile", color: "#dd4e76" },
+  { name: "Colombia", label: "Colombia", color: "#885df1" },
 ] as const;
 
 // Audiobook storefront markets (not a claim that every title is live in each
