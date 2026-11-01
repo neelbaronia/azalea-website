@@ -29,7 +29,8 @@ ones. Revocation and temporary grants are administrator operations.
    Completed November 1, 2026 on the app's production Supabase project:
    migration history, caller-scoped RPC, RLS and privileges were verified on
    PostgreSQL 17.6. The grant table remained empty before the backfill.
-2. Deploy the website changes with `PENDING_ACCOUNT_CLEANUP_PAUSED=1` and
+2. Deploy the website changes with `MEMBERSHIP_BACKFILL_PAUSED = true` in
+   `src/lib/membership-rollout.ts` and
    drain in-flight requests from the previous deployment before any grants are
    applied. This pauses both expired-checkout webhooks and canceled-signup
    cleanup; explicit user-requested account deletion is unaffected. Grant
@@ -50,8 +51,11 @@ ones. Revocation and temporary grants are administrator operations.
    the identical parameters with `apply-grandfathered-access.sql` in place of
    the preview filename. Confirm the selected existing account resolves to
    `has_access: true` from its own authenticated session.
-5. Re-enable automated cleanup by setting `PENDING_ACCOUNT_CLEANUP_PAUSED=0`
-   and redeploying the website after the backfill has committed. Use the same
+5. Re-enable automated cleanup by setting `MEMBERSHIP_BACKFILL_PAUSED = false`
+   and releasing a second Git deployment after the backfill has committed.
+   `PENDING_ACCOUNT_CLEANUP_PAUSED=1` can independently keep cleanup paused.
+   Confirm `/api/membership-rollout` reports the expected Git commit and pause
+   state on all three production domains before and after the backfill. Use the same
    pause-and-drain procedure before any later bulk grant operation.
 
 Signed-in users can read their own grant but cannot create, edit, or delete
@@ -88,4 +92,6 @@ All 123 website tests, the embedded database suite, TypeScript checks and the
 full default `npm run build` passed after updating this branch onto current
 GitHub main. Existing CSS module compilation blockers and three test typing
 errors were corrected without changing their intended behavior. The production
-website deployment still needs validation after Vercel team authorization.
+website deployment follows the normal GitHub `main` release path. The public,
+uncached rollout marker verifies the deployed revision and effective cleanup
+pause without requiring privileged Vercel project API access.

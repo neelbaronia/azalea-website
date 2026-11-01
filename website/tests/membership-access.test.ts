@@ -6,6 +6,12 @@ import {
   MembershipAccessError,
 } from "@/lib/membership-access";
 
+// Exercise the resumed state as well as the environment pause independently of
+// the temporary source-controlled rollout pause, tested in membership-rollout.
+vi.mock("@/lib/membership-rollout", () => ({
+  isPendingAccountCleanupPaused: () => process.env.PENDING_ACCOUNT_CLEANUP_PAUSED === "1",
+}));
+
 const NOW = Date.parse("2026-11-01T12:00:00Z");
 const grant = { grant_type: "grandfathered", revoked_at: null, expires_at: null };
 type Result = { data: unknown; error: unknown };

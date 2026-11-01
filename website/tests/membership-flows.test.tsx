@@ -7,6 +7,11 @@ import { POST as webhook } from "@/app/api/stripe/webhook/route";
 import SubscribePage from "@/app/subscribe/page";
 import AccountPage from "@/app/account/page";
 
+// These flow tests cover the steady state after the backfill pause is lifted.
+vi.mock("@/lib/membership-rollout", () => ({
+  isPendingAccountCleanupPaused: () => process.env.PENDING_ACCOUNT_CLEANUP_PAUSED === "1",
+}));
+
 const mocks = vi.hoisted(() => ({
   userClient: {} as unknown,
   adminClient: {} as unknown,

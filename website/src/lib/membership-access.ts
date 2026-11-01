@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isPendingAccountCleanupPaused } from "./membership-rollout";
 
 export type MembershipAccess = {
   has_access: boolean;
@@ -79,7 +80,7 @@ export async function deletePendingPaymentAccount(
   admin: Pick<SupabaseClient, "from" | "auth">,
   userId: string,
 ): Promise<boolean> {
-  if (process.env.PENDING_ACCOUNT_CLEANUP_PAUSED === "1") return false;
+  if (isPendingAccountCleanupPaused()) return false;
   if (await hasGrandfatheredAccess(admin, userId)) return false;
 
   const { data: subscription, error: subscriptionError } = await admin
