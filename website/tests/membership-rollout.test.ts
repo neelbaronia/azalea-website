@@ -29,15 +29,13 @@ describe("membership rollout deployment marker", () => {
     expect((await (await GET()).json()).cleanup_paused).toBe(true);
   });
 
-  it("does not read or delete accounts while the source rollout pause is enabled", async () => {
-    vi.stubEnv("PENDING_ACCOUNT_CLEANUP_PAUSED", "0");
+  it("does not read or delete accounts while cleanup is paused", async () => {
+    vi.stubEnv("PENDING_ACCOUNT_CLEANUP_PAUSED", "1");
     const from = vi.fn();
     const deleteUser = vi.fn();
     const admin = { from, auth: { admin: { deleteUser } } } as unknown as Parameters<typeof deletePendingPaymentAccount>[0];
-    if (MEMBERSHIP_BACKFILL_PAUSED) {
-      expect(await deletePendingPaymentAccount(admin, "pending-user")).toBe(false);
-      expect(from).not.toHaveBeenCalled();
-      expect(deleteUser).not.toHaveBeenCalled();
-    }
+    expect(await deletePendingPaymentAccount(admin, "pending-user")).toBe(false);
+    expect(from).not.toHaveBeenCalled();
+    expect(deleteUser).not.toHaveBeenCalled();
   });
 });

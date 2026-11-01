@@ -51,6 +51,9 @@ ones. Revocation and temporary grants are administrator operations.
    the identical parameters with `apply-grandfathered-access.sql` in place of
    the preview filename. Confirm the selected existing account resolves to
    `has_access: true` from its own authenticated session.
+   Completed November 1, 2026: the approved batch committed once and permanent
+   grants were independently verified, with no grants outside the cutoff and
+   unchanged Stripe subscription records. No auth-user or library data changed.
 5. Re-enable automated cleanup by setting `MEMBERSHIP_BACKFILL_PAUSED = false`
    and releasing a second Git deployment after the backfill has committed.
    `PENDING_ACCOUNT_CLEANUP_PAUSED=1` can independently keep cleanup paused.
@@ -88,7 +91,7 @@ revocation, cutoff boundaries, preview safety, billing preservation and reruns.
 
 In this session the embedded suite used PostgreSQL 18.6. Native PostgreSQL 14
 could not initialize because the session denied shared-memory allocation.
-All 123 website tests, the embedded database suite, TypeScript checks and the
+All 126 website tests, the embedded database suite, TypeScript checks and the
 full default `npm run build` passed after updating this branch onto current
 GitHub main. Existing CSS module compilation blockers and three test typing
 errors were corrected without changing their intended behavior. The production

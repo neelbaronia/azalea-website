@@ -1,6 +1,6 @@
-// Keep automated pending-account deletion paused until the grandfather backfill
-// is verified. Resume with a second Git release after the rollout is complete.
-export const MEMBERSHIP_BACKFILL_PAUSED = true;
+// Enable before a backfill, verify the deployment and drain old requests.
+// Resume only after the grants have been committed and verified.
+export const MEMBERSHIP_BACKFILL_PAUSED = false;
 export const MEMBERSHIP_ACCESS_VERSION = 1;
 
 export function isPendingAccountCleanupPaused(): boolean {
