@@ -7,11 +7,15 @@ create, or modify a subscription.
 
 ## Policy
 
-The cutoff is an explicit UTC timestamp chosen for the membership rollout.
-Eligibility uses `auth.users.created_at < cutoff`, never an editable profile
-field. The app repository introduced its membership gate on September 4, 2026
-UTC; that commit date alone does not establish the production rollout date.
-There is no default cutoff and no automatic grant to future signups.
+The user approved **September 4, 2026 at 05:47:16 UTC** as the cutoff on
+November 1, 2026. This is the exact timestamp of the original iOS paywall
+commit, selected as the policy boundary; it is not a claim about the production
+deployment time. Eligibility uses `auth.users.created_at < cutoff`, never an
+editable profile field. Newer accounts do not receive automatic grants.
+
+`supabase/scripts/grandfathering-20261101-parameters.sql` records this policy
+and the audit batch `grandfathered-pre-membership-20260904-approved-20261101`.
+The generic preview/apply scripts still require explicit parameters.
 
 Backfills create permanent grants, with a recorded cutoff and batch label.
 Re-running a batch preserves all existing grants, including revoked and expired
@@ -30,13 +34,12 @@ ones. Revocation and temporary grants are administrator operations.
    closes that race during this one-time backfill. Build/release the iOS app using
    `get_membership_access()`. Existing app versions that query only
    `subscriptions` cannot recognize a grandfathered grant.
-3. Choose the actual cutoff and a descriptive audit batch label. Preview using
-   an administrative database connection, replacing both placeholders:
+3. Preview the approved cutoff and audit batch using an administrative database
+   connection:
 
    ```sh
    psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 \
-     -v cutoff='EXPLICIT_UTC_TIMESTAMP' \
-     -v grant_batch='EXPLICIT_AUDIT_BATCH' \
+     -f supabase/scripts/grandfathering-20261101-parameters.sql \
      -f supabase/scripts/preview-grandfathered-access.sql
    ```
 
@@ -78,6 +81,8 @@ revocation, cutoff boundaries, preview safety, billing preservation and reruns.
 
 In this session the embedded suite used PostgreSQL 18.6. Native PostgreSQL 14
 could not initialize because the session denied shared-memory allocation.
-The website tests and TypeScript checks passed. The full website build is
-blocked by unchanged `:global(*)` selectors in the two data-licensing CSS
-modules; those errors are outside this change.
+The website tests and TypeScript checks passed. CSS compilation errors in the
+two data-licensing modules were fixed by
+scoping their styles to existing page wrappers. Webpack compilation and
+TypeScript now pass; the full local build subsequently hit a timeout fetching
+sample metadata during prerendering. A production build still needs validation.
