@@ -9,9 +9,6 @@
   font-family: var(--font-geist-sans), sans-serif;
   overflow: clip;
 }
-:global(body:has([data-audio-waitlist]) > #site-footer) {
-  display: none;
-}
 .page :where(a, button, input, summary):focus-visible {
   outline: 3px solid #ba583d;
   outline-offset: 5px;

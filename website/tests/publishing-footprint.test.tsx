@@ -81,7 +81,7 @@ it.each([
       for (const country of LISTENER_FOOTPRINT) {
         // Tiny countries can have both an atlas shape and a visibility marker.
         for (const shape of screen.getAllByLabelText(country.label)) {
-          expect(shape.className.baseVal).toContain("mapCountryActive");
+          expect(shape.getAttribute("class")).toContain("mapCountryActive");
           expect(shape.getAttribute("style")).toContain(country.color);
         }
       }

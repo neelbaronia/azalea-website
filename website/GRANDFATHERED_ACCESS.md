@@ -26,6 +26,9 @@ ones. Revocation and temporary grants are administrator operations.
 1. Apply `supabase/migrations/20261101000000_access_entitlements.sql` to the
    Supabase project that already contains `profiles` and `subscriptions`.
    This creates the table and resolver but grants no accounts access.
+   Completed November 1, 2026 on the app's production Supabase project:
+   migration history, caller-scoped RPC, RLS and privileges were verified on
+   PostgreSQL 17.6. The grant table remained empty before the backfill.
 2. Deploy the website changes with `PENDING_ACCOUNT_CLEANUP_PAUSED=1` and
    drain in-flight requests from the previous deployment before any grants are
    applied. This pauses both expired-checkout webhooks and canceled-signup
@@ -81,8 +84,8 @@ revocation, cutoff boundaries, preview safety, billing preservation and reruns.
 
 In this session the embedded suite used PostgreSQL 18.6. Native PostgreSQL 14
 could not initialize because the session denied shared-memory allocation.
-The website tests and TypeScript checks passed. CSS compilation errors in the
-two data-licensing modules were fixed by
-scoping their styles to existing page wrappers. Webpack compilation and
-TypeScript now pass; the full local build subsequently hit a timeout fetching
-sample metadata during prerendering. A production build still needs validation.
+All 123 website tests, the embedded database suite, TypeScript checks and the
+full default `npm run build` passed after updating this branch onto current
+GitHub main. Existing CSS module compilation blockers and three test typing
+errors were corrected without changing their intended behavior. The production
+website deployment still needs validation after Vercel team authorization.

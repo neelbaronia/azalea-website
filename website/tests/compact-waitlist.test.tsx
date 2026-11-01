@@ -100,7 +100,7 @@ it("shows twenty real catalog covers without promising the launch selection", ()
       screen.getByRole("img", { name: `${title} audiobook cover` }),
     ).toBeTruthy();
     expect(
-      screen.getByRole("heading", { level: 3, name: title, exact: true }),
+      screen.getByRole("heading", { level: 3, name: title }),
     ).toBeTruthy();
   }
   expect(
