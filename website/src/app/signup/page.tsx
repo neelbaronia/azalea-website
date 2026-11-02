@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 import { CoverStickers } from "./cover-stickers";
 
@@ -211,11 +212,11 @@ export default function SignUpPage() {
           className="mb-7 flex w-fit items-center gap-3 font-[family-name:var(--font-geist-sans)] text-lg font-black tracking-[-0.01em]"
         >
           <Image
-            src="/azalea-icon.webp"
+            src={AUDIO_APP_ICON}
             alt="Azalea"
             width={44}
             height={44}
-            className="rounded-[13px] bg-[#1f6b4e] p-1 shadow-[0_12px_28px_rgba(31,107,78,0.22)]"
+            className="rounded-[13px] shadow-[0_12px_28px_rgba(40,33,66,0.18)]"
             priority
           />
           <span>Azalea</span>
@@ -264,11 +265,11 @@ export default function SignUpPage() {
             className="mb-12 flex w-fit items-center gap-4 font-[family-name:var(--font-geist-sans)] text-xl font-black tracking-[-0.01em]"
           >
             <Image
-              src="/azalea-icon.webp"
+              src={AUDIO_APP_ICON}
               alt="Azalea"
               width={52}
               height={52}
-              className="rounded-[15px] bg-[#1f6b4e] p-1.5 shadow-[0_12px_28px_rgba(31,107,78,0.22)]"
+              className="rounded-[15px] shadow-[0_12px_28px_rgba(40,33,66,0.18)]"
               priority
             />
             <span>Azalea</span>

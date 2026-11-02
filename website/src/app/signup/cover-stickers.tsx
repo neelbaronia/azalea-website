@@ -173,10 +173,9 @@ export function CoverStickers({ desktop = false }: { desktop?: boolean }) {
           />
         ))}
       </div>
-      <div className="flex items-center justify-between gap-3 font-[family-name:var(--font-geist-sans)] text-sm text-[#6f746f]">
-        <p id={instructionsId}>
-          Drag the stickers around.
-          <span className="sr-only"> Or focus a sticker and use the arrow keys. Hold Shift to move farther.</span>
+      <div className="flex items-center justify-end gap-3 font-[family-name:var(--font-geist-sans)] text-sm text-[#6f746f]">
+        <p id={instructionsId} className="sr-only">
+          Use the arrow keys to move a focused sticker. Hold Shift to move farther.
         </p>
         <button
           type="button"
