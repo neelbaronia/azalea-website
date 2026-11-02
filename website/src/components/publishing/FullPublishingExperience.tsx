@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import DialHero from "@/components/dial/DialHero";
 import FullWorldMap from "./FullWorldMap";
 import styles from "./full-publishing.module.css";
@@ -12,7 +13,7 @@ export default function FullPublishingExperience() {
         aria-hidden="true"
       >
         <Image
-          src="/azalea-icon.webp"
+          src={AUDIO_APP_ICON}
           alt=""
           width={30}
           height={30}

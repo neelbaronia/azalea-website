@@ -1,5 +1,7 @@
 "use client";
 
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
+
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -36,7 +38,7 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
         <div className="flex items-center justify-between gap-3">
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-            <Image src="/azalea-icon.webp" alt="Azalea" width={32} height={32} className="w-7 h-7 md:w-10 md:h-10" />
+            <Image src={AUDIO_APP_ICON} alt="Azalea" width={32} height={32} className="w-7 h-7 rounded-[22%] md:w-10 md:h-10" />
             <div className="flex flex-col leading-tight">
               <span className={`text-[10px] md:text-sm font-extrabold uppercase tracking-[0.18em] transition-colors duration-500 ${isDark ? "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]" : "text-black"}`}>Azalea</span>
               <span className={`text-[10px] md:text-sm font-extrabold uppercase tracking-[0.18em] transition-colors duration-500 ${isDark ? "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]" : "text-black"}`}>Labs</span>

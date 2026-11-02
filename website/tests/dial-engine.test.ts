@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContinuousSweep } from "@/components/dial/dial-engine";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 const renderer = vi.hoisted(() => ({
   initialize: vi.fn(), upload: vi.fn(), draw: vi.fn(), destroy: vi.fn(),
@@ -50,6 +51,20 @@ afterEach(() => {
 });
 
 describe("Continuous sweep lifecycle", () => {
+  it("renders the current full-color app icon directly rather than tinting an opaque mask", () => {
+    const icon = document.createElement("img");
+    Object.defineProperties(icon, {
+      complete: { value: true },
+      naturalWidth: { value: 1024 },
+    });
+    vi.stubGlobal("Image", class { constructor() { return icon; } });
+    mount();
+    expect(icon.getAttribute("src")).toBe(AUDIO_APP_ICON);
+    expect(context.drawImage).toHaveBeenCalledWith(
+      icon, 58, expect.any(Number), expect.any(Number), expect.any(Number),
+    );
+  });
+
   it("uploads the multilingual artwork once, not on every frame", () => {
     const { host, engine } = mount();
     expect(engine.ok).toBe(true);

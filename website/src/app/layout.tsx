@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat, EB_Garamond } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "@/components/SiteFooter";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,16 +26,17 @@ const garamond = EB_Garamond({
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.azalea-labs.com"),
   title: "Azalea Labs",
   description: "The world's largest audio library.",
   icons: {
-    icon: "/azalea-icon.png",
-    apple: "/azalea-icon.png",
+    icon: AUDIO_APP_ICON,
+    apple: AUDIO_APP_ICON,
   },
   openGraph: {
     title: "Azalea Labs",
     description: "The world's largest audio library.",
-    images: [{ url: "/azalea-icon.png" }],
+    images: [{ url: AUDIO_APP_ICON }],
   },
 };
 

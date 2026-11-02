@@ -38,11 +38,9 @@
 .logo {
   width: 42px;
   height: 42px;
-  padding: 7px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: var(--ink);
   border-radius: 12px;
 }
 

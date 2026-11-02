@@ -125,10 +125,19 @@ September 2026 iOS app captures from
 modification from `cc-audiobook-player/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`
 in the `cc-audiobook-player` repository (branding commit `8943ff2`). Its SHA-256 is
 `14c5cfb033b08b1b829bade5afe8d3db798adb3e4e0aaa1eaaad6ec44d668a58`.
-`src/lib/audio-branding.ts` shares the versioned icon URL between all landing
-headers and both routes' favicon/Apple touch icon metadata. The new filename
-avoids cached copies of the older icon; future app branding updates should refresh
-this asset and its provenance test together. Local
+`src/lib/audio-branding.ts` shares the versioned icon URL across the entire site,
+including Labs/publishing headers, account/signup, the scrolling dial, and
+favicon/Apple touch icon metadata. Translation watermarks display the artwork
+directly rather than masking or recoloring its opaque background. The static
+payout and storyboard pages use this same URL.
+
+The new filename avoids cached copies of the older icon. After changing the
+canonical asset, run `npm run sync:app-icon` to refresh Next.js file-based icon
+and link-preview images plus the legacy public icon URLs. PNG aliases remain
+byte-identical; the legacy WebP is a lossless conversion. Refresh the provenance
+test alongside the artwork. The branding tests reject old image references in
+site source and verify that all compatibility assets match the current icon.
+Local
 catalog covers are reused; the page states that the subscription collection
 and experience may change. Next.js delivers responsive image sizes.
 

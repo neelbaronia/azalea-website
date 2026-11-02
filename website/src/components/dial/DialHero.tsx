@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import {
   ContinuousSweep,
   DEFAULT_DIAL_SETTINGS,
@@ -309,7 +310,7 @@ export default function DialHero() {
         aria-label="The Azalea Labs logo and multilingual versions of the name roll upward in a smooth, continuous left-to-right sweep before resolving in English and moving into the page header."
       >
         <div className={styles.dialFallback} aria-hidden="true">
-          <Image src="/azalea-icon.webp" alt="" width={40} height={40} unoptimized />
+          <Image src={AUDIO_APP_ICON} alt="" width={40} height={40} className="rounded-[22%]" unoptimized />
           <span>Azalea Labs</span>
         </div>
       </div>

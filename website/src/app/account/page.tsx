@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getMembershipAccess, type MembershipAccess } from "@/lib/membership-access";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import AccountActions from "./account-actions";
 import Stripe from "stripe";
 
@@ -141,11 +142,11 @@ export default async function AccountPage({
           aria-label="Back to Azalea Labs"
         >
           <Image
-            src="/azalea-icon.webp"
+            src={AUDIO_APP_ICON}
             alt=""
             width={40}
             height={40}
-            className="h-10 w-10 rounded-xl bg-[#1f6b4e] p-1 shadow-[0_12px_28px_rgba(31,107,78,0.18)]"
+            className="h-10 w-10 rounded-xl shadow-[0_12px_28px_rgba(39,33,66,0.14)]"
             priority
           />
           <span className="flex flex-col leading-tight">

@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "sync:app-icon": "node scripts/sync-app-icon.mjs",
     "test": "vitest run",
     "test:membership-db": "node tests/db/run-pglite.mjs"
   },

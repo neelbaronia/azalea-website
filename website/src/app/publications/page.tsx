@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import {
   ebookLinksByBookId,
   overdriveLinksByBookId,
@@ -31,7 +32,7 @@ function PublicationsHeader() {
     <header className={styles.header}>
       <Link className={styles.wordmark} href="/" aria-label="Azalea Labs home">
         <Image
-          src="/azalea-icon.webp"
+          src={AUDIO_APP_ICON}
           alt=""
           width={30}
           height={30}

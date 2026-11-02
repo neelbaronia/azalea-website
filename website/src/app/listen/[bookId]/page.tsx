@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getListenBook } from "@/lib/listen-books";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import GoogleAdsTag from "./GoogleAdsTag";
 import ListenButton from "./ListenButton";
 import { SKYHORSE_LICENSED_BOOK_IDS } from "@/lib/skyhorse-catalog";
@@ -57,7 +58,7 @@ export default async function ListenPage({ params }: Props) {
       <header className={styles.header}>
         <Link className={styles.wordmark} href="/" aria-label="Azalea Labs home">
           <Image
-            src="/azalea-icon.webp"
+            src={AUDIO_APP_ICON}
             alt=""
             width={24}
             height={24}

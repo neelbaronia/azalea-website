@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface AlignmentWord {
@@ -298,13 +299,13 @@ export default function GamesSamplePage() {
 
       <section className="mx-auto max-w-6xl px-5 pb-10 pt-7 sm:px-8 sm:pt-10">
         <div className="mb-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#355f4e]">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#244b3b]">
+          <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl">
             <Image
-              src="/azalea-icon.webp"
+              src={AUDIO_APP_ICON}
               alt=""
-              width={25}
-              height={25}
-              className="h-6 w-6 object-contain"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
             />
           </span>
           <span>Azalea Labs</span>

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import type { SampleEntry } from "./sample-data";
 
 function formatDuration(seconds: number): string {
@@ -22,7 +23,7 @@ function SamplesNavbar() {
   return (
     <header className="sticky top-0 z-50 flex min-h-[60px] items-center justify-between gap-3 border-b border-white/15 bg-[#282142] px-4 text-white md:gap-4 md:px-10">
       <Link href="/" className="flex shrink-0 items-center gap-2 md:gap-3" aria-label="Azalea Labs home">
-        <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority unoptimized className="h-6 w-6 md:h-[30px] md:w-[30px]" />
+        <Image src={AUDIO_APP_ICON} alt="" width={30} height={30} priority unoptimized className="h-6 w-6 rounded-[22%] md:h-[30px] md:w-[30px]" />
         <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] md:text-sm md:tracking-[0.18em]">Azalea Labs</span>
       </Link>
     </header>

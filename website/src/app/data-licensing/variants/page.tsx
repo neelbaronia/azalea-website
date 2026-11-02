@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import { landonRosauroParagraphs } from "../../translations/_components/landon-text-samples";
 import { lailaMemoryOfAshesPairs } from "../../translations/_components/text-sample";
 import styles from "./variants.module.css";
@@ -139,7 +140,7 @@ export default function DesignStudiesPage() {
     <main className={styles.gallery}>
       <header className={styles.header}>
         <Link className={styles.wordmark} href="/data">
-          <Image src="/azalea-icon.webp" alt="" width={28} height={28} priority />
+          <Image src={AUDIO_APP_ICON} alt="" width={28} height={28} priority />
           <span>AZALEA / DATA</span>
         </Link>
         <div className={styles.headerTitle}>DESIGN STUDIES / 06 OPTIONS</div>

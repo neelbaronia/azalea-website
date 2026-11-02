@@ -119,6 +119,7 @@ button { font: inherit; }
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: 22%;
 }
 
 .brand-mark.small { width: 24px; height: 24px; }
@@ -852,17 +853,12 @@ button { font: inherit; }
   position: absolute;
   z-index: 0;
   inset: 0;
-  background: var(--ink);
+  background-image: url("/subscription-preview/azalea-audio-icon-quiet-corners.png"), url("/subscription-preview/azalea-audio-icon-quiet-corners.png");
+  background-position: 25% 53%, 75% 53%;
+  background-repeat: no-repeat;
+  background-size: clamp(150px, 18vw, 250px), clamp(150px, 18vw, 250px);
   opacity: 0.025;
   pointer-events: none;
-  -webkit-mask-image: url("/azalea-icon.webp"), url("/azalea-icon.webp");
-  -webkit-mask-position: 25% 53%, 75% 53%;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: clamp(150px, 18vw, 250px), clamp(150px, 18vw, 250px);
-  mask-image: url("/azalea-icon.webp"), url("/azalea-icon.webp");
-  mask-position: 25% 53%, 75% 53%;
-  mask-repeat: no-repeat;
-  mask-size: clamp(150px, 18vw, 250px), clamp(150px, 18vw, 250px);
 }
 .title-page,
 .sentence-list,
@@ -993,10 +989,8 @@ button { font: inherit; }
 
 .translation-reader .title-spread::before,
 .translation-reader .story-spread::before {
-  -webkit-mask-position: center;
-  -webkit-mask-image: url("/azalea-icon.webp");
-  mask-position: center;
-  mask-image: url("/azalea-icon.webp");
+  background-position: center;
+  background-image: url("/subscription-preview/azalea-audio-icon-quiet-corners.png");
 }
 
 .translation-reader .story-spread {

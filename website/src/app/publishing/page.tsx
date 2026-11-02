@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import WorldMap from "./WorldMap";
 import styles from "./publishing.module.css";
 
@@ -21,7 +22,7 @@ export default function PublishingPage() {
         >
           <span className={styles.logo}>
             <Image
-              src="/azalea-icon.webp"
+              src={AUDIO_APP_ICON}
               alt=""
               width={44}
               height={44}

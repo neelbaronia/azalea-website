@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import {
   landonNidoDeAvionesPairs,
   landonRosauroPairs,
@@ -166,7 +167,7 @@ export default function DataLicensingPage() {
     <main className={styles.page}>
       <header className={styles.header}>
         <Link className={styles.wordmark} href="/">
-          <Image src="/azalea-icon.webp" alt="" width={28} height={28} priority />
+          <Image src={AUDIO_APP_ICON} alt="" width={28} height={28} priority />
           <span>AZALEA / DATA</span>
         </Link>
         <nav className={styles.nav} aria-label="Data views">

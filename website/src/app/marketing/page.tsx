@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import type { Metadata } from "next";
 import MarketingCarousel from "./marketing-carousel";
 import type { Campaign } from "./marketing-types";
@@ -16,13 +17,13 @@ export const metadata: Metadata = {
     description,
     url: "https://www.azalea-labs.com/marketing",
     type: "website",
-    images: [{ url: "https://www.azalea-labs.com/azalea-icon.png" }],
+    images: [{ url: `https://www.azalea-labs.com${AUDIO_APP_ICON}` }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["https://www.azalea-labs.com/azalea-icon.png"],
+    images: [`https://www.azalea-labs.com${AUDIO_APP_ICON}`],
   },
 };
 
@@ -122,7 +123,7 @@ export default function MarketingPage() {
     <div className="min-h-screen bg-[#f2f0e8] text-[#171717]">
       <header className="flex min-h-[64px] items-center justify-between gap-4 border-b border-white/15 bg-[#282142] px-5 text-white md:px-10">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Azalea Labs home">
-          <Image src="/azalea-icon.webp" alt="" width={30} height={30} priority className="h-7 w-7" />
+          <Image src={AUDIO_APP_ICON} alt="" width={30} height={30} priority className="h-7 w-7 rounded-[22%]" />
           <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Azalea Labs</span>
         </Link>
       </header>

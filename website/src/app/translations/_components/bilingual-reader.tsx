@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink, Info, MousePointerClick } from "lucide-react";
 import { getLanguageTheme, getSample, samples } from "./sample-catalog";
@@ -167,7 +168,7 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
     <main className={`reader-shell${translationOnly ? " translation-reader" : visibleSpread ? " bilingual-story-reader" : ""}`} style={readerStyle}>
       <header className="reader-bar">
         <Link className="brand" href="/translations" aria-label="Return to the Azalea Labs translation sample library">
-          <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
+          <span className="brand-mark"><img src={AUDIO_APP_ICON} alt="" /></span>
           <span>AZALEA LABS</span>
         </Link>
 

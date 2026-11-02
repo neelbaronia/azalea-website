@@ -6,6 +6,7 @@ import { POST as checkout } from "@/app/api/stripe/checkout/route";
 import { POST as webhook } from "@/app/api/stripe/webhook/route";
 import SubscribePage from "@/app/subscribe/page";
 import AccountPage from "@/app/account/page";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 
 // These flow tests cover the steady state after the backfill pause is lifted.
 vi.mock("@/lib/membership-rollout", () => ({
@@ -131,6 +132,13 @@ describe("checkout protection", () => {
 });
 
 describe("subscribe and account pages", () => {
+  it("uses the current iOS app icon on the account page", async () => {
+    const html = renderToStaticMarkup(await AccountPage({}));
+    expect(html).toContain(`src="${AUDIO_APP_ICON}"`);
+    expect(html).not.toContain("/azalea-icon.webp");
+    expect(mocks.stripeConstructor).not.toHaveBeenCalled();
+  });
+
   it("redirects grandfathered members to account even after a canceled checkout", async () => {
     const { deleteUser } = fixture();
     await expect(SubscribePage({ searchParams: Promise.resolve({ canceled: "true" }) })).rejects.toThrow("REDIRECT:/account");

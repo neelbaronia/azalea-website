@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AUDIO_APP_ICON } from "@/lib/audio-branding";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { useMemo, useState, type CSSProperties } from "react";
 import { RightsNotice } from "./rights-notice";
@@ -31,7 +32,7 @@ export function SampleLibrary() {
     <main className="library-shell">
       <header className="library-bar">
         <a className="brand" href="#sample-index" aria-label="Azalea Labs translation sample library">
-          <span className="brand-mark"><img src="/azalea-icon.webp" alt="" /></span>
+          <span className="brand-mark"><img src={AUDIO_APP_ICON} alt="" /></span>
           <span>AZALEA LABS</span>
         </a>
         <div className="library-identity">
