@@ -6,7 +6,7 @@ import {
   type DialSettings,
 } from "./dial-geometry";
 import { ATLAS_COLUMNS, ATLAS_ROWS, SweepRenderer } from "./dial-renderer";
-import { AUDIO_APP_ICON } from "@/lib/audio-branding";
+import { LABS_DIAL_MARK } from "@/lib/audio-branding";
 
 export { DEFAULT_DIAL_SETTINGS, type DialSettings } from "./dial-geometry";
 
@@ -98,7 +98,7 @@ export class ContinuousSweep {
     this.logo.onload = () => {
       if (!this.disposed) this.buildAtlas();
     };
-    this.logo.src = AUDIO_APP_ICON;
+    this.logo.src = LABS_DIAL_MARK;
     this.ok = true;
     this.buildAtlas();
     this.measure();
@@ -145,8 +145,17 @@ export class ContinuousSweep {
       context.fillRect(0, 0, 1024, 256);
 
       if (this.logo.complete && this.logo.naturalWidth) {
-        // The app icon is full-color and opaque, not a tintable flower mask.
-        context.drawImage(this.logo, logoLeft, (256 - logoSize) / 2, logoSize, logoSize);
+        const mask = document.createElement("canvas");
+        mask.width = 256;
+        mask.height = 256;
+        const maskContext = mask.getContext("2d");
+        if (maskContext) {
+          maskContext.drawImage(this.logo, 0, 0, 256, 256);
+          maskContext.globalCompositeOperation = "source-in";
+          maskContext.fillStyle = language.ink;
+          maskContext.fillRect(0, 0, 256, 256);
+          context.drawImage(mask, logoLeft, (256 - logoSize) / 2, logoSize, logoSize);
+        }
       }
 
       context.font = "800 " + baseSize + "px " + fontFamily;

@@ -126,10 +126,16 @@ modification from `cc-audiobook-player/Assets.xcassets/AppIcon.appiconset/AppIco
 in the `cc-audiobook-player` repository (branding commit `8943ff2`). Its SHA-256 is
 `14c5cfb033b08b1b829bade5afe8d3db798adb3e4e0aaa1eaaad6ec44d668a58`.
 `src/lib/audio-branding.ts` shares the versioned icon URL across the entire site,
-including Labs/publishing headers, account/signup, the scrolling dial, and
+including Labs/publishing headers, account/signup, and
 favicon/Apple touch icon metadata. Translation watermarks display the artwork
 directly rather than masking or recoloring its opaque background. The static
 payout and storyboard pages use this same URL.
+
+The homepage scrolling dial, its fallback, and its resolved header are the
+intentional exception: they use `LABS_DIAL_MARK`, the original transparent Labs
+flower from commit `6d139fc`, at `/azalea-labs-flower.webp`. The dial keeps its
+original monochrome tinting on each band. This dedicated asset is not overwritten
+by `sync:app-icon`; all other updated logo placements retain the current app icon.
 
 The new filename avoids cached copies of the older icon. After changing the
 canonical asset, run `npm run sync:app-icon` to refresh Next.js file-based icon

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContinuousSweep } from "@/components/dial/dial-engine";
-import { AUDIO_APP_ICON } from "@/lib/audio-branding";
+import { LABS_DIAL_MARK } from "@/lib/audio-branding";
 
 const renderer = vi.hoisted(() => ({
   initialize: vi.fn(), upload: vi.fn(), draw: vi.fn(), destroy: vi.fn(),
@@ -21,6 +21,7 @@ vi.mock("@/components/dial/dial-renderer", () => ({
 
 const engines: ContinuousSweep[] = [];
 const context = {
+  globalCompositeOperation: "source-over",
   save: vi.fn(), restore: vi.fn(), translate: vi.fn(), scale: vi.fn(),
   beginPath: vi.fn(), rect: vi.fn(), clip: vi.fn(), fillRect: vi.fn(),
   drawImage: vi.fn(), fillText: vi.fn(), measureText: vi.fn(() => ({ width: 500 })),
@@ -37,6 +38,7 @@ function mount() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  context.globalCompositeOperation = "source-over";
   renderer.initialize.mockReset();
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(context as unknown as CanvasRenderingContext2D);
   vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
@@ -51,7 +53,7 @@ afterEach(() => {
 });
 
 describe("Continuous sweep lifecycle", () => {
-  it("renders the current full-color app icon directly rather than tinting an opaque mask", () => {
+  it("uses the original transparent Labs flower and tints it to match the band lettering", () => {
     const icon = document.createElement("img");
     Object.defineProperties(icon, {
       complete: { value: true },
@@ -59,9 +61,13 @@ describe("Continuous sweep lifecycle", () => {
     });
     vi.stubGlobal("Image", class { constructor() { return icon; } });
     mount();
-    expect(icon.getAttribute("src")).toBe(AUDIO_APP_ICON);
+    expect(icon.getAttribute("src")).toBe(LABS_DIAL_MARK);
     expect(context.drawImage).toHaveBeenCalledWith(
-      icon, 58, expect.any(Number), expect.any(Number), expect.any(Number),
+      icon, 0, 0, 256, 256,
+    );
+    expect(context.globalCompositeOperation).toBe("source-in");
+    expect(context.drawImage).toHaveBeenCalledWith(
+      expect.any(HTMLCanvasElement), 58, expect.any(Number), expect.any(Number), expect.any(Number),
     );
   });
 
