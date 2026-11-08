@@ -9,6 +9,7 @@ import { landonNidoDeAvionesPairs, landonRosauroPairs } from "./landon-text-samp
 import { lynnVowinckelParagraphs } from "./lynn-text-samples";
 import { sophiaCarouselPairs, sophiaColonPairs } from "./sophia-text-samples";
 import { jordanFoolsBusPairs, jordanSubstituteForFictionPairs } from "./jordan-text-samples";
+import { yunJewelCrabPairs } from "./yun-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -19,7 +20,8 @@ export type TranslationSample = {
   author: string;
   englishAuthor: string;
   translator: string;
-  translatorBioUrl: string;
+  translatorBioUrl?: string;
+  translationProcessNote?: string;
   source: string;
   sourceUrl: string;
   sourceFolio?: number;
@@ -222,6 +224,20 @@ export const samples: TranslationSample[] = [
     source: "Energheia",
     sourceUrl: "https://www.energheia.org/nido-de-aviones.html",
     pairs: landonNidoDeAvionesPairs,
+  },
+  {
+    id: "jewel-crab-yun-liu",
+    language: "Chinese",
+    languageCode: "zh",
+    originalTitle: "珠宝蟹",
+    translatedTitle: "Jewel Crab",
+    author: "龚万莹",
+    englishAuthor: "Gong Wanying",
+    translator: "Yun Liu",
+    source: "《上海文学》2025年第1期 · Shanghai Literature, 2025 No. 1",
+    sourceUrl: "https://www.chinawriter.com.cn/n1/2025/0109/c418962-40398533.html",
+    translationProcessNote: "Yun Liu reports drafting this translation herself, then using Claude for a comparative edit against the Chinese original. Explanatory footnotes are omitted from this reading sample.",
+    pairs: yunJewelCrabPairs,
   },
   {
     id: "minotaur-han-li",

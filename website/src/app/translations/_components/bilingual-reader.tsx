@@ -192,9 +192,11 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
           <div>
             <span>Translator</span>
             <strong>
-              <a href={activeSample.translatorBioUrl} target="_blank" rel="noreferrer">
-                {activeSample.translator}<ExternalLink aria-hidden="true" />
-              </a>
+              {activeSample.translatorBioUrl ? (
+                <a href={activeSample.translatorBioUrl} target="_blank" rel="noreferrer">
+                  {activeSample.translator}<ExternalLink aria-hidden="true" />
+                </a>
+              ) : activeSample.translator}
             </strong>
           </div>
           <div className="title-meta translated-meta">
@@ -248,6 +250,9 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
                   <h2>{activeSample.translatedTitle ?? "Translation sample"}</h2>
                   {translationOnly && <p>By {activeSample.englishAuthor}</p>}
                   <p>Translated by {activeSample.translator}</p>
+                  {activeSample.translationProcessNote && (
+                    <p className="translation-process-note">{activeSample.translationProcessNote}</p>
+                  )}
                 </div>
               </div>
             </div>

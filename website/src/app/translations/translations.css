@@ -1195,3 +1195,10 @@ button { font: inherit; }
   .bilingual-story-reader .story-spread { min-height: 180mm; }
   .sentence-pair { break-inside: avoid; }
 }
+
+.title-lockup p.translation-process-note {
+  max-width: 34ch;
+  margin: 1.5rem auto 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
