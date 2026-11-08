@@ -236,7 +236,6 @@ export const samples: TranslationSample[] = [
     translator: "Yun Liu",
     source: "《上海文学》2025年第1期 · Shanghai Literature, 2025 No. 1",
     sourceUrl: "https://www.chinawriter.com.cn/n1/2025/0109/c418962-40398533.html",
-    translationProcessNote: "Yun Liu reports drafting this translation herself, then using Claude for a comparative edit against the Chinese original. Explanatory footnotes are omitted from this reading sample.",
     pairs: yunJewelCrabPairs,
   },
   {
