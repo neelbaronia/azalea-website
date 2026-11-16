@@ -278,6 +278,12 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
                 </>
               )}
 
+              {storySpreadIndex === 0 && activeSample.translationOpeningHeading ? (
+                <h3 className="reader-translation-opening" lang="en" aria-label={`English section ${activeSample.translationOpeningHeading}`}>
+                  {activeSample.translationOpeningHeading}
+                </h3>
+              ) : null}
+
               <div className="sentence-list">
                 {visibleSpread.map(({ pair, index }) => {
                   const opening = index === 0
@@ -318,6 +324,13 @@ export function BilingualReader({ initialSampleId }: { initialSampleId: string }
                   );
                 })}
               </div>
+
+              {storySpreadIndex === spreads.length - 1 && activeSample.translationNotes?.length ? (
+                <aside className="reader-translation-notes" aria-label="Translator’s notes" lang="en">
+                  <h3>Translator’s notes</h3>
+                  {activeSample.translationNotes.map((note) => <p key={note}>{note}</p>)}
+                </aside>
+              ) : null}
 
               {storySpreadIndex === spreads.length - 1 && (
                 <div className="end-mark" aria-label="End of sample">

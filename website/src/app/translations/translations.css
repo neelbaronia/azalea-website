@@ -883,6 +883,27 @@ button { font: inherit; }
 .left-label { left: 0; padding-right: clamp(58px, 6vw, 96px); }
 .right-label { right: 0; padding-left: clamp(58px, 6vw, 96px); }
 
+.reader-translation-opening {
+  position: relative;
+  z-index: 1;
+  width: 50%;
+  margin: 0 0 16px auto;
+  padding: 0 clamp(42px, 5vw, 84px) 0 clamp(58px, 6vw, 96px);
+  font-size: 22px;
+  font-weight: 400;
+}
+.reader-translation-notes {
+  position: relative;
+  z-index: 1;
+  width: 50%;
+  margin: 24px 0 0 auto;
+  padding: 0 clamp(42px, 5vw, 84px) 0 clamp(58px, 6vw, 96px);
+  color: var(--muted);
+}
+.reader-translation-notes h3 { margin: 0 0 12px; font-family: Arial, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+.reader-translation-notes p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; }
+.translation-reader .reader-translation-notes { width: 100%; padding: 0; }
+
 .sentence-pair {
   position: relative;
   display: grid;
@@ -1177,6 +1198,8 @@ button { font: inherit; }
   .bilingual-story-reader .book-wrap { scroll-margin-top: 17rem; }
   .bilingual-story-reader .story-spread { padding: 20px 0 48px; }
   .bilingual-story-reader .sentence-pair p { font-size: 1.25rem; }
+  .reader-translation-notes { width: 100%; margin-top: 24px; padding: 0 26px; }
+  .reader-translation-opening { width: 100%; padding: 0 26px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

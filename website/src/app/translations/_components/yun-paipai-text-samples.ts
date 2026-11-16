@@ -74,16 +74,267 @@ export const yunPaipaiOriginalParagraphs: string[] = [
   "我的手机跟着我坐上装木材的卡车，吐了一路，最后安全回到了老家。在学校，我是第一个拥有手机的人。我告诉所有人，这是我爸爸送给我的。白色，翻盖，摩托罗拉，顶上绑着三种不同颜色的挂件。但我并不打算告诉他们，这里面没有电话卡。不插卡，就不会有来电，像一个永远不会说话的拍拍。点开残余的通讯录，陌生名字，陌生号码，我一遍遍按下回拨，看屏幕上那个长着省略号的电话不停抖动，再挂断，返回，一遍遍刷新着贪食蛇闯关的个人记录。至于我妈和奶奶，我学着像爸爸那样，拒绝作出任何回应。我妈觉得这是我从校门口捡来的，让我抓紧还回去，奶奶说，一定是爸爸特意给我买的玩具手机。那是二○○四年的夏天，面对人们的质问，我想起自己常在公交车站广告上见到的一行小字，或许，我应该学着像那样回答。可我怎么都想不起那个句子的顺序了，只记得，解释，保留，本次，权，最终。怪我不好，一旦离开上海，我就忘了组成它们的那套语法。",
 ];
 
-// Keep Yun’s opening section marker with her first paragraph, and her closing
-// notes with her final paragraph. This preserves both complete texts without
-// inventing Chinese equivalents or creating blank original-language rows.
-const alignedTranslations = [
-  yunPaipaiParagraphs.slice(0, 2).join("\n\n"),
-  ...yunPaipaiParagraphs.slice(2, 28),
-  yunPaipaiParagraphs.slice(28).join("\n\n"),
+// Reviewed sentence/clause boundaries. Some Chinese sentences become several
+// English sentences; split only at corresponding meaning boundaries, with all
+// punctuation and wording retained. No locale-dependent segmentation at runtime.
+const sentenceStarts: [string, string][][] = [
+  [
+    ["拍拍阿叔不是一个人，","Uncle Paipai[1] isn't one person."],
+    ["拍拍阿叔是一伙在屋里打手势的人。","Uncle Paipai is a group of people who gesture in a room."],
+    ["他们中的大多数偏瘦","Most of them were a little thin, a little pale, their hair a little long"],
+    ["同凝和路上大大小小","Compared to the businesses along Ninghe Road, big and small, Uncle Paipa"],
+    ["偶尔，他们中的","Occasionally, one or two of them would suddenly burst into loud \"ah-ah\" "],
+    ["我挤在他们当中","I squeezed in among them, looking this way and that, and it took me a lo"],
+  ],
+  [
+    ["从拍拍阿叔的地盘","Past Uncle Paipai's turf and through Qigan Lane, which forked three ways"],
+    ["他把酱缸堆满了整座后院","He had filled the whole backyard with pickle vats, among them a few blue"],
+    ["当他扛着拖把头","When he shouldered a mop head and jumped in shirtless, no one ever suspe"],
+    ["有一只大瓷缸靠在树底下","A big porcelain vat leaned at the foot of a tree, split in two by lightn"],
+    ["横躺着的，不知","One half lay on its side, and someone had planted scallions and chili pe"],
+    ["十岁的夏天","The summer I was ten, I slept in that half vat."],
+    ["入夜，贴壁","At night, it was wonderfully cool to lie against its side; when I woke a"],
+  ],
+  [
+    ["那时我第一次","It was my first time coming to Shanghai from home in Subei[2], and I wou"],
+    ["是我妈托一个","My mom had asked a cousin in the timber trade to bring me along on his w"],
+    ["出发前，我妈","Before I left, my mom told me a great many things to remember, but it wa"],
+    ["三年多没见爸爸","I hadn't seen Dad in more than three years, and I barely recognized him."],
+    ["他大概也是一样","Perhaps he felt the same."],
+    ["爸爸的店很深很窄","Dad's shop was deep and narrow; from the front to the back room there wa"],
+    ["楼上除了一台电视机","Upstairs, besides a TV and two rattan chairs, there was a big-bellied wo"],
+    ["爸爸没跟我介绍","Dad didn't introduce her, nor did he ask me to call her anything."],
+    ["他只告诉我怎么","He only told me how to remember the way in and out, how to empty the cha"],
+    ["女人忙着做饭","The woman was busy cooking and washing clothes, and didn't say much eith"],
+    ["她的肚皮已经很大了","Her belly was already very big."],
+  ],
+  [
+    ["凝和路上的生意","Eight out of ten businesses on Ninghe Road were run by people from back "],
+    ["爸爸很得意","Dad was proud of it."],
+    ["说这里是上海的小陶庄","He called the place Shanghai's Little Tao Village."],
+    ["小陶庄每家每户","Every household in Little Tao Village had a man like Dad."],
+    ["忙完早市","After the morning market, they collapsed into rattan chairs, snoring and"],
+    ["不管在哪儿","Wherever they were, talking, spitting, quarreling or shuffling mahjong t"],
+  ],
+  [
+    ["拍拍阿叔就不这样","But Uncle Paipai wasn't like that."],
+    ["他们的店像一个黑洞","Their shop was like a black hole: the moment anyone stepped inside, all "],
+    ["你必须向他们学习语法","You had to learn their grammar, using your hands, eyes and facial expres"],
+    ["每个动作都是简洁漂亮的词语","Every movement was a neat, pretty word, and every sentence had a shape t"],
+    ["听久了","After listening for a while, you would come to understand the regular ga"],
+    ["我敢说","I dare say these never included actions such as the dads clearing their "],
+    ["在众多平静交谈的拍拍里","Among the many Paipais quietly conversing, one who wore glasses was the "],
+    ["他常在阁楼熬夜学习","He often stayed up late studying in the loft and slept past noon, and wh"],
+    ["进了店","In the shop, the glasses-wearing Paipai would pull any phone out of the "],
+    ["手机上有贪食蛇","The phone had Snake and Tetris; its orange screen displayed flickering t"],
+    ["小部分按着按着","Some of the keys would suddenly freeze when pressed over and over, and i"],
+    ["可我有的是时间","But I had plenty of time."],
+    ["在这里，我的时间","Here, I had time enough to watch every Paipai leave from the register, a"],
+  ],
+  [
+    ["二","2"],
+  ],
+  [
+    ["有一天，眼镜拍拍","One day, just before the glasses-wearing Paipai left, he pointed at the "],
+    ["他“啊啊”叫了两声","He let out two \"ah-ah\" sounds, so I followed him there."],
+    ["我们选了各自","We each picked the ice pop we wanted, and when we came out, he pointed t"],
+    ["我点点头","I nodded."],
+    ["天气很热","It was very hot, and the Paipai and I waited in vain at the stop for a l"],
+    ["我猜不出","I couldn't figure out which number he was actually waiting for, until th"],
+  ],
+  [
+    ["我们在人群中晃来晃去","We swayed back and forth in the crowd like two fish, driven into the dee"],
+    ["我们就这样反反复复","We did the same thing over and over, like opening one door after another"],
+    ["整个下半日","All afternoon, from these doors, I came to know a great many advertising"],
+    ["拍拍阿叔们也从四面八方","The Paipais were hurrying back too, from every direction."],
+    ["他们围拢在收银台","They gathered around the register, gesturing excitedly, as if the day ha"],
+    ["我喜欢看他们脸上","I liked watching the expressions flash across their faces, like a videot"],
+    ["没多久，拍拍们","Before long, the Paipais walked out of the shop counting their money, sm"],
+    ["回家路上，眼镜拍拍","On the way home, the glasses-wearing Paipai pulled a one-yuan note from "],
+  ],
+  [
+    ["我明白","I understood that riding the bus was the Paipais' job, and from that day"],
+  ],
+  [
+    ["不同的拍拍有不同的乘车线路","Different Paipais had different bus routes, chosen by mood, chosen by te"],
+    ["也有几个拍拍不喜欢公交","There were also a few Paipais who didn't like buses."],
+    ["他们见哪里人多","Wherever they saw a crowd, they pushed hard to get into it: card games b"],
+    ["所有不要钱又热闹的地方","Uncle Paipai liked anywhere free and crowded, and gradually, inspired by"],
+  ],
+  [
+    ["有一个偏胖的拍拍","There was a chubby Paipai who could never walk down the street without b"],
+    ["他吃肉包","When he ate meat buns, he bought me little meat buns too."],
+    ["胖人怕热","Fat people can't stand the heat, and once he broke a sweat he couldn't w"],
+    ["他带我转进类似银行的地方","He took me into a place like a bank, where the air conditioning had chil"],
+    ["一旦有谁凑上前","Whenever someone moved closer, the Paipai pressed forward too; after a w"],
+    ["他喜欢和打瞌睡的人挨在一起","He liked to sit right next to people who were dozing off, pretending to "],
+    ["整个大厅里","In that entire hall, only I knew he was playing at being one of them."],
+  ],
+  [
+    ["有一个爱笑的拍拍","There was a Paipai who liked to laugh, and who wouldn't let himself miss"],
+    ["只要看到有人排队","As soon as he saw people lining up, he pulled me in to make a brand-new "],
+    ["不过，我们最常加入的","But the line we joined most often was at the hospital registration windo"],
+    ["拍拍双手插兜","The Paipai kept his hands in his pockets, his left foot repeatedly tappi"],
+    ["当队伍缓慢前行","As the line inched forward, he would lag a few seconds on purpose, then "],
+    ["拍拍贴上去敬礼","The Paipai pressed close, saluting and smiling apologetically; that was "],
+  ],
+  [
+    ["有一个很矮的拍拍热衷于乘电梯","There was a very short Paipai who loved riding elevators."],
+    ["我们就挤在能看见窗外风景的角落","We’d squeeze into a corner where we could see the view out the window an"],
+    ["有一个拍拍手长脚长","There was a long-limbed Paipai who walked so fast that he stirred the wi"],
+    ["我搞不清他到底喜欢什么","I never figured out what he liked."],
+    ["他像警察一样四处巡逻","He patrolled everywhere like a policeman, never drank water or looked ba"],
+    ["还有两个年轻的女拍拍，她们总是形影不离","And there were two young female Paipais who were always inseparable."],
+    ["逛逛商场","They strolled the malls and browsed clothes, and half a day would go by."],
+    ["人多处","In a crowd, one of them would pick me up with one hand, my body blocking"],
+  ],
+  [
+    ["我就像个钥匙挂件","I was like a keychain, hanging from the waistband of every Paipai."],
+    ["拍拍不说话，我也不说","The Paipais didn't speak, and neither did I."],
+    ["我只要记住两个最简单的手势","I only had to remember two simple gestures: \"pee-pee\" and \"thank you.\""],
+    ["一个动小拇指","One involved wiggling the little finger, the other the thumb; one was a "],
+    ["除此之外","Other than that, I didn't need to learn anything else; just standing the"],
+    ["等我搞明白","When I finally figured this out, I was frightened myself."],
+  ],
+  [
+    ["三","3"],
+  ],
+  [
+    ["当时，一个女人","That time, a woman on the bus suddenly screamed, without any warning."],
+    ["她原地转了一圈","She spun in a full cycle where she stood, and when her screams subsided,"],
+    ["她把目光对准了","She fixed her eyes on the Paipai closest to her."],
+    ["拍拍愣住","The Paipai froze like a startled horse, hunched his back and howled."],
+    ["他的叫声里有一种","In his howl was a kind of distortion and terror that people seldom have "],
+    ["拍拍一把将我抱到胸口","The Paipai scooped me up against his chest and wrapped his shaking arms "],
+    ["被无数双眼睛","With countless eyes bearing down on me, I was so frightened that I burst"],
+    ["人们的脸瞬间","People's faces instantly turned bewildered."],
+    ["很快，手机出现在地上","Soon, a cell phone appeared on the floor; the woman bent down to pick it"],
+    ["没有谁敢怀疑","No one dared suspect a mute with a child in his arms, and no one wanted "],
+  ],
+  [
+    ["还有一次，拍拍暴露了","Another time, when the Paipai was found out, two male passengers charged"],
+    ["被扒掉衣服时","As his clothes were being stripped off, I heard several rapid, low growl"],
+    ["除了打火机","Apart from a lighter, nothing fell to the floor, and nothing was found o"],
+    ["两站后","Two stops later we got off, and that day's work ended early."],
+    ["回家途中","On the way home, I hurried after him, close on his heels, barely daring "],
+    ["他从我的左边口袋","He fished a few bills out of my left pocket, and then a phone out of my "],
+    ["那个瞬间","At that moment he seemed as great as a magician; but also terrifying, be"],
+  ],
+  [
+    ["店里的手机就这样越变越多了","That was how the phones in the shop kept multiplying, coming fast and go"],
+    ["凝和路上每个做生意的男人","Every man doing business on Ninghe Road needed a phone, and if I’m not m"],
+    ["爸爸最喜欢用它来放歌","What Dad liked best was playing songs on it, until the singer's voice wa"],
+    ["我妈和奶奶一打电话来","Whenever my mom and Grandma called, he’d toss the phone into the pocket "],
+    ["只有在老家零零碎碎的句子面前","Only when faced with the fragmented sentences from back home would Dad c"],
+  ],
+  [
+    ["我从不羡慕爸爸的手机","I never envied Dad's phone."],
+    ["在拍拍阿叔的店里","At Uncle Paipai's shop, I was already allowed to choose any phone from t"],
+    ["我学会用这些手机拍照","I learned to take pictures with these phones and to look through the cal"],
+    ["我还可以拿走抽屉里所有的手机挂件","I could also take all the phone charms in the drawer, hang them on my ea"],
+  ],
+  [
+    ["四","4"],
+  ],
+  [
+    ["拍拍阿叔的店是在某天夜里突然倒闭的","Uncle Paipai's shop suddenly closed down one night; no one knew what had"],
+    ["一觉醒来","In the morning the roller shutter was wide open, the glass counters were"],
+    ["警察来问话时","When the police came to question them, the neighbors couldn't even say w"],
+    ["第二天，卷帘门","The next day the shutter was sealed, and Ninghe Road had one shop fewer."],
+    ["其实，这家店在或不在","In truth, with or without this shop, Little Tao Village thrived just the"],
+    ["所有人忙着用嘴巴吃","Everyone was busy eating with their mouths, talking with their mouths, b"],
+  ],
+  [
+    ["只有大肚皮女人和眼镜拍拍","Only the big-bellied woman and the glasses-wearing Paipai had a huge fig"],
+    ["他们在阁楼上激烈地","They gestured furiously at each other in the loft, every gesture as if e"],
+    ["吵到最后","By the end of the argument, the glasses-wearing Paipai took off his glas"],
+    ["他的手甩累了","His arms were worn out from flinging, his face was screwed up into wrink"],
+    ["女人抹着泪下楼","The woman wiped away her tears as she went downstairs and locked the lof"],
+  ],
+  [
+    ["爸爸得知后","When Dad found out, he flew into a rage."],
+    ["他把我扔进酱缸","He tossed me into a pickle vat, shut the lid, and went off to do his wor"],
+    ["黑色的墙壁","The black walls let through a sliver of yellow-green light."],
+    ["等到身体被腌咸菜的气味浸透","By the time the smell of pickled vegetables had soaked into my body, wha"],
+    ["我觉得自己正在变成一条贪食蛇","I felt as if I was turning into a snake, gliding in neat right angles th"],
+    ["我经过菜场","I passed the market, passed the public toilet, passed Uncle Paipai's cel"],
+    ["贪食蛇从不停留","The snake never stops; one second short and the game is over."],
+    ["我正是这样扛住了长达半日的惩罚","That was how I endured the half-day punishment."],
+    ["出来后，反而觉得","When I came out, everything around me seemed even sourer and fouler than"],
+    ["我听到爸爸主动打电话","I heard Dad call home, without anyone asking him to, saying I should com"],
+  ],
+  [
+    ["女人在饭桌上跟爸爸提议","At the dinner table, the woman suggested to Dad that since I had come al"],
+    ["她的口音我听不太懂","I couldn't quite follow her accent, but I knew what she was talking abou"],
+    ["而爸爸只顾嚼着泡椒鸡爪","But Dad just kept chewing the pickled chili chicken feet and didn’t answ"],
+    ["第二天，大肚皮女人","The next day, the big-bellied woman found the woman from the butcher sho"],
+    ["城隍庙很热闹","The City God Temple was bustling, everyone holding something to eat or d"],
+    ["我瞥见他们身上","I glimpsed the bags and pockets on them, completely unguarded, and only "],
+    ["原来城隍庙可以离小陶庄这么近","So the City God Temple could be this close to Little Tao Village: just g"],
+    ["而上一次","The last time, a Paipai with very messy hair had taken me on bus after b"],
+    ["我朝四周快速扫","I swept a quick look around but couldn't find him in the crowd."],
+  ],
+  [
+    ["那天下午","That afternoon, the woman from the butcher shop led us aimlessly around,"],
+    ["很快，天公响雷","Soon, thunder rumbled overhead, dark clouds stretched out across the sky"],
+    ["远远望去","From a distance, thick steam seemed to rise from the ground over the ent"],
+    ["我站在城隍庙的屋檐下","Standing under the eaves of the City God Temple, in a daze, I seemed to "],
+    ["那里头很空、很静","Inside, empty and quiet, it was just as it had always been."],
+    ["我闭上眼想","I closed my eyes and thought: perhaps the fire hadn't passed yet, or per"],
+  ],
+  [
+    ["五","5"],
+  ],
+  [
+    ["在上海的最后一晚","On my last night in Shanghai, the big-bellied woman gave me a two-yuan n"],
+    ["她还专程从菜市场","She had also gone to the market specially to pick out a new outfit, fold"],
+    ["眼镜拍拍不知去哪儿了","The glasses-wearing Paipai had gone off; no one knew where he’d gone, an"],
+    ["他的考试书摞得老高","His stack of exam books was piled high, leaning crookedly against the wi"],
+    ["我走过去","I went over and noticed a few lumpy things pressed at the very bottom."],
+    ["我突然想通了一个道理","It suddenly dawned on me: this was my phone, that's right, just as the p"],
+    ["我轻轻抠出最靠外的那支","I gently dug out the one on the very outside, then laid the rest flat ag"],
+    ["然后对着窗外","Then, facing the window, I deftly crooked my thumb twice; that was my gr"],
+  ],
+  [
+    ["我的手机跟着我坐上装木材的卡车","My phone rode home with me on a truck loaded with timber, threw up the w"],
+    ["在学校","At school, I was the first one to own a phone."],
+    ["我告诉所有人","I told everyone it was a gift from Dad: white, flip, Motorola, with thre"],
+    ["但我并不打算告诉他们","But I didn’t plan on telling them there was no SIM card inside."],
+    ["不插卡","With no card, no calls could come in, like a Paipai who would never spea"],
+    ["点开残余的通讯录","I tapped through what was left of the contacts, strange names, unfamilia"],
+    ["至于我妈和奶奶","As for my mom and Grandma, I learned from Dad and refused to give any an"],
+    ["我妈觉得这是我从校门口捡来的","My mom thought I had picked it up outside the school gate and told me to"],
+    ["奶奶说","Grandma said it must be a toy phone Dad had bought for me specially."],
+    ["那是二○○四年的夏天","It was the summer of 2004."],
+    ["面对人们的质问","Faced with everyone's questioning, I recalled a line of small print I’d "],
+    ["或许，我应该学着像那样回答","Perhaps I ought to learn to answer just like that."],
+    ["可我怎么都想不起那个句子的顺序了","But no matter how hard I tried, I couldn't remember the order of the wor"],
+    ["怪我不好","It's my own fault; as soon as I left Shanghai, I forgot the grammar that"],
+  ],
 ];
 
-export const yunPaipaiPairs: SentencePair[] = yunPaipaiOriginalParagraphs.map((original, index) => ({
-  original,
-  translation: alignedTranslations[index],
-}));
+function splitAtStarts(text: string, starts: string[]): string[] {
+  let searchFrom = 0;
+  const offsets = starts.map((start, index) => {
+    const offset = text.indexOf(start, searchFrom);
+    if (offset < 0 || (index === 0 && offset !== 0)) {
+      throw new Error(`Paipai alignment boundary missing: ${start}`);
+    }
+    searchFrom = offset + start.length;
+    return offset;
+  });
+  return offsets.map((offset, index) => text.slice(offset, offsets[index + 1] ?? text.length).trim());
+}
+
+export const yunPaipaiSentenceGroups: SentencePair[][] = sentenceStarts.map((starts, paragraph) => {
+  const originals = splitAtStarts(yunPaipaiOriginalParagraphs[paragraph], starts.map(([original]) => original));
+  const translations = splitAtStarts(yunPaipaiParagraphs[paragraph + 1], starts.map(([, translation]) => translation));
+  return originals.map((original, sentence) => ({
+    original,
+    translation: translations[sentence],
+  }));
+});
+
+export const yunPaipaiPairs: SentencePair[] = yunPaipaiSentenceGroups.flat();
+export const yunPaipaiOpeningHeading = yunPaipaiParagraphs[0];
+export const yunPaipaiTranslatorNotes = yunPaipaiParagraphs.slice(30);

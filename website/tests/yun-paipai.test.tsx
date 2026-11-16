@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { BilingualReader } from "@/app/translations/_components/bilingual-reader";
 import { SampleLibrary } from "@/app/translations/_components/sample-library";
 import { getSample, samples } from "@/app/translations/_components/sample-catalog";
-import { yunPaipaiOriginalParagraphs, yunPaipaiPairs, yunPaipaiParagraphs } from "@/app/translations/_components/yun-paipai-text-samples";
+import { yunPaipaiOpeningHeading, yunPaipaiOriginalParagraphs, yunPaipaiPairs, yunPaipaiParagraphs, yunPaipaiSentenceGroups, yunPaipaiTranslatorNotes } from "@/app/translations/_components/yun-paipai-text-samples";
 import { generateMetadata, generateStaticParams } from "@/app/translations/[sampleId]/page";
 
 beforeEach(() => {
@@ -27,30 +27,45 @@ it("registers Yun's second submission beside Jewel Crab without changing her fir
     originalTitle: "拍拍", translatedTitle: "Paipai", author: "王占黑",
     englishAuthor: "Wang Zhanhei", languageCode: "zh", translator: "Yun Liu",
     sourceUrl: "https://www.chinawriter.com.cn/n1/2025/0113/c418962-40400995.html",
-    pairs: yunPaipaiPairs,
+    pairs: yunPaipaiPairs, translationNotes: yunPaipaiTranslatorNotes,
+    translationOpeningHeading: yunPaipaiOpeningHeading,
   });
   expect(sample.translationParagraphs).toBeUndefined();
   expect(getSample("jewel-crab-yun-liu")!.pairs.length).toBeGreaterThan(0);
   expect(sample.translationProcessNote).toBeUndefined();
 });
 
-it("pairs the complete pasted Chinese original with Yun's unchanged translation", () => {
+it("aligns all sentences and clauses while preserving both complete submitted texts", () => {
+  const withoutWhitespace = (text: string) => text.replace(/\s/gu, "");
   expect(yunPaipaiOriginalParagraphs).toHaveLength(28);
   expect(createHash("sha256").update(yunPaipaiOriginalParagraphs.join("\n\n")).digest("hex")).toBe(
     "8ffa413245f53b6a74c68bd7602a046590796646d190b4573d14528e443aa8f3",
   );
-  expect(yunPaipaiPairs).toHaveLength(28);
-  expect(yunPaipaiPairs.map((pair) => pair.translation).join("\n\n")).toBe(yunPaipaiParagraphs.join("\n\n"));
-  expect(yunPaipaiPairs.map((pair) => pair.original)).toEqual(yunPaipaiOriginalParagraphs);
-  expect([5, 14, 19, 25].map((index) => yunPaipaiPairs[index])).toEqual([
+  expect(yunPaipaiPairs).toHaveLength(177);
+  expect(yunPaipaiSentenceGroups.map((group) => group.length)).toEqual([
+    6, 7, 11, 6, 13, 1, 6, 8, 1, 4, 7, 6, 8, 6, 1, 10, 7, 5, 4, 1, 6, 5, 10, 9, 6, 1, 8, 14,
+  ]);
+  yunPaipaiSentenceGroups.forEach((group, paragraph) => {
+    expect(group.map((pair) => pair.original).join("")).toBe(yunPaipaiOriginalParagraphs[paragraph]);
+    const expectedEnglish = yunPaipaiParagraphs[paragraph + 1];
+    expect(withoutWhitespace(group.map((pair) => pair.translation).join(""))).toBe(withoutWhitespace(expectedEnglish));
+  });
+  expect(yunPaipaiPairs.filter((pair) => /^[二三四五]$/.test(pair.original))).toEqual([
     { original: "二", translation: "2" },
     { original: "三", translation: "3" },
     { original: "四", translation: "4" },
     { original: "五", translation: "5" },
   ]);
   expect(yunPaipaiPairs.every((pair) => pair.original && pair.translation)).toBe(true);
-  expect(yunPaipaiPairs[0].translation).toBe(yunPaipaiParagraphs.slice(0, 2).join("\n\n"));
-  expect(yunPaipaiPairs.at(-1)!.translation).toBe(yunPaipaiParagraphs.slice(28).join("\n\n"));
+  expect(yunPaipaiPairs.slice(0, 2)).toEqual([
+    { original: "拍拍阿叔不是一个人，", translation: "Uncle Paipai[1] isn't one person." },
+    { original: "拍拍阿叔是一伙在屋里打手势的人。", translation: "Uncle Paipai is a group of people who gesture in a room." },
+  ]);
+  expect(yunPaipaiPairs.find((pair) => pair.translation === "Perhaps he felt the same.")?.original).toBe("他大概也是一样。");
+  expect(yunPaipaiPairs.find((pair) => pair.translation === "Grandma said it must be a toy phone Dad had bought for me specially.")?.original).toBe("奶奶说，一定是爸爸特意给我买的玩具手机。");
+  expect(yunPaipaiTranslatorNotes).toEqual(yunPaipaiParagraphs.slice(30));
+  expect(yunPaipaiOpeningHeading).toBe("1");
+  expect(yunPaipaiPairs.some((pair) => pair.translation.includes("Translator’s notes"))).toBe(false);
 });
 
 it("preserves all five sections, the full submitted wording, and all four translator notes", () => {
@@ -99,11 +114,18 @@ it("opens the bilingual reader, aligns both languages, and paginates all text an
   const next = () => screen.getAllByRole("button", { name: "Next spread", exact: true })[0] as HTMLButtonElement;
   fireEvent.click(next());
   expect(screen.getByRole("article", { name: "Side-by-side Chinese and English story excerpt, spread 1" })).toBeTruthy();
-  expect(screen.getByText(yunPaipaiOriginalParagraphs[0])).toBeTruthy();
+  expect(screen.getByText(yunPaipaiPairs[0].original)).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "English section 1" }).closest(".sentence-pair")).toBeNull();
   const firstEnglish = screen.getByRole("button", { name: "English sentence 1", exact: true });
-  expect(firstEnglish.textContent).toContain(yunPaipaiParagraphs[1]);
+  expect(firstEnglish.textContent).toContain("Uncle Paipai[1] isn't one person.");
   fireEvent.click(firstEnglish);
   expect(container.querySelector('.sentence-pair[data-sentence-pair="0"]')?.classList.contains("is-active")).toBe(true);
+  fireEvent.pointerEnter(container.querySelector('.sentence-pair[data-sentence-pair="1"]')!);
+  expect(container.querySelector('.sentence-pair[data-sentence-pair="1"]')?.classList.contains("is-active")).toBe(true);
+  fireEvent.click(screen.getByRole("button", { name: "Chinese sentence 2", exact: true }));
+  fireEvent.keyDown(screen.getByRole("button", { name: "English sentence 3", exact: true }), { key: "Enter" });
+  expect(container.querySelector('.sentence-pair[data-sentence-pair="2"]')?.classList.contains("is-active")).toBe(true);
+  expect(container.querySelectorAll(".sentence-pair.is-active")).toHaveLength(1);
   const originals: string[] = [];
   const translations: string[] = [];
   const readSpread = () => {
@@ -123,6 +145,9 @@ it("opens the bilingual reader, aligns both languages, and paginates all text an
   expect(next().disabled).toBe(true);
   expect(screen.getByText("End of sample")).toBeTruthy();
   expect(container.textContent).toContain(yunPaipaiParagraphs.at(-1)!);
-  expect(originals).toEqual(yunPaipaiOriginalParagraphs);
-  expect(translations.join("\n\n")).toBe(yunPaipaiParagraphs.join("\n\n"));
+  expect(originals).toEqual(yunPaipaiPairs.map((pair) => pair.original));
+  expect(translations).toEqual(yunPaipaiPairs.map((pair) => pair.translation));
+  const notes = screen.getByRole("complementary", { name: "Translator’s notes" });
+  yunPaipaiTranslatorNotes.forEach((note) => expect(notes.textContent).toContain(note));
+  expect(notes.closest(".sentence-pair")).toBeNull();
 });
