@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { BilingualReader } from "@/app/translations/_components/bilingual-reader";
 import { SampleLibrary } from "@/app/translations/_components/sample-library";
 import { getSample, samples } from "@/app/translations/_components/sample-catalog";
-import { yunPaipaiParagraphs } from "@/app/translations/_components/yun-paipai-text-samples";
+import { yunPaipaiOriginalParagraphs, yunPaipaiPairs, yunPaipaiParagraphs } from "@/app/translations/_components/yun-paipai-text-samples";
 import { generateMetadata, generateStaticParams } from "@/app/translations/[sampleId]/page";
 
 beforeEach(() => {
@@ -27,10 +27,30 @@ it("registers Yun's second submission beside Jewel Crab without changing her fir
     originalTitle: "拍拍", translatedTitle: "Paipai", author: "王占黑",
     englishAuthor: "Wang Zhanhei", languageCode: "zh", translator: "Yun Liu",
     sourceUrl: "https://www.chinawriter.com.cn/n1/2025/0113/c418962-40400995.html",
-    pairs: [], translationParagraphs: yunPaipaiParagraphs,
+    pairs: yunPaipaiPairs,
   });
+  expect(sample.translationParagraphs).toBeUndefined();
   expect(getSample("jewel-crab-yun-liu")!.pairs.length).toBeGreaterThan(0);
   expect(sample.translationProcessNote).toBeUndefined();
+});
+
+it("pairs the complete pasted Chinese original with Yun's unchanged translation", () => {
+  expect(yunPaipaiOriginalParagraphs).toHaveLength(28);
+  expect(createHash("sha256").update(yunPaipaiOriginalParagraphs.join("\n\n")).digest("hex")).toBe(
+    "8ffa413245f53b6a74c68bd7602a046590796646d190b4573d14528e443aa8f3",
+  );
+  expect(yunPaipaiPairs).toHaveLength(28);
+  expect(yunPaipaiPairs.map((pair) => pair.translation).join("\n\n")).toBe(yunPaipaiParagraphs.join("\n\n"));
+  expect(yunPaipaiPairs.map((pair) => pair.original)).toEqual(yunPaipaiOriginalParagraphs);
+  expect([5, 14, 19, 25].map((index) => yunPaipaiPairs[index])).toEqual([
+    { original: "二", translation: "2" },
+    { original: "三", translation: "3" },
+    { original: "四", translation: "4" },
+    { original: "五", translation: "5" },
+  ]);
+  expect(yunPaipaiPairs.every((pair) => pair.original && pair.translation)).toBe(true);
+  expect(yunPaipaiPairs[0].translation).toBe(yunPaipaiParagraphs.slice(0, 2).join("\n\n"));
+  expect(yunPaipaiPairs.at(-1)!.translation).toBe(yunPaipaiParagraphs.slice(28).join("\n\n"));
 });
 
 it("preserves all five sections, the full submitted wording, and all four translator notes", () => {
@@ -70,21 +90,39 @@ it("lists both submitted samples when the library is filtered to Yun", () => {
   ]);
 });
 
-it("opens the English reader, supports page turns, and reaches the closing notes", () => {
-  render(<BilingualReader initialSampleId="paipai-yun-liu" />);
+it("opens the bilingual reader, aligns both languages, and paginates all text and notes", () => {
+  const { container } = render(<BilingualReader initialSampleId="paipai-yun-liu" />);
   expect(screen.getByRole("heading", { level: 2, name: "Paipai" })).toBeTruthy();
-  expect(screen.getByText("By Wang Zhanhei")).toBeTruthy();
-  expect(screen.getByRole("article", { name: "English translation title page" })).toBeTruthy();
-  const next = () => screen.getAllByRole("button", { name: "Next page", exact: true })[0] as HTMLButtonElement;
+  expect(screen.getByRole("heading", { level: 2, name: "拍拍" })).toBeTruthy();
+  expect(screen.getByText("By 王占黑")).toBeTruthy();
+  expect(screen.getByRole("article", { name: "Bilingual title pages" })).toBeTruthy();
+  const next = () => screen.getAllByRole("button", { name: "Next spread", exact: true })[0] as HTMLButtonElement;
   fireEvent.click(next());
-  expect(screen.getByText(yunPaipaiParagraphs[1])).toBeTruthy();
+  expect(screen.getByRole("article", { name: "Side-by-side Chinese and English story excerpt, spread 1" })).toBeTruthy();
+  expect(screen.getByText(yunPaipaiOriginalParagraphs[0])).toBeTruthy();
+  const firstEnglish = screen.getByRole("button", { name: "English sentence 1", exact: true });
+  expect(firstEnglish.textContent).toContain(yunPaipaiParagraphs[1]);
+  fireEvent.click(firstEnglish);
+  expect(container.querySelector('.sentence-pair[data-sentence-pair="0"]')?.classList.contains("is-active")).toBe(true);
+  const originals: string[] = [];
+  const translations: string[] = [];
+  const readSpread = () => {
+    container.querySelectorAll(".sentence-pair").forEach((row) => {
+      originals.push(row.querySelector('[lang="zh"]')?.textContent ?? "");
+      translations.push(row.querySelector('[lang="en"]')?.textContent ?? "");
+    });
+  };
+  readSpread();
   let turns = 1;
   while (!next().disabled && turns < 40) {
     fireEvent.click(next());
+    readSpread();
     turns += 1;
   }
   expect(turns).toBeLessThan(40);
   expect(next().disabled).toBe(true);
   expect(screen.getByText("End of sample")).toBeTruthy();
-  expect(screen.getByText(yunPaipaiParagraphs.at(-1)!)).toBeTruthy();
+  expect(container.textContent).toContain(yunPaipaiParagraphs.at(-1)!);
+  expect(originals).toEqual(yunPaipaiOriginalParagraphs);
+  expect(translations.join("\n\n")).toBe(yunPaipaiParagraphs.join("\n\n"));
 });

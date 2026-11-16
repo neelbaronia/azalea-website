@@ -10,7 +10,7 @@ import { lynnVowinckelParagraphs } from "./lynn-text-samples";
 import { sophiaCarouselPairs, sophiaColonPairs } from "./sophia-text-samples";
 import { jordanFoolsBusPairs, jordanSubstituteForFictionPairs } from "./jordan-text-samples";
 import { yunJewelCrabPairs } from "./yun-text-samples";
-import { yunPaipaiParagraphs } from "./yun-paipai-text-samples";
+import { yunPaipaiPairs } from "./yun-paipai-text-samples";
 
 export type TranslationSample = {
   id: string;
@@ -250,8 +250,7 @@ export const samples: TranslationSample[] = [
     translator: "Yun Liu",
     source: "《上海文学》2025年第1期 · Shanghai Literature, 2025 No. 1",
     sourceUrl: "https://www.chinawriter.com.cn/n1/2025/0113/c418962-40400995.html",
-    pairs: [],
-    translationParagraphs: yunPaipaiParagraphs,
+    pairs: yunPaipaiPairs,
   },
   {
     id: "minotaur-han-li",
