@@ -7,7 +7,6 @@ export const FEATURED_IDS = [
   "the-truth-about-the-oj-simpson-trial",
   "the-golden-age-of-pirates",
   "the-homestead",
-  "tallys-corner-a-study-of-negro-streetcorner-men",
   "a-honeymoon-in-space",
   "kremlin-wives",
   "diana",
@@ -44,31 +43,12 @@ export interface SampleEntry {
   book: Book;
   audioUrl: string;
   sampleDuration: number;
-  sampleTitle?: string;
 }
 
-// The public catalog still holds an older recording. Pin this preview to the
-// current Nara chapter, copied unchanged to a public, content-versioned URL.
-const tallysCornerSample: SampleEntry = {
-  book: {
-    id: "tallys-corner-a-study-of-negro-streetcorner-men",
-    title: "Tally’s Corner",
-    author: "Elliot Liebow",
-    coverImageName: "cover.png",
-    remoteBaseURL: `${R2_BASE}/tallys-corner-a-study-of-negro-streetcorner-men`,
-    duration: 22961,
-    description: "Elliot Liebow’s landmark study follows the lives, relationships, and everyday struggles of men in a Washington, D.C., neighborhood.",
-  },
-  audioUrl: `${R2_BASE}/samples/tallys-corner/husbands-and-wives-9941b73b6fe6514b65a7.mp3`,
-  sampleDuration: 2406.3,
-  sampleTitle: "Husbands and Wives",
-};
-
 export async function getFeaturedSamples(): Promise<SampleEntry[]> {
-  // Fetch only the small metadata files for the other featured titles.
+  // These six small files contain everything we need. Don't fetch or serialize
+  // the multi-megabyte library, and don't queue requests sequentially.
   return Promise.all(FEATURED_IDS.map(async (id) => {
-    if (id === tallysCornerSample.book.id) return tallysCornerSample;
-
     const remoteBaseURL = `${R2_BASE}/${id}`;
     const response = await fetch(`${remoteBaseURL}/metadata.json`, {
       next: { revalidate: 3600 },

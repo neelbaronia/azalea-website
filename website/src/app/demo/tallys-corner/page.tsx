@@ -24,98 +24,49 @@ interface AlignmentData {
   words: AlignmentWord[];
 }
 
-interface ChapterMetadata {
-  title: string;
-  fileName: string;
-  remoteAudioURL?: string;
-  remoteAlignmentURL?: string;
-}
-
-interface BookMetadata {
-  chapters?: ChapterMetadata[];
-}
-
-const R2_BASE =
-  "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/tallys-corner-a-study-of-negro-streetcorner-men";
-const METADATA_URL = `${R2_BASE}/metadata.json`;
-const DEFAULT_AUDIO_URL = `${R2_BASE}/chapters/06-men-and-jobs.mp3`;
-const DEFAULT_ALIGNMENT_URL = `${R2_BASE}/chapters/06-men-and-jobs.alignment.json`;
-const DEFAULT_CHAPTER_LABEL = "Chapter 6: Men and Jobs";
+// Keep the audio and its text timings pinned to the same Nara recording.
+const AUDIO_URL =
+  "https://pub-ee342152cf1149298fc3cb54a286f268.r2.dev/samples/tallys-corner/husbands-and-wives-9941b73b6fe6514b65a7.mp3";
+const ALIGNMENT_URL = "/demo-data/tallys-corner-husbands-and-wives-9941b73b6fe6514b65a7.alignment.json";
+const CHAPTER_LABEL = "Husbands and Wives";
 const HIGHLIGHT_LEAD_SECONDS = 0.18;
 
 function transformAlignment(data: AlignmentData): Fragment[] {
-  const { displayText, words } = data;
-  if (words.length === 0) return [];
-
+  // Split the source text, rather than the recognized words, so punctuation
+  // and words missed by transcription remain visible in the reading view.
   const fragments: Fragment[] = [];
-  let paragraph = 0;
-  let sentenceWords: AlignmentWord[] = [words[0]];
+  const segmenter = new Intl.Segmenter("en", { granularity: "sentence" });
+  let paragraphOffset = 0;
 
-  for (let i = 1; i < words.length; i++) {
-    const prev = words[i - 1];
-    const curr = words[i];
-    const gap = displayText.slice(prev.charEnd, curr.charStart);
-
-    // Detect paragraph break (double newline) or sentence break (punct + space)
-    const isParaBreak = gap.includes("\n\n");
-    const isSentenceBreak = /[.!?]["'\u201D)]*\s/.test(gap);
-
-    if (isParaBreak || isSentenceBreak) {
-      // Flush current sentence
-      const text = displayText
-        .slice(sentenceWords[0].charStart, prev.charEnd)
-        .trim();
-      // Include trailing punctuation after last word
-      const afterLast = displayText.slice(
-        prev.charEnd,
-        curr.charStart
-      );
-      const trailingPunct = afterLast.match(/^[.!?,"'\u201D)\u2019]*/)?.[0] || "";
-      const fullText = (text + trailingPunct).trim();
-
-      if (fullText && sentenceWords.length > 0) {
-        fragments.push({
-          id: fragments.length,
-          begin: sentenceWords[0].start,
-          end: sentenceWords[sentenceWords.length - 1].end,
-          text: fullText,
-          paragraph,
-        });
+  data.displayText.split(/\n\s*\n/).forEach((paragraphText, paragraph) => {
+    const offset = data.displayText.indexOf(paragraphText, paragraphOffset);
+    paragraphOffset = offset + paragraphText.length;
+    for (const sentence of segmenter.segment(paragraphText)) {
+      const text = sentence.segment.trim();
+      if (!text) continue;
+      const previous = fragments.at(-1);
+      if (!/[\p{L}\p{N}]/u.test(text) && previous?.paragraph === paragraph) {
+        previous.text += text;
+        continue;
       }
-
-      if (isParaBreak) paragraph++;
-      sentenceWords = [curr];
-    } else {
-      sentenceWords.push(curr);
-    }
-  }
-
-  // Flush final sentence
-  if (sentenceWords.length > 0) {
-    const last = sentenceWords[sentenceWords.length - 1];
-    const text = displayText
-      .slice(sentenceWords[0].charStart, last.charEnd)
-      .trim();
-    // Grab any trailing punctuation after the last word
-    const trailing = displayText.slice(last.charEnd).match(/^[.!?,"'\u201D)\u2019]*/)?.[0] || "";
-    const fullText = (text + trailing).trim();
-    if (fullText) {
+      const charStart = offset + sentence.index;
+      const charEnd = charStart + sentence.segment.length;
+      const words = data.words.filter((word) => word.charEnd > charStart && word.charStart < charEnd);
+      const previousEnd = fragments.at(-1)?.end ?? 0;
       fragments.push({
         id: fragments.length,
-        begin: sentenceWords[0].start,
-        end: last.end,
-        text: fullText,
+        begin: words[0]?.start ?? previousEnd,
+        end: words.at(-1)?.end ?? previousEnd,
+        text,
         paragraph,
       });
     }
-  }
+  });
 
-  // Extend each fragment's end to the next fragment's begin so the
-  // highlight stays on the current sentence until the next one starts.
+  // Keep each sentence highlighted through the pause before the next one.
   for (let i = 0; i < fragments.length - 1; i++) {
     fragments[i].end = fragments[i + 1].begin;
   }
-
   return fragments;
 }
 
@@ -140,9 +91,7 @@ export default function TallysCornerDemo() {
   const [audioError, setAudioError] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [scrolledPastHeader, setScrolledPastHeader] = useState(false);
-  const [audioUrl, setAudioUrl] = useState(DEFAULT_AUDIO_URL);
-  const [alignmentUrl, setAlignmentUrl] = useState(DEFAULT_ALIGNMENT_URL);
-  const [chapterLabel, setChapterLabel] = useState(DEFAULT_CHAPTER_LABEL);
+  const [textError, setTextError] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
   const SPEEDS = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -157,37 +106,26 @@ export default function TallysCornerDemo() {
     return () => observer.disconnect();
   }, []);
 
+  // This alignment was generated from the exact audio above, not the older catalog.
   useEffect(() => {
     let cancelled = false;
-
-    fetch(METADATA_URL)
-      .then((r) => r.json())
-      .then((data: BookMetadata) => {
-        if (cancelled) return;
-        const target = data.chapters?.find((chapter) => chapter.fileName === "06-men-and-jobs.mp3");
-        if (!target) return;
-
-        if (target.remoteAudioURL) setAudioUrl(target.remoteAudioURL);
-        if (target.remoteAlignmentURL) setAlignmentUrl(target.remoteAlignmentURL);
-        if (target.title) setChapterLabel(`Chapter 6: ${target.title}`);
+    fetch(ALIGNMENT_URL)
+      .then((response) => {
+        if (!response.ok) throw new Error("Text timings unavailable");
+        return response.json() as Promise<AlignmentData>;
       })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Load alignment data from R2 and transform to sentence-level fragments
-  useEffect(() => {
-    fetch(alignmentUrl)
-      .then((r) => r.json())
-      .then((data: AlignmentData) => {
+      .then((data) => {
+        if (cancelled) return;
         setFragments(transformAlignment(data));
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, [alignmentUrl]);
+      .catch(() => {
+        if (cancelled) return;
+        setTextError(true);
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   // Find active fragment via binary search
   const findActiveIndex = useCallback(
@@ -350,7 +288,7 @@ export default function TallysCornerDemo() {
     <div className="min-h-screen bg-[#faf8f1]">
       <audio
         ref={audioRef}
-        src={audioUrl}
+        src={AUDIO_URL}
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -370,7 +308,7 @@ export default function TallysCornerDemo() {
             </h1>
             <p className="text-white/60 text-sm mt-1">by Elliot Liebow</p>
             <p className="text-white/40 text-xs mt-2 font-[family-name:var(--font-garamond)] italic">
-              {chapterLabel}
+              {CHAPTER_LABEL}
             </p>
           </div>
         </div>
@@ -395,7 +333,7 @@ export default function TallysCornerDemo() {
               <p className="text-white/50 text-xs truncate">
                 Elliot Liebow &middot;{" "}
                 <span className="italic font-[family-name:var(--font-garamond)]">
-                  {chapterLabel}
+                  {CHAPTER_LABEL}
                 </span>
               </p>
             </div>
@@ -405,6 +343,7 @@ export default function TallysCornerDemo() {
           {/* Play/pause */}
           <button
             onClick={togglePlay}
+            aria-label={playing ? "Pause narration" : "Play narration"}
             disabled={Boolean(audioError)}
             className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 text-[#2c1810] flex items-center justify-center hover:bg-amber-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -453,6 +392,7 @@ export default function TallysCornerDemo() {
           {/* Playback speed */}
           <button
             onClick={cycleSpeed}
+            aria-label={`Playback speed: ${playbackRate} times`}
             disabled={Boolean(audioError)}
             className="flex-shrink-0 px-2 py-1 rounded-md bg-white/10 text-white/70 text-xs font-bold tabular-nums hover:bg-white/20 transition-colors min-w-[3rem] disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -471,12 +411,14 @@ export default function TallysCornerDemo() {
       {/* Text area */}
       <main className="max-w-2xl mx-auto px-6 py-10">
         <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-garamond)] text-[#2c1810] text-center mb-10">
-          Men and Jobs
+          Husbands and Wives
         </h2>
         {loading ? (
           <p className="text-[#2c1810]/30 text-sm uppercase tracking-widest text-center">
             Loading...
           </p>
+        ) : textError ? (
+          <p role="status" className="text-[#2c1810]/70">Text highlighting is temporarily unavailable. You can still listen to the chapter above.</p>
         ) : (
           <div className="space-y-5">
             {paragraphs.map((para, pIdx) => (

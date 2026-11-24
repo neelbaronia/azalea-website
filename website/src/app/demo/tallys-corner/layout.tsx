@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Tally's Corner — Chapter 6: Men and Jobs | Azalea Labs Demo",
+  title: "Tally's Corner — Husbands and Wives | Azalea Labs Demo",
   description:
-    "Listen to Chapter 6 of Tally's Corner by Elliot Liebow with synchronized text highlighting. A demo of Azalea Labs narrated audiobooks.",
+    "Listen to Husbands and Wives from Tally's Corner by Elliot Liebow with synchronized text highlighting. A narration sample for rights holder review.",
 };
 
 export default function TallysCornerLayout({
