@@ -2,12 +2,21 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
+type VoiceRole = "narrator" | "male" | "female";
+
+const VOICE_STYLES = {
+  narrator: { label: "Narrator", color: "#fbbf24", text: "text-[#2c1810]/70", active: "bg-amber-200/80 text-[#2c1810]" },
+  male: { label: "Male dialogue", color: "#7fb7ad", text: "text-[#28635b]", active: "bg-[#7fb7ad]/45 text-[#19463f]" },
+  female: { label: "Female dialogue", color: "#d99078", text: "text-[#914a39]", active: "bg-[#d99078]/35 text-[#753927]" },
+} as const;
+
 interface Fragment {
   id: number;
   begin: number;
   end: number;
   text: string;
   paragraph: number;
+  voice: VoiceRole;
 }
 
 interface AlignmentWord {
@@ -22,6 +31,7 @@ interface AlignmentWord {
 interface AlignmentData {
   displayText: string;
   words: AlignmentWord[];
+  voiceRanges: { charStart: number; charEnd: number; voice: VoiceRole }[];
 }
 
 // Keep the audio and its text timings pinned to the same Nara recording.
@@ -59,6 +69,7 @@ function transformAlignment(data: AlignmentData): Fragment[] {
         end: words.at(-1)?.end ?? previousEnd,
         text,
         paragraph,
+        voice: data.voiceRanges.find((range) => range.charEnd > charStart && range.charStart < charEnd)?.voice ?? "narrator",
       });
     }
   });
@@ -267,6 +278,15 @@ export default function TallysCornerDemo() {
   }, [activeIndex]);
 
   const progress = duration ? (currentTime / duration) * 100 : 0;
+  const timelineDuration = duration || fragments.at(-1)?.end || 0;
+  const dialogueRanges = timelineDuration ? fragments
+    .filter((fragment) => fragment.voice !== "narrator")
+    .map((fragment) => ({
+      id: fragment.id,
+      voice: fragment.voice,
+      left: fragment.begin / timelineDuration * 100,
+      width: (fragment.end - fragment.begin) / timelineDuration * 100,
+    })) : [];
 
   // Group fragments by paragraph
   const paragraphs: Fragment[][] = [];
@@ -373,15 +393,23 @@ export default function TallysCornerDemo() {
           >
             <div className="w-full h-2 bg-white/15 rounded-full relative">
               <div
-                className="absolute inset-y-0 left-0 bg-amber-400 rounded-full pointer-events-none"
+                className="absolute inset-y-0 left-0 z-10 bg-amber-400 rounded-full pointer-events-none"
                 style={{
                   width: `${progress}%`,
                   transition: dragging ? "none" : "width 0.1s",
                 }}
               />
+              {dialogueRanges.map((range) => (
+                <div
+                  key={range.id}
+                  data-voice={range.voice}
+                  className="absolute inset-y-0 z-20 pointer-events-none"
+                  style={{ left: `${range.left}%`, width: `${range.width}%`, backgroundColor: VOICE_STYLES[range.voice].color }}
+                />
+              ))}
             </div>
             <div
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
+              className="absolute top-1/2 z-30 -translate-y-1/2 w-4 h-4 bg-amber-400 rounded-full shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
               style={{ left: `calc(${progress}% - 8px)` }}
             />
           </div>
@@ -398,6 +426,14 @@ export default function TallysCornerDemo() {
           >
             {playbackRate}x
           </button>
+        </div>
+        <div aria-label="Voice color key" className="max-w-2xl mx-auto px-6 pb-3 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-white/75">
+          {Object.entries(VOICE_STYLES).map(([voice, style]) => (
+            <span key={voice} className="inline-flex items-center gap-1.5">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: style.color }} />
+              {style.label}
+            </span>
+          ))}
         </div>
         {audioError && (
           <div className="max-w-2xl mx-auto px-6 pb-3">
@@ -428,15 +464,19 @@ export default function TallysCornerDemo() {
               >
                 {para.map((frag) => {
                   const isActive = frag.id === activeIndex;
+                  const voiceStyle = VOICE_STYLES[frag.voice];
                   return (
                     <span
                       key={frag.id}
+                      data-voice={frag.voice}
+                      data-active={isActive || undefined}
+                      title={voiceStyle.label}
                       ref={isActive ? activeRef : undefined}
                       onClick={() => seekToFragment(frag)}
                       className={`cursor-pointer transition-all duration-200 rounded-sm ${
                         isActive
-                          ? "bg-amber-200/80 text-[#2c1810] px-0.5 -mx-0.5"
-                          : "hover:bg-amber-100/50"
+                          ? `${voiceStyle.active} px-0.5 -mx-0.5`
+                          : `${voiceStyle.text} hover:bg-amber-100/50`
                       }`}
                     >
                       {frag.text}{" "}
