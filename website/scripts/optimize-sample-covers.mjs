@@ -11,6 +11,7 @@ const featuredBooks = [
   { id: "the-truth-about-the-oj-simpson-trial", extension: "jpg" },
   { id: "the-generals-cook", extension: "jpg" },
   { id: "the-homestead", extension: "jpg" },
+  { id: "tallys-corner-a-study-of-negro-streetcorner-men", extension: "png" },
   { id: "a-honeymoon-in-space", extension: "png" },
   { id: "anthropology-and-modern-life", extension: "png" },
   { id: "diana", extension: "png" },

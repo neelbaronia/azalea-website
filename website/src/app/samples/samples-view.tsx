@@ -30,7 +30,7 @@ function SamplesNavbar() {
   );
 }
 
-function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry & { priority: boolean }) {
+function SamplePlayer({ book, audioUrl, sampleDuration, sampleTitle, priority }: SampleEntry & { priority: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -148,7 +148,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <article className="flex h-full min-w-0 flex-col gap-3 border border-[#d9d9d5] border-t-[3px] border-t-[#3566ff] bg-[#f8f8f4] p-4 transition-colors hover:border-[#080808]/35 md:p-3">
+    <article id={book.id} className="scroll-mt-20 flex h-full min-w-0 flex-col gap-3 border border-[#d9d9d5] border-t-[3px] border-t-[#3566ff] bg-[#f8f8f4] p-4 transition-colors hover:border-[#080808]/35 md:p-3">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -175,6 +175,7 @@ function SamplePlayer({ book, audioUrl, sampleDuration, priority }: SampleEntry 
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-semibold leading-snug text-[#080808]" style={{ fontFamily: "var(--font-garamond), Georgia, serif" }}>{book.title}</h3>
           <p className="mt-1 text-[11px] leading-snug text-[#080808]/60">{book.author} &middot; {formatDuration(book.duration)}</p>
+          {sampleTitle && <p className="mt-1 text-[11px] leading-snug text-[#3566ff]">Sample: {sampleTitle}</p>}
         </div>
       </div>
 
