@@ -35,9 +35,21 @@ const campaigns: Campaign[] = [
     cover: "/sample-covers/the-truth-about-the-oj-simpson-trial.webp",
     spotify: "https://open.spotify.com/show/75D1hObxJKNo3s5CGktk1f",
     summary:
-      "A source-labeled Evidence File separates witness testimony from a prosecution theory in Bailey’s defense-side memoir.",
+      "Audiobook trailers and source-labeled Evidence Files explore Bailey’s defense-side account of the trial.",
     accent: "#16877f",
     clips: [
+      {
+        id: "oj-glove-dare",
+        title: "The Dare Behind the Glove",
+        format: "AI-created audiobook trailer · 50 seconds",
+        featuredOrder: 2,
+        video: "/marketing/microdramas/oj-glove-dare.mp4",
+        poster: "/marketing/microdramas/oj-glove-dare.jpg",
+        caption:
+          "You’ve seen the glove. But why did Simpson try it on?\n\nA short trailer for F. Lee Bailey’s defense-side account of the glove demonstration. The film distinguishes Bailey’s recollection from prosecutors’ alternative explanations involving shrinkage and latex gloves.",
+        note:
+          "AI-generated illustrative scenes, not archival footage. Based on F. Lee Bailey’s defense-side account.",
+      },
       {
         id: "oj-evidence-02",
         title: "The “Mysterious” Dark Bag",
@@ -77,9 +89,21 @@ const campaigns: Campaign[] = [
     cover: "/sample-covers/killing-kennedy.webp",
     spotify: "https://open.spotify.com/show/6PLTDAQcC6aIFOdOMWE2bN",
     summary:
-      "A historical explainer uses attributed accounts and a visual timeline to frame one focused question.",
+      "Fictional microdramas and attributed historical explainers open focused questions around the book.",
     accent: "#b33d3c",
     clips: [
+      {
+        id: "killing-kennedy-bus",
+        title: "The Bus to Induction",
+        format: "AI-created microdrama · 63 seconds",
+        featuredOrder: 1,
+        video: "/marketing/microdramas/killing-kennedy-bus.mp4",
+        poster: "/marketing/microdramas/killing-kennedy-bus.jpg",
+        caption:
+          "What if Kennedy had lived?\n\nIn this fictional family scene set in 1965, two brothers face a departure for induction and argue over the war’s path. A limited 1963 withdrawal plan and Johnson’s later escalation frame the question—not a claim that we can know what Kennedy would have done.",
+        note:
+          "AI-created fictional scene inspired by history, not archival footage.",
+      },
       {
         id: "kennedy-evidence-09a",
         title: "Conflicting Casket Arrival Times",

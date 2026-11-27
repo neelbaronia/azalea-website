@@ -3,7 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { Campaign } from "./marketing-types";
+import { getMarketingSlides, type Campaign } from "./marketing-types";
+
+function pauseOtherVideos(slides: (HTMLElement | null)[], playing: HTMLVideoElement | null) {
+  for (const slide of slides) {
+    const video = slide?.querySelector("video");
+    if (video && video !== playing && !video.paused) video.pause();
+  }
+}
 
 function centerSlide(track: HTMLElement, slide: HTMLElement, behavior: ScrollBehavior) {
   const trackRect = track.getBoundingClientRect();
@@ -102,14 +109,17 @@ function CampaignDetails({
 }
 
 export default function MarketingCarousel({ campaigns }: { campaigns: Campaign[] }) {
-  const slides = campaigns
-    .flatMap((campaign) => campaign.clips.map((clip) => ({ campaign, clip })))
-    .map((slide, index) => ({ ...slide, number: index + 1 }));
+  const slides = getMarketingSlides(campaigns);
 
   const trackRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const activeVideo = slideRefs.current[activeIndex]?.querySelector("video") ?? null;
+    pauseOtherVideos(slideRefs.current, activeVideo);
+  }, [activeIndex]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -222,6 +232,7 @@ export default function MarketingCarousel({ campaigns }: { campaigns: Campaign[]
                   controls={index === activeIndex}
                   playsInline
                   preload="none"
+                  onPlay={(event) => pauseOtherVideos(slideRefs.current, event.currentTarget)}
                   poster={clip.poster}
                   aria-label={clip.title}
                   className="aspect-[9/16] h-[clamp(280px,46vh,440px)] w-auto max-w-full bg-black object-contain shadow-md md:h-[clamp(340px,62vh,600px)]"
